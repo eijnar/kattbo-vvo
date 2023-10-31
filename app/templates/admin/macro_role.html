@@ -1,0 +1,18 @@
+{% macro display_roles(roles) %}
+
+{% for role in roles %}
+    {% if role.name == "superadmin" or role.name == "admin" %}
+        <span class="badge bg-danger">
+           <b>{{ role.name }}</b> 
+        </span>
+    {% elif role.name == "hunter" %}
+        <span class="badge bg-success">
+           <b>{{ role.name }}</b> 
+        </span>
+    {% else %}
+        <span class="badge bg-info">
+            {{ role.name }}
+        </span>
+    {% endif %}
+{% endfor %}
+{% endmacro %}

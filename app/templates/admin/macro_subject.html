@@ -1,0 +1,9 @@
+{% macro display_subjects(subjects) %}
+
+{% for subject in subjects %}
+    <span class="badge bg-light">
+        {{ subject.subject.name }}
+    </span>
+{% endfor %}
+
+{% endmacro %}

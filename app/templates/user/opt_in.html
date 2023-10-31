@@ -1,0 +1,19 @@
+{% extends "base_layout/base_layout.html" %}
+
+{% block content %}
+<h1>Opt-in to Subjects</h1>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+
+    {% for subject in subjects %}
+    <div>
+        <h2>{{ subject.name }}</h2>
+        {{ form['subject_email_' ~ subject.id].label }} {{ form['subject_email_' ~ subject.id]() }}<br>
+        {{ form['subject_sms_' ~ subject.id].label }} {{ form['subject_sms_' ~ subject.id]() }}<br>
+    </div>
+{% endfor %}
+
+    {{ form.submit }}
+</form>
+{% endblock %}

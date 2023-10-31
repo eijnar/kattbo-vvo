@@ -1,0 +1,25 @@
+{% macro opt_in(subjects, opt_in_form) %}
+<form method="POST" action="{{ url_for('update_profile') }}">
+  {{ opt_in_form.hidden_tag() }}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>SMS</th>
+        <th>Epost</th>
+        <th>Beskrivning</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for subject in subjects %}
+      <tr>
+        <th class="text-center">{{ opt_in_form['subject_sms_' ~ subject.id|string]() }}</td>
+        <th class="text-center">{{ opt_in_form['subject_email_' ~ subject.id|string]() }}</td>
+        <td>{{ subject.description }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {{ opt_in_form.submit(class='form-control bg-success col-2') }}
+</form>
+
+{% endmacro %}
