@@ -4,40 +4,50 @@ from flask_security import Security, SQLAlchemyUserDatastore, auth_required, has
 from flask_security.models import fsqla_v3 as fsqla
 from flask_mailman import Mail
 from flask_marshmallow import Marshmallow
-from flask_babel import Babel
-from config import Development
+from flask_babel import Babel, format_date, format_datetime
+from app.config import Development
 
+db = SQLAlchemy()
+mail = Mail()
+babel = Babel()
 
-app = Flask(__name__)
-app.config.from_object('config.Development')
-app.config['BABEL_DEFAULT_LOCALE'] = 'en'
-db = SQLAlchemy(app)
-mail = Mail(app)
-ma = Marshmallow(app)
-babel = Babel(app)
+def create_app()
+    app = Flask(__name__)
 
-fsqla.FsModels.set_db_info(db)
+    app.config.from_object(Development)
 
-from app.models import User, Role  # noqa
+    db.init_app(app)
+    fsqla.FsModels.set_db_info(db)
 
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-app.security = Security(app, user_datastore)
-usr = UserDatastore(User, Role)
-babel.init_app(app)
+    db.init_app(app)
+    mail.init_app(app)
+    babel.init_app(app)
 
-# Routes to import
-from app import routes  # noqa
-from app.user import routes  # noqa
-from app.admin import routes  # noqa
-from app.event import routes  # noqa
+    app.jinja_env.globals['format_date'] = format_date
+    app.jinja_env.globals['format_datetime'] = format_datetime
 
-# Add all registered users to the default 'user' role
-#@user_registered.connect_via(app)
-#def user_registered_sighandler(sender, user, **extra):
-#    default_role = Role.query.filter_by(name='user').first()
-#    user.roles.append(default_role)
-#    db.session.commit()
+    from app.users.models import User, Role  # noqa
+    user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+    app.security = Security(app, user_datastore)
 
-# Make sure that that all databases are accounted for
-with app.app_context():
-    db.create_all()
+    from app.users.routes import users
+    from app.admin.routes import admin
+    from app.events.routes import events
+    from app.main.routes import main
+    app.register_blueprint(users)
+    app.register_blueprint(admin)
+    app.register_blueprint(events)
+    app.register_blueprint(main)
+
+    # Add all registered users to the default 'user' role
+    #@user_registered.connect_via(app)
+    #def user_registered_sighandler(sender, user, **extra):
+    #    default_role = Role.query.filter_by(name='user').first()
+    #    user.roles.append(default_role)
+    #    db.session.commit()
+
+    # Make sure that that all databases are accounted for
+    with app.app_context():
+        db.create_all()
+
+    return app

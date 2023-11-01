@@ -1,17 +1,18 @@
-from app import app, db
+from app import db
 from datetime import datetime
-from flask_security import auth_required, roles_accepted, current_user, login_required
-from flask import render_template, flash, redirect, url_for
-from app.event.models import Event, EventDay, UserEvent
-from app.event.forms import EventForm, AcceptEventForm
-from app.models import User
+from flask_security import current_user, login_required
+from flask import Blueprint, render_template, flash, redirect, url_for
+from app.events.models import Event, EventDay, UserEvent
+from app.events.forms import EventForm, AcceptEventForm
 
-@app.route('/event')
+events = Blueprint('events', __name__, template_folder='templates')
+
+@events.route('/event')
 def list_events():
     events = Event.query.all()
     return render_template('event/list_events.html.j2', events=events)
 
-@app.route('/event/edit/<int:id>', methods=['GET', 'POST'])
+@events.route('/event/edit/<int:id>', methods=['GET', 'POST'])
 def edit_event(id):
     event = Event.query.get_or_404(id)
     form = EventForm(obj=event)
@@ -23,7 +24,7 @@ def edit_event(id):
         return redirect(url_for('list_events'))
     return render_template('event/edit_event.html.j2', form=form, event=event)
 
-@app.route('/event/delete/<int:id>', methods=['POST'])
+@events.route('/event/delete/<int:id>', methods=['POST'])
 def delete_event(id):
     event = Event.query.get_or_404(id)
     db.session.delete(event)
@@ -31,7 +32,7 @@ def delete_event(id):
     flash('The event has been successfully deleted.', 'success')
     return redirect(url_for('create_event'))
 
-@app.route('/event/create', methods=['GET', 'POST'])
+@events.route('/event/create', methods=['GET', 'POST'])
 def create_event():
     event_form = EventForm()
     if event_form.validate_on_submit():
@@ -56,7 +57,7 @@ def create_event():
         print("Form errors:", event_form.errors)  # Add this line
     return render_template('event/create_event.html.j2', event_form=event_form)
 
-@app.route('/event/accept/<int:event_id>', methods=['GET', 'POST'])
+@events.route('/event/accept/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def accept_event(event_id):
     event = Event.query.get_or_404(event_id)

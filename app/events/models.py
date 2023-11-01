@@ -1,7 +1,7 @@
 from app import db
 from flask_security.models import fsqla_v3 as fsqla
 from app.mixins import TrackingMixin
-
+from app.tags.models import Tags
 
 class Event(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -11,6 +11,7 @@ class Event(db.Model, TrackingMixin):
     # Relationships
     days = db.relationship('EventDay', back_populates='event')
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    tags = db.relationship('Tags', secondary='event_tags', back_populates='events')
 
 class EventDay(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,3 +35,9 @@ class UserEvent(db.Model, TrackingMixin):
     user = db.relationship('User', back_populates='user_events')
     day = db.relationship('EventDay', back_populates='user_events')
 
+class EventTags(db.Model, TrackingMixin):
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Relationships
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'), primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='CASCADE'), primary_key=True)

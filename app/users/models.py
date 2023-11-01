@@ -1,6 +1,7 @@
 from app import db
 from flask_security.models import fsqla_v3 as fsqla
-from app.event.models import UserEvent, EventDay
+from app.tags.models import Tags
+from app.events.models import UserEvent, EventDay
 from app.mixins import TrackingMixin
 
 
@@ -19,9 +20,9 @@ class User(db.Model, fsqla.FsUserMixin):
 
     # Relationships
     roles = db.relationship('Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic'))
-    subjects = db.relationship('UserSubject', back_populates='user')
     user_events = db.relationship('UserEvent', back_populates='user')
     created_events = db.relationship('Event', backref='creator', lazy='dynamic')
+    tags = db.relationship('Tags', secondary='user_tags', back_populates='users')
 
     def __repr__(self):
         return str(self.__dict__)
@@ -31,30 +32,12 @@ class Role(db.Model, fsqla.FsRoleMixin):
     def __repr__(self):
         return str(self.__dict__)
 
-class Subject(db.Model, TrackingMixin):
-    __tablename__ = 'subject'
-    
+
+class UserTags(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.Text)
+    subscribe_sms = db.Column(db.Boolean, default=False)
+    subscribe_email = db.Column(db.Boolean, default=False)
 
     # Relationships
-    user_subjects = db.relationship('UserSubject', back_populates='subject')
-
-    def __repr__(self):
-        return str(self.__dict__)
-    
-class UserSubject(db.Model, TrackingMixin):
-    __tablename__ = 'user_subject'
-
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
-    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id', ondelete='CASCADE'), primary_key=True)
-    opt_in_email = db.Column(db.Boolean, default=False)
-    opt_in_sms = db.Column(db.Boolean, default=False)
-
-    # Relationships
-    user = db.relationship('User', back_populates='subjects')
-    subject = db.relationship('Subject', back_populates='user_subjects')
-
-    def __repr__(self):
-        return str(self.__dict__)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id', ondelete='CASCADE'), primary_key=True)

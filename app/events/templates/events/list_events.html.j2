@@ -19,13 +19,12 @@
       <td>{{ event.description }}</td>
       <td>
         {% set dates = event.days|map(attribute='date')|list|sort %}
-        {{ dates[0].strftime('%d %B') }} - {{ dates[-1].strftime('%d %B') }}    
+        {{ format_date(dates[0], format='dd MMMM') }} - {{ format_date(dates[-1], format='dd MMMM') }}
       </td>
       <td>
-      {% for date in dates %}
-      {{ date.strftime('%A') }}
-      {{ babel.format_datetime(date, format='EEEE') }}
-      {% endfor %}</td>
+        {% for date in dates %}
+        {{ format_datetime(date, format='EEEE') }}
+        {% endfor %}</td>
     </tr>
     {% endfor%}
   </tbody>
