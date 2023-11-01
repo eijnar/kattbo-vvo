@@ -6,5 +6,4 @@ from app.models import User
 
 @app.route("/")
 def home():
-    flash('Testmeddelande', 'info')
     return render_template("main/index.html")

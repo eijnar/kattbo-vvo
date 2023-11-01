@@ -1,5 +1,5 @@
 {% macro userinfo(profile_form) %}
-<form action="" method="post" class="needs-validation" novalidate>
+<form action="" id="userinfoform" method="post" class="needs-validation" novalidate>
     {{ profile_form.hidden_tag() }}
     <div>
         <label for="validationFirstName" class="form-label"><b>{{ profile_form.first_name.label }}</b></label>
@@ -54,7 +54,7 @@
         </div>
     </div>
     <div>
-        {{ profile_form.submit(class='form-control bg-success') }}
+        {{ profile_form.submit(class='form-control bg-success', id="userinfoform") }}
     </div>
 </form>
 

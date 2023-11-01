@@ -1,0 +1,30 @@
+{% extends "base_layout/base_layout.html" %}
+
+{% block content %}
+    <div class="container">
+        <h1>Edit Hunt</h1>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control") }}
+                {% if form.name.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.name.errors[0] }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-control") }}
+                {% if form.description.errors %}
+                    <div class="invalid-feedback">
+                        {{ form.description.errors[0] }}
+                    </div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary">Save changes</button>
+        </form>
+        <a href="{{ url_for('list_hunts') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+{% endblock %}

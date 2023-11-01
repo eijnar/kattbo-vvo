@@ -1,0 +1,35 @@
+{% extends "base_layout/base_layout.html" %}
+{% block content %}
+
+<h1>Kommande händelser</h1>
+
+<table class="table table-striped-columns">
+  <thead>
+    <tr>
+      <th scope="col" class="col-1">händelse</th>
+      <th>information</th>
+      <th scope="col" class="col-3">datum</th>
+      <th scope="col" class="col-2">dagar</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for event in events %}
+    <tr>
+      <td>{{ event.name }}</td>
+      <td>{{ event.description }}</td>
+      <td>
+        {% set dates = event.days|map(attribute='date')|list|sort %}
+        {{ dates[0].strftime('%d %B') }} - {{ dates[-1].strftime('%d %B') }}    
+      </td>
+      <td>
+      {% for date in dates %}
+      {{ date.strftime('%A') }}
+      {{ babel.format_datetime(date, format='EEEE') }}
+      {% endfor %}</td>
+    </tr>
+    {% endfor%}
+  </tbody>
+</table>
+
+
+{% endblock %}

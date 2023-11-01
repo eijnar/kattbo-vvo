@@ -17,20 +17,19 @@
     <div data-bs-spy="scroll" data-bs-target="#navbar-profile" data-bs-smooth-scroll="true" class="scrollspy-example-2"
       tabindex="0">
       <div id="userinfo">
-        <h4>Användarinformation</h4>
-        <p>
-          {{ userinfo(profile_form) }}
+        <p class="fw-bolder fs-1">Användarinformation</p>
+        {{ userinfo(profile_form) }}
         </p>
       </div>
       <div id="subjects">
-        <h4>Ämnen</h4>
-        <p>
-          {{ opt_in(subjects, opt_in_form) }}
+        <p class="fw-bolder fs-1">Ämnen</p>
+        <p class="fs-5">Här väljer du vad och hur du vill ta del av informationen som kommer</p>
+        {{ opt_in(subjects, opt_in_form) }}
         </p>
       </div>
       </p>
     </div>
   </div>
 </div>
-f
+
 {%endblock%}

@@ -1,0 +1,38 @@
+{% extends "base_layout.html" %}
+
+{% block content %}
+  <h1>Accept Hunt</h1>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.days.label }}
+      {{ form.days(class="form-control") }}
+      {% if form.days.errors %}
+        <div class="invalid-feedback">
+          {{ form.days.errors[0] }}
+        </div>
+      {% endif %}
+    </div>
+    <div class="form-check">
+      <input type="checkbox" class="form-check-input" id="selectAll" onclick="selectAllDays()">
+      <label class="form-check-label" for="selectAll">Select All</label>
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+  </form>
+
+  <script>
+    function selectAllDays() {
+      const selectAllCheckbox = document.getElementById('selectAll');
+      const daysSelect = document.getElementById('days');
+      if (selectAllCheckbox.checked) {
+        for (let option of daysSelect.options) {
+          option.selected = true;
+        }
+      } else {
+        for (let option of daysSelect.options) {
+          option.selected = false;
+        }
+      }
+    }
+  </script>
+{% endblock %}

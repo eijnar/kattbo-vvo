@@ -1,6 +1,6 @@
 from app import app, db
 from flask_security import auth_required, roles_accepted, current_user, permissions_accepted
-from flask import render_template_string, redirect, url_for, flash, request, render_template, jsonify
+from flask import redirect, url_for, flash, request, render_template, jsonify
 from app.user.forms import UpdateProfileForm, OptInFormMeta
 from app.models import Subject, UserSubject
 
@@ -12,7 +12,15 @@ def update_profile():
     subjects = Subject.query.all()
     OptInForm = OptInFormMeta(subjects)
     opt_in_form = OptInForm()
-    if opt_in_form.validate_on_submit():
+    if profile_form.validate_on_submit() and profile_form.submit.data:
+        current_user.email = profile_form.email.data
+        current_user.phone_number = profile_form.phone_number.data
+        current_user.first_name = profile_form.first_name.data
+        current_user.last_name = profile_form.last_name.data
+        db.session.commit()
+        flash('Din profil har blivit uppdaterad', category='success')
+        return redirect(url_for('update_profile'))
+    elif opt_in_form.validate_on_submit() and opt_in_form.submit.data:
         for subject in subjects:
             email_field = 'subject_email_' + str(subject.id)
             sms_field = 'subject_sms_' + str(subject.id)
@@ -29,16 +37,10 @@ def update_profile():
             user_subject.opt_in_email = getattr(opt_in_form, email_field).data
             user_subject.opt_in_sms = getattr(opt_in_form, sms_field).data
         db.session.commit()
-        flash('Opt-in choices updated successfully!', 'success')
-    
-    if profile_form.validate_on_submit():
-        current_user.email = profile_form.email.data
-        current_user.phone_number = profile_form.phone_number.data
-        current_user.first_name = profile_form.first_name.data
-        current_user.last_name = profile_form.last_name.data
-        db.session.commit()
-        flash('Din profil har blivit uppdaterad', category='success')
+        flash('Du har uppdaterat dina kontaktvägar!', 'success')
         return redirect(url_for('update_profile'))
+    
+
     elif request.method == 'GET':
         profile_form.email.data = current_user.email
         profile_form.phone_number.data = current_user.phone_number

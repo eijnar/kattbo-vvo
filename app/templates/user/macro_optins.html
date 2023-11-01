@@ -1,5 +1,5 @@
 {% macro opt_in(subjects, opt_in_form) %}
-<form method="POST" action="{{ url_for('update_profile') }}">
+<form id="optinform" method="POST" action="{{ url_for('update_profile') }}">
   {{ opt_in_form.hidden_tag() }}
   <table class="table">
     <thead>
@@ -12,14 +12,18 @@
     <tbody>
       {% for subject in subjects %}
       <tr>
-        <th class="text-center">{{ opt_in_form['subject_sms_' ~ subject.id|string]() }}</td>
-        <th class="text-center">{{ opt_in_form['subject_email_' ~ subject.id|string]() }}</td>
+        <th class="text-center align-middle"><div class="form-check form-switch">
+          {{ opt_in_form['subject_sms_' ~ subject.id|string](class="form-check-input", type="checkbox", id="flexSwitchCheckDefault") }}
+        </div></td>
+        <th class="text-center align-middle"><div class="form-check form-switch">
+          {{ opt_in_form['subject_email_' ~ subject.id|string](class="form-check-input", type="checkbox", id="flexSwitchCheckDefault") }}
+        </div></td>
         <td>{{ subject.description }}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  {{ opt_in_form.submit(class='form-control bg-success col-2') }}
+  {{ opt_in_form.submit(class='form-control bg-success col-2', id="optinform") }}
 </form>
 
 {% endmacro %}
