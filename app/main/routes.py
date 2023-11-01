@@ -1,8 +1,7 @@
-from flask_security import auth_required, roles_accepted, current_user
-from flask import Blueprint render_template_string, render_template, flash
+from flask import Blueprint, render_template
 
-main = Blueprint('main', __name__)
+main = Blueprint('main', __name__, template_folder='templates')
 
 @main.route("/")
 def home():
-    return render_template("main/index.html")
+    return render_template("main/index.html.j2")

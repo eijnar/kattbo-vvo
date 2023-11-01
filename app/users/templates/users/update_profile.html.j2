@@ -1,6 +1,6 @@
-{% from "user/macro_userinfo.html" import userinfo %}
-{% from "user/macro_optins.html" import opt_in %}
-{% extends "base_layout/base_layout.html" %}
+{% from "user/macro_userinfo.html.j2" import userinfo %}
+{% from "user/macro_optins.html.j2" import opt_in %}
+{% extends "layout.html.j2" %}
 {% block content %}
 
 <div class="row">

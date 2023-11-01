@@ -21,7 +21,7 @@ def edit_event(id):
         event.description = form.description.data
         db.session.commit()
         flash('The event has been updated!', 'success')
-        return redirect(url_for('list_events'))
+        return redirect(url_for('events.list_events'))
     return render_template('event/edit_event.html.j2', form=form, event=event)
 
 @events.route('/event/delete/<int:id>', methods=['POST'])
@@ -30,7 +30,7 @@ def delete_event(id):
     db.session.delete(event)
     db.session.commit()
     flash('The event has been successfully deleted.', 'success')
-    return redirect(url_for('create_event'))
+    return redirect(url_for('events.create_event'))
 
 @events.route('/event/create', methods=['GET', 'POST'])
 def create_event():
@@ -52,7 +52,7 @@ def create_event():
 
         db.session.commit()
         flash('The event has been created!', 'success')
-        return redirect(url_for('create_event'))
+        return redirect(url_for('events.create_event'))
     else:
         print("Form errors:", event_form.errors)  # Add this line
     return render_template('event/create_event.html.j2', event_form=event_form)
@@ -69,5 +69,5 @@ def accept_event(event_id):
             db.session.add(user_event)
         db.session.commit()
         flash('You have successfully registered for the event!', 'success')
-        return redirect(url_for('event_details', event_id=event.id))
+        return redirect(url_for('events.event_details', event_id=event.id))
     return render_template('event/list_events.html.j2', form=form, event=event)

@@ -1,5 +1,5 @@
 {% macro opt_in(subjects, opt_in_form) %}
-<form id="optinform" method="POST" action="{{ url_for('update_profile') }}">
+<form id="optinform" method="POST" action="{{ url_for('users.update_profile') }}">
   {{ opt_in_form.hidden_tag() }}
   <table class="table">
     <thead>

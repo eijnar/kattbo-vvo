@@ -1,6 +1,6 @@
 from app import db
-from flask_security import auth_required, roles_accepted, current_user, permissions_accepted
-from flask import Blueprint redirect, url_for, flash, request, render_template, jsonify
+from flask_security import auth_required, current_user
+from flask import Blueprint, redirect, url_for, flash, request, render_template
 from app.users.forms import UpdateProfileForm, OptInFormMeta
 from app.users.models import UserTags
 from app.tags.models import Tags
@@ -22,7 +22,7 @@ def update_profile():
         current_user.last_name = profile_form.last_name.data
         db.session.commit()
         flash('Din profil har blivit uppdaterad', category='success')
-        return redirect(url_for('update_profile'))
+        return redirect(url_for('users.update_profile'))
     elif opt_in_form.validate_on_submit() and opt_in_form.submit.data:
         for tag in tags:
             email_field = 'tag_email_' + str(tag.id)
@@ -41,7 +41,7 @@ def update_profile():
             user_tag.opt_in_sms = getattr(opt_in_form, sms_field).data
         db.session.commit()
         flash('Du har uppdaterat dina kontaktvägar!', 'success')
-        return redirect(url_for('update_profile'))
+        return redirect(url_for('users.update_profile'))
     
 
     elif request.method == 'GET':
@@ -56,4 +56,4 @@ def update_profile():
                 sms_field = getattr(opt_in_form, 'tag_sms_' + str(tag.id))
                 email_field.data = user_tag.opt_in_email
                 sms_field.data = user_tag.opt_in_sms
-    return render_template('users/update_profile.html', title='Update Profile', profile_form=profile_form, tags=tags, opt_in_form=opt_in_form, user=current_user)
+    return render_template('users/update_profile.html.j2', title='Update Profile', profile_form=profile_form, tags=tags, opt_in_form=opt_in_form, user=current_user)

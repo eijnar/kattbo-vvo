@@ -1,6 +1,6 @@
-{% from "admin/macro_subject.html" import display_subjects %}
-{% from "admin/macro_role.html" import display_roles %}
-{% extends "base_layout/base_layout.html" %}
+{% from "admin/macro_subject.html.j2" import display_subjects %}
+{% from "admin/macro_role.html.j2" import display_roles %}
+{% extends "layout.html.j2" %}
 {% block content %}
 
 <table class="table">
