@@ -1,6 +1,7 @@
 from app import db
 from flask_security import auth_required, current_user
 from flask import Blueprint, redirect, url_for, flash, request, render_template
+from sqlalchemy import or_
 from app.users.forms import UpdateProfileForm, OptInFormMeta
 from app.users.models import UserTags
 from app.tags.models import Tags
@@ -12,7 +13,7 @@ users = Blueprint('users', __name__, template_folder='templates')
 def update_profile():
     user = current_user
     profile_form = UpdateProfileForm()
-    tags = Tags.query.all()
+    tags = Tags.query.filter(or_(Tags.allow_email == True, Tags.allow_sms == True)).all()
     OptInForm = OptInFormMeta(tags)
     opt_in_form = OptInForm()
     if profile_form.validate_on_submit() and profile_form.submit.data:
@@ -25,20 +26,23 @@ def update_profile():
         return redirect(url_for('users.update_profile'))
     elif opt_in_form.validate_on_submit() and opt_in_form.submit.data:
         for tag in tags:
-            email_field = 'tag_email_' + str(tag.id)
-            sms_field = 'tag_sms_' + str(tag.id)
-            user_tag = UserTag.query.filter_by(
+            user_tag = UserTags.query.filter_by(
                 user_id=current_user.id,
                 tag_id=tag.id,
             ).first()
             if user_tag is None:
-                user_tag = UserTag(
+                user_tag = UserTags(
                     user_id=current_user.id,
                     tag_id=tag.id,
                 )
                 db.session.add(user_tag)
-            user_tag.opt_in_email = getattr(opt_in_form, email_field).data
-            user_tag.opt_in_sms = getattr(opt_in_form, sms_field).data
+            if tag.allow_email:
+                email_field = 'tag_email_' + str(tag.id)
+                user_tag.subscribe_email = getattr(opt_in_form, email_field).data
+            if tag.allow_sms:
+                sms_field = 'tag_sms_' + str(tag.id)
+                user_tag.subscribe_sms = getattr(opt_in_form, sms_field).data
+            
         db.session.commit()
         flash('Du har uppdaterat dina kontaktvägar!', 'success')
         return redirect(url_for('users.update_profile'))
@@ -52,8 +56,12 @@ def update_profile():
         for tag in tags:
             user_tag = UserTags.query.filter_by(user_id=user.id, tag_id=tag.id).first()
             if user_tag:
-                email_field = getattr(opt_in_form, 'tag_email_' + str(tag.id))
-                sms_field = getattr(opt_in_form, 'tag_sms_' + str(tag.id))
-                email_field.data = user_tag.opt_in_email
-                sms_field.data = user_tag.opt_in_sms
+                if tag.allow_email:
+                    email_field = getattr(opt_in_form, 'tag_email_' + str(tag.id))
+                    email_field.data = user_tag.subscribe_email
+                if tag.allow_sms:
+                    sms_field = getattr(opt_in_form, 'tag_sms_' + str(tag.id))
+                    sms_field.data = user_tag.subscribe_sms
+                
+                
     return render_template('users/update_profile.html.j2', title='Update Profile', profile_form=profile_form, tags=tags, opt_in_form=opt_in_form, user=current_user)

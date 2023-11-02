@@ -1,0 +1,64 @@
+{% extends "layout.html.j2" %}
+{% block content %}
+<p class="display-4">{{ page_title }}</p>
+<table class="table">
+  <thead>
+    <tr>
+      {% for attr in items[0].__dict__ if not attr.startswith('_') %}
+        <th>{{ attr }}</th>
+      {% endfor %}
+        <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+      <tr>
+        {% for attr, value in item.__dict__.items() if not attr.startswith('_') %}
+          <td class="align-middle">{{ value }}</td>
+        {% endfor %}
+          <td>
+          <button data-modal-title="ID: {{ item.id }}" href="https://ifconfig.me" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal">
+            edit
+          </button>
+          </td>
+      </tr> 
+    {% endfor %}
+  </tbody>
+</table>
+<!-- Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="editModalLabel"><div class="modal-title">dsafsadf</div></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-data"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const modal = document.getElementById('editModal')
+modal.addEventListener('show.bs.modal', function (event) {
+    
+  // event.preventDefault();
+  const link = event.relatedTarget.getAttribute('href');
+  const title = event.relatedTarget.getAttribute('data-modal-title');
+  const modalTitle = document.querySelector('.modal-title');
+  const modalData = document.querySelector('.modal-data');
+  modalTitle.textContent = title;
+
+  fetch(link).then(res => res.text()).then(html => {
+    modalData.innerHTML = html; 
+  });
+});
+</script>
+
+{% endblock %}

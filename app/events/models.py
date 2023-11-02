@@ -1,9 +1,9 @@
 from app import db
-from flask_security.models import fsqla_v3 as fsqla
-from app.mixins import TrackingMixin
+from app.utils.mixins import TrackingMixin
 from app.tags.models import Tags
+from app.utils.crud import CRUDMixin
 
-class Event(db.Model, TrackingMixin):
+class Event(db.Model, TrackingMixin, CRUDMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
@@ -13,7 +13,11 @@ class Event(db.Model, TrackingMixin):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     tags = db.relationship('Tags', secondary='event_tags', back_populates='events')
 
-class EventDay(db.Model, TrackingMixin):
+    @classmethod
+    def list_all(cls):
+        return cls.get_all()
+
+class EventDay(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'), nullable=False)
     date = db.Column(db.Date, nullable=False)
@@ -23,10 +27,8 @@ class EventDay(db.Model, TrackingMixin):
     event = db.relationship('Event', back_populates='days')
     user_events = db.relationship('UserEvent', back_populates='day')
 
-class UserEvent(db.Model, TrackingMixin):
+class UserEvent(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, nullable=False)
-    updated_at = db.Column(db.DateTime, nullable=False)
     accepted_at = db.Column(db.DateTime, nullable=True)
     
     # Relationships
@@ -35,8 +37,8 @@ class UserEvent(db.Model, TrackingMixin):
     user = db.relationship('User', back_populates='user_events')
     day = db.relationship('EventDay', back_populates='user_events')
 
-class EventTags(db.Model, TrackingMixin):
-    id = db.Column(db.Integer, primary_key=True)
+class EventTags(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     # Relationships
     event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'), primary_key=True)

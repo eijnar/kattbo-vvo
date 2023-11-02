@@ -1,0 +1,23 @@
+{% extends "layout.html.j2" %}
+
+{%block content%}
+<h1>Register for Event Day</h1>
+<p>{{ event.name }}</p>
+<p>{{ event.description }}</p>
+<form method="POST" action="">
+  {{ form.hidden_tag() }}
+  <div>
+    {{ form.event_days.label }}<br>
+    {% for subfield in form.event_days %}
+      <label>{{ subfield.label }}</label>{{ subfield }}
+    {% endfor %}
+    {% if form.event_days.errors %}
+      <div class="errors">{{ form.event_days.errors[0] }}</div>
+    {% endif %}
+  </div>
+  <div>
+    {{ form.submit }}
+  </div>
+</form>
+
+{% endblock %}

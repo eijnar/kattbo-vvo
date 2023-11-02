@@ -9,9 +9,9 @@ class UpdateProfileForm(FlaskForm):
     last_name = StringField('Efternamn')
     email = StringField('E-post', validators=[InputRequired(message="Du måste fylla i detta!"), Email()])
     phone_number = StringField('Mobilnummer')
-    submit = SubmitField('Uppdatera användarinformation')
+    submit = SubmitField('Uppdatera')
 
-def OptInFormMeta(subjects):
+def OptInFormMeta(tags):
     class Meta(DefaultMeta):
         pass
 
@@ -20,7 +20,7 @@ def OptInFormMeta(subjects):
         'Meta': Meta,
     }
 
-    for subject in subjects:
-        attrs['subject_email_' + str(subject.id)] = BooleanField(subject.name + ' Email')
-        attrs['subject_sms_' + str(subject.id)] = BooleanField(subject.name + ' SMS')
+    for tag in tags:
+        attrs['tag_email_' + str(tag.id)] = BooleanField(tag.name + ' Email')
+        attrs['tag_sms_' + str(tag.id)] = BooleanField(tag.name + ' SMS')
     return type('OptInForm', (FlaskForm,), attrs)

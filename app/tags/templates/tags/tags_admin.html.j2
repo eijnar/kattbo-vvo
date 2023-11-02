@@ -1,0 +1,30 @@
+{% extends "layout.html.j2" %}
+{% block content %}
+
+<table class="table">
+    <tbody>
+        <tr>
+            <td><b>Name</b></td>
+            <td><b>Beskrivning</b></td>
+            <td><b>E-post</b></td>
+            <td><b>SMS</b></td>
+            <td><b>Skapad</b></td>
+            <td><b>Hantera</b></td>
+        </tr>
+        {% for tag in tags %}
+        <tr>
+            <td>{{ tag.name }}</td>
+            <td>{{ tag.description }}</td>
+            <td>{{ tag.allow_sms }}</td>
+            <td>{{ tag.allow_email }}</td>
+            <td>{{ tag.created_at }}</td>
+            <form action="{{ url_for('tags.delete_tag', id=tag.id )}}" method="POST"><td>
+                <button type="submit" class="btn btn-sm"><span class="material-icons text-danger" style="font-size: 20px;">ta bort</span></button>
+            </td></form>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}

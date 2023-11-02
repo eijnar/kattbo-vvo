@@ -2,7 +2,8 @@ from app import db
 from flask_security.models import fsqla_v3 as fsqla
 from app.tags.models import Tags
 from app.events.models import UserEvent, EventDay
-from app.mixins import TrackingMixin
+from app.utils.mixins import TrackingMixin
+from app.utils.crud import CRUDMixin
 
 
 roles_users = db.Table(
@@ -12,7 +13,7 @@ roles_users = db.Table(
     extend_existing=True
 )
 
-class User(db.Model, fsqla.FsUserMixin):
+class User(db.Model, fsqla.FsUserMixin, CRUDMixin):
     # Extra fields from the default FsUserMixin
     first_name = db.Column(db.String(255))
     last_name = db.Column(db.String(255))
@@ -24,8 +25,9 @@ class User(db.Model, fsqla.FsUserMixin):
     created_events = db.relationship('Event', backref='creator', lazy='dynamic')
     tags = db.relationship('Tags', secondary='user_tags', back_populates='users')
 
-    def __repr__(self):
-        return str(self.__dict__)
+    @classmethod
+    def list_all(cls):
+        return cls.get_all()
 
 class Role(db.Model, fsqla.FsRoleMixin):
     # Use the built in functions for now
@@ -33,8 +35,8 @@ class Role(db.Model, fsqla.FsRoleMixin):
         return str(self.__dict__)
 
 
-class UserTags(db.Model, TrackingMixin):
-    id = db.Column(db.Integer, primary_key=True)
+class UserTags(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     subscribe_sms = db.Column(db.Boolean, default=False)
     subscribe_email = db.Column(db.Boolean, default=False)
 

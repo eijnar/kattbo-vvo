@@ -6,7 +6,7 @@
 <form method="POST">
     {{ form.hidden_tag() }}
 
-    {% for subject in subjects %}
+    {% for subject in tags %}
     <div>
         <h2>{{ subject.name }}</h2>
         {{ form['subject_email_' ~ subject.id].label }} {{ form['subject_email_' ~ subject.id]() }}<br>

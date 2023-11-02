@@ -23,6 +23,7 @@ def create_app():
 
     app.jinja_env.globals['format_date'] = format_date
     app.jinja_env.globals['format_datetime'] = format_datetime
+    app.jinja_env.globals['getattr'] = getattr
 
     from app.users.models import User, Role  # noqa
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)
@@ -32,19 +33,14 @@ def create_app():
     from app.admin.routes import admin
     from app.events.routes import events
     from app.main.routes import main
-    app.register_blueprint(users)
-    app.register_blueprint(admin)
-    app.register_blueprint(events)
+    from app.tags.routes import tags
     app.register_blueprint(main)
+    app.register_blueprint(users, url_prefix='/user')
+    app.register_blueprint(events, url_prefix='/events')
+    app.register_blueprint(admin, url_prefix='/admin')
+    app.register_blueprint(tags, url_prefix='/admin')
 
-    # Add all registered users to the default 'user' role
-    #@user_registered.connect_via(app)
-    #def user_registered_sighandler(sender, user, **extra):
-    #    default_role = Role.query.filter_by(name='user').first()
-    #    user.roles.append(default_role)
-    #    db.session.commit()
-
-    # Make sure that that all databases are accounted for
+    # Make sure that that all tables are accounted for
     with app.app_context():
         db.create_all()
 
