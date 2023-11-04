@@ -53,7 +53,7 @@ modal.addEventListener('show.bs.modal', function (event) {
   const title = event.relatedTarget.getAttribute('data-modal-title');
   const modalTitle = document.querySelector('.modal-title');
   const modalData = document.querySelector('.modal-data');
-  modalTitle.textContent = title;
+  modalTitle.textContent = title;n
 
   fetch(link).then(res => res.text()).then(html => {
     modalData.innerHTML = html; 

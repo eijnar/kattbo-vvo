@@ -15,7 +15,7 @@
           <a class="nav-link" href="{{ url_for('events.list_events') }}">Händelser</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('events.register_event_day', event_id=1)}}">register</a>
+           
         </li>
       </ul>
       {% if current_user.is_authenticated %}
@@ -24,9 +24,9 @@
           Admin
         </button>
         <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="{{ url_for('admin.list_users')}}">Användare</a></li>
-          <li><a class="dropdown-item" href="{{ url_for('admin.list_tagss')}}">Tags</a></li>
-          <li><a class="dropdown-item" href="{{ url_for('admin.list_events')}}">Events</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('admin.index')}}">Användare</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('admin.index')}}">Tags</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('admin.index')}}">Events</a></li>
         </ul>
       </div>
       <a href="{{ url_for('users.update_profile') }}" class="btn btn-outline-light me-2">Ändra profil</a>

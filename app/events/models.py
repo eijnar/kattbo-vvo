@@ -7,6 +7,7 @@ class Event(db.Model, TrackingMixin, CRUDMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    event_type = db.Column(db.String(100), nullable=False)
 
     # Relationships
     days = db.relationship('EventDay', back_populates='event')
@@ -17,7 +18,7 @@ class Event(db.Model, TrackingMixin, CRUDMixin):
     def list_all(cls):
         return cls.get_all()
 
-class EventDay(db.Model):
+class EventDay(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'), nullable=False)
     date = db.Column(db.Date, nullable=False)
@@ -27,9 +28,8 @@ class EventDay(db.Model):
     event = db.relationship('Event', back_populates='days')
     user_events = db.relationship('UserEvent', back_populates='day')
 
-class UserEvent(db.Model):
+class UserEvent(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
-    accepted_at = db.Column(db.DateTime, nullable=True)
     
     # Relationships
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
@@ -37,7 +37,7 @@ class UserEvent(db.Model):
     user = db.relationship('User', back_populates='user_events')
     day = db.relationship('EventDay', back_populates='user_events')
 
-class EventTags(db.Model):
+class EventTags(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     # Relationships

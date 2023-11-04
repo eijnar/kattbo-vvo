@@ -8,10 +8,12 @@
       <th>information</th>
       <th scope="col" class="col-3">datum</th>
       <th scope="col" class="col-2">dagar</th>
+      <th scope="col">anmälda</th>
+      <th scope="col">df</th>
     </tr>
   </thead>
   <tbody>
-    {% for event in events %}
+    {% for event, accepted_users_count in events %}
     <tr>
       <td>{{ event.name }}</td>
       <td>{{ event.description }}</td>
@@ -20,11 +22,19 @@
         {{ format_date(dates[0], format='dd MMMM') }} - {{ format_date(dates[-1], format='dd MMMM') }}
       </td>
       <td>
-        {% for date in dates %}
-        {{ format_datetime(date, format='EEEE') }}
-        {% endfor %}</td>
+        {% for event_date in dates %}
+        {{ format_datetime(event_date, format='EEEE') }}
+        {%endfor%}
+      </td>
+      <td>
+        {{ accepted_users_count }}
+      </td>
+      <td>
+        <a class="nav-link" href="{{ url_for('events.register_event_day', event_id=event.id)}}">Anmälan</a>
+      </td>
     </tr>
     {% endfor%}
   </tbody>
 </table>
+
 {% endblock %}
