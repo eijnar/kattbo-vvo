@@ -33,17 +33,17 @@
   {% endif %}
 
 </head>
+
 <body>
 
   <!-- Navigational bar -->
   {% include "navbar.html.j2" %}
 
   <!-- Content area -->
-
-  <div class="container-xl h-100 pt-5">
+  
+  <div class="container-lg container-fluid h-100 pt-5 bg-light shadow-sm">
     {% block content %}{% endblock %}
   </div>
-
   {% block modal %} {% endblock %}
   <!-- Toast area -->
   <div class="toast-container position-absolute p-3 bottom-0 end-0">

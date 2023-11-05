@@ -1,6 +1,27 @@
 {% extends "layout.html.j2" %}
 {% block content %}
-<h1>Kommande händelser</h1>
+
+<div class="d-flex bd-highlight">
+  <div class="p-2 flex-grow-1 bd-highlight">
+    <h4>Kommande händelser</h5>
+  </div>
+
+  <div class="p-2 bd-highlight">
+    <div class="btn-group">
+      <a href="{{ url_for('events.create_event')}}" class="btn btn-primary btn" type="button">
+        Ny händelse
+      </a>
+      <button type="button" class="btn btn btn-secondary dropdown-toggle dropdown-toggle-split"
+        data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="visually-hidden">Toggle Dropdown</span>
+      </button>
+      <ul class="dropdown-menu">
+        ...
+      </ul>
+    </div>
+  </div>
+</div>
+
 <table class="table table-striped-columns">
   <thead>
     <tr>
@@ -13,7 +34,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for event, accepted_users_count in events %}
+    {% for event, subscriber_count in events %}
     <tr>
       <td>{{ event.name }}</td>
       <td>{{ event.description }}</td>
@@ -27,7 +48,7 @@
         {%endfor%}
       </td>
       <td>
-        {{ accepted_users_count }}
+        {{ subscriber_count }}
       </td>
       <td>
         <a class="nav-link" href="{{ url_for('events.register_event_day', event_id=event.id)}}">Anmälan</a>

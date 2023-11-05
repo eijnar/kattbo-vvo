@@ -1,6 +1,6 @@
 from flask_security import current_user, login_required
 from flask import Blueprint, current_app, render_template, flash, redirect, url_for, request
-from sqlalchemy.sql import func, case
+from sqlalchemy.orm import aliased
 from app import db
 from flask_jwt_extended import decode_token
 from datetime import datetime
@@ -15,13 +15,21 @@ events = Blueprint('events', __name__, template_folder='templates')
 @events.route('/')
 def list_events():
 
-    # This counts event_days, needs improving
-    events = db.session.query(Event, func.count(UserEvent.user).label('accepted_users_count')) \
-        .join(EventDay, Event.id == EventDay.event_id) \
-        .outerjoin(UserEvent, EventDay.id == UserEvent.day_id) \
-        .filter(UserEvent.accepted_at.isnot(None) | UserEvent.accepted_at.is_(None)) \
-        .group_by(Event.id) \
-        .all()
+    events = db.session.query(
+        Event,
+        db.func.count(
+            db.func.distinct(UserEvent.user_id)).label('subscriber_count')
+    ).join(
+        EventDay, EventDay.event_id == Event.id
+    ).outerjoin(
+        UserEvent, UserEvent.day_id == EventDay.id
+    ).group_by(
+        Event
+    ).having(
+        db.func.max(EventDay.date) > datetime.utcnow()
+    ).order_by(
+        db.func.min(EventDay.date)
+    ).all()
 
     return render_template('events/list_events.html.j2', events=events)
 
