@@ -2,60 +2,47 @@
 {% block content %}
 
 <div class="d-flex bd-highlight">
-  <div class="p-2 flex-grow-1 bd-highlight">
-    <h4>Kommande händelser</h5>
-  </div>
-
-  <div class="p-2 bd-highlight">
-    <div class="btn-group">
-      <a href="{{ url_for('events.create_event')}}" class="btn btn-primary btn" type="button">
-        Ny händelse
-      </a>
-      <button type="button" class="btn btn btn-secondary dropdown-toggle dropdown-toggle-split"
-        data-bs-toggle="dropdown" aria-expanded="false">
-        <span class="visually-hidden">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu">
-        ...
-      </ul>
-    </div>
+  <div class="flex-grow-1 bd-highlight">
+    <div class="display-3">Kommande händelser</div>
   </div>
 </div>
-
-<table class="table table-striped-columns">
-  <thead>
-    <tr>
-      <th scope="col" class="col-1">händelse</th>
-      <th>information</th>
-      <th scope="col" class="col-3">datum</th>
-      <th scope="col" class="col-2">dagar</th>
-      <th scope="col">anmälda</th>
-      <th scope="col">df</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for event, subscriber_count in events %}
-    <tr>
-      <td>{{ event.name }}</td>
-      <td>{{ event.description }}</td>
-      <td>
-        {% set dates = event.days|map(attribute='date')|list|sort %}
-        {{ format_date(dates[0], format='dd MMMM') }} - {{ format_date(dates[-1], format='dd MMMM') }}
-      </td>
-      <td>
-        {% for event_date in dates %}
-        {{ format_datetime(event_date, format='EEEE') }}
-        {%endfor%}
-      </td>
-      <td>
-        {{ subscriber_count }}
-      </td>
-      <td>
-        <a class="nav-link" href="{{ url_for('events.register_event_day', event_id=event.id)}}">Anmälan</a>
-      </td>
-    </tr>
-    {% endfor%}
-  </tbody>
-</table>
+<div class="row p-3">
+  <div class="col">
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th scope="col" class="col-1">händelse</th>
+          <th>datum</th>
+          <th scope="col" class="col-2">dagar</th>
+          <th scope="col" class="col-1">anmälda</th>
+          <th scope="col">#</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event, subscriber_count in events %}
+        <tr>
+          <td class="align-middle">{{ event.name }}</td>
+          <td class="align-middle">
+            {% set dates = event.event_days|map(attribute='date')|list|sort %}
+            {{ format_date(dates[0], format='dd MMMM (YYYY)') }} - {{ format_date(dates[-1], format='dd MMMM (YYYY)') }}
+          </td>
+          <td class="align-middle">
+            {% for event_date in dates %}
+            <b>{{ format_datetime(event_date, format='EEEE') }}</b>
+            {%endfor%}
+          </td>
+          <td class="align-middle">
+            {{ subscriber_count }}
+          </td>
+          <td class="align-middle justify-content-end col-2">
+            <a href="{{ url_for('events.register_event', event_id=event.id)}}" class="btn btn-outline-success">Anmäl
+              dig</a>
+          </td>
+        </tr>
+        {% endfor%}
+      </tbody>
+    </table>
+  </div>
+</div>
 
 {% endblock %}

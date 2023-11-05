@@ -4,10 +4,10 @@ from sqlalchemy.orm import aliased
 from app import db
 from flask_jwt_extended import decode_token
 from datetime import datetime
-from app.events.models import Event, EventDay, UserEvent
+from app.events.models import Event, EventDay, UsersEvents
 from app.events.forms import EventForm, RegisterEventDayForm
 from app.users.models import User
-from app.tags.models import Tags
+from app.tag.models import Tag, TagCategory
 
 events = Blueprint('events', __name__, template_folder='templates')
 
@@ -18,11 +18,11 @@ def list_events():
     events = db.session.query(
         Event,
         db.func.count(
-            db.func.distinct(UserEvent.user_id)).label('subscriber_count')
+            db.func.distinct(UsersEvents.user_id)).label('subscriber_count')
     ).join(
         EventDay, EventDay.event_id == Event.id
     ).outerjoin(
-        UserEvent, UserEvent.day_id == EventDay.id
+        UsersEvents, UsersEvents.day_id == EventDay.id
     ).group_by(
         Event
     ).having(
@@ -40,7 +40,7 @@ def create_event():
 
     event_form = EventForm()
     # Populate choices for tags field
-    event_form.tags.choices = [(t.id, t.name) for t in Tags.query.all()]
+    event_form.tags.choices = [(t.id, t.name) for t in TagCategory.query.all()]
 
     if event_form.validate_on_submit():
         event = Event(
@@ -54,7 +54,7 @@ def create_event():
 
         # Handle tags
         for tag_id in event_form.tags.data:
-            tag = Tags.query.get(tag_id)
+            tag = Tag.query.get(tag_id)
             if tag:
                 event.tags.append(tag)
 
@@ -121,9 +121,9 @@ def quick_register():
     return redirect(url_for('main.home'))
 
 
-@events.route('/register_event_day/<int:event_id>', methods=['GET', 'POST'])
+@events.route('/<int:event_id>/register', methods=['GET', 'POST'])
 @login_required
-def register_event_day(event_id):
+def register_event(event_id):
     event = Event.query.get_or_404(event_id)
     form = RegisterEventDayForm()
     form.event_days.choices = [(ed.id, ed.date) for ed in event.days]
@@ -142,9 +142,9 @@ def register_event_day(event_id):
 
         db.session.commit()
         flash('You have successfully registered for the event days!', 'success')
-        return redirect(url_for('events.register_event_day', event_id=event_id))
+        return redirect(url_for('events.list_events', event_id=event_id))
 
     # Select all event days by default
     form.event_days.data = [choice[0] for choice in form.event_days.choices]
 
-    return render_template('events/register_event_day.html', form=form, event=event)
+    return render_template('events/event_form.html.j2', form=form, event=event)

@@ -1,0 +1,28 @@
+{% extends "layout.html.j2" %}
+{% block content %}
+
+{% set dates = event.days|map(attribute='date')|list|sort %}
+
+<h1>Anmäl dig till {{ event.name }}</h1>{{ format_date(dates[0], format='dd MMMM') }} - {{ format_date(dates[-1],
+format='dd MMMM') }}
+<p>{{ event.description }}</p>
+
+<form method="POST" action="" class="form">
+  {{ form.hidden_tag() }}
+  <div>
+    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group"></div>
+    {% for subfield in form.event_days %}
+
+    {{ subfield(class="btn-check") }}
+    {{ subfield.label(class="btn btn-outline-success")}}
+
+    {% endfor %}
+    {{ form.submit(class="btn btn-secondary") }}
+  </div>
+  {% if form.event_days.errors %}
+  <div class="errors">{{ form.event_days.errors[0] }}</div>
+  {% endif %}
+
+  </div>
+</form>
+{% endblock %}

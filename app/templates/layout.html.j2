@@ -37,44 +37,21 @@
 <body>
 
   <!-- Navigational bar -->
-  {% include "navbar.html.j2" %}
+
+  {% include "nav_menu.html.j2" %}
 
   <!-- Content area -->
-  
-  <div class="container-lg container-fluid h-100 pt-5 bg-light shadow-sm">
+  <div class="container-xl h-100 p-5 bg-light shadow-sm">
+
     {% block content %}{% endblock %}
   </div>
-  {% block modal %} {% endblock %}
-  <!-- Toast area -->
-  <div class="toast-container position-absolute p-3 bottom-0 end-0">
+    
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
+    {% include "nav_toast.html.j2" %}
 
-    <script>
-      $(document).ready(function () {
-        $('.toast').toast('show');
-      });
-    </script>
 
-    {% for category, message in messages %}
 
-    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header bg-{{ category }}">
-
-        <strong class="me-auto"><span class="material-icons align-bottom text-light btn"><b>Info</b></span></strong>
-        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-      </div>
-      <div class="toast-body">
-        {{ message }}
-      </div>
-    </div>
-
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-  </div>
+ 
   <!-- Script area -->
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
     integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"

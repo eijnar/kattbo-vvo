@@ -4,8 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_security import Security, SQLAlchemyUserDatastore, auth_required, hash_password, UserDatastore, user_registered
 from flask_security.models import fsqla_v3 as fsqla
 from flask_mailman import Mail
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
 from flask_babel import Babel, format_date, format_datetime
 from app.config import Development
 
@@ -13,7 +11,6 @@ from app.config import Development
 db = SQLAlchemy()
 mail = Mail()
 babel = Babel()
-admin = Admin()
 jwt = JWTManager()
 
 
@@ -25,7 +22,6 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
     babel.init_app(app)
-    admin.init_app(app)
     jwt.init_app(app)
 
     fsqla.FsModels.set_db_info(db)
@@ -43,14 +39,12 @@ def create_app():
     from app.events.routes import events
     from app.main.routes import main
     from app.utils.routes import utils
+    from app.tag.routes import tags
+    app.register_blueprint(tags)
     app.register_blueprint(main)
     app.register_blueprint(utils)
     app.register_blueprint(users, url_prefix='/user')
     app.register_blueprint(events, url_prefix='/events')
-
-    # Flask-Admin setup
-    admin.add_view(ModelView(User, db.session))
-    admin.add_view(ModelView(Role, db.session))
 
     # Custom URL shortening with JTW tokens. This function is mainly used for
     # quick registration
@@ -60,7 +54,7 @@ def create_app():
         registration_route='/events/quick_registration'
     )
 
-    # At last, create the database structure.
+    # At last, create the database structure within the construct.
     with app.app_context():
         db.create_all()
 

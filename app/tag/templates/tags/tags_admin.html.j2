@@ -5,7 +5,7 @@
     <tbody>
         <tr>
             <td><b>Name</b></td>
-            <td><b>Beskrivning</b></td>
+            <td><b>Description</b></td>
             <td><b>E-post</b></td>
             <td><b>SMS</b></td>
             <td><b>Skapad</b></td>
@@ -15,8 +15,7 @@
         <tr>
             <td>{{ tag.name }}</td>
             <td>{{ tag.description }}</td>
-            <td>{{ tag.allow_sms }}</td>
-            <td>{{ tag.allow_email }}</td>
+            <td>{{ tag.category }}</td>
             <td>{{ tag.created_at }}</td>
             <form action="{{ url_for('tags.delete_tag', id=tag.id )}}" method="POST"><td>
                 <button type="submit" class="btn btn-sm"><span class="material-icons text-danger" style="font-size: 20px;">ta bort</span></button>
