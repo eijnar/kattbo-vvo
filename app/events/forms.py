@@ -4,10 +4,8 @@ from wtforms.fields import StringField, SubmitField, TextAreaField, SelectMultip
 from wtforms.validators import DataRequired, Length
 
 class EventForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=50)])
-    event_type = SelectField('Event Type', validators=[DataRequired()], choices=[('conference', 'Conference'), ('seminar', 'Seminar'), ('workshop', 'Workshop')])
+    tag_category = SelectField('Event Type', validators=[DataRequired()], coerce=int)
     description = TextAreaField('Description', validators=[DataRequired(), Length(min=2, max=500)])
-    tags = SelectMultipleField('Tag', coerce=int)  # Define tags field as a multi-select field with integer values
     dates = StringField('Dates', validators=[DataRequired()])
     submit = SubmitField('Create Event')
 

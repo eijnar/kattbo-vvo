@@ -4,24 +4,27 @@ from app.utils.crud import CRUDMixin
 
 class Event(db.Model, TrackingMixin, CRUDMixin):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    event_type = db.Column(db.String(100), nullable=False)
+
+    # ForeignKeys
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    tag_category_id = db.Column(db.Integer, db.ForeignKey('tag_category.id'))
 
     # Relationships
     event_days = db.relationship('EventDay', back_populates='event')
-    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    tag_category = db.relationship('TagCategory', secondary='events_tags', back_populates='events')
 
 class EventDay(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, default='07:00:00', nullable=True)
+
+    # ForeignKeys
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'), nullable=False)
 
     # Relationships
     event = db.relationship('Event', back_populates='event_days')
     users_events = db.relationship('UsersEvents', back_populates='days')
+    
 
 class UsersEvents(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)

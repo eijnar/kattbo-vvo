@@ -1,19 +1,21 @@
-{% extends "layout.html.j2" %}
-
+{% extends 'layout.html.j2'%}
 {% block content %}
-<h1>Opt-in to Subjects</h1>
 
-<form method="POST">
+<form method="POST" class="form">
     {{ form.hidden_tag() }}
-
-    {% for subject in tags %}
-    <div>
-        <h2>{{ subject.name }}</h2>
-        {{ form['subject_email_' ~ subject.id].label }} {{ form['subject_email_' ~ subject.id]() }}<br>
-        {{ form['subject_sms_' ~ subject.id].label }} {{ form['subject_sms_' ~ subject.id]() }}<br>
-    </div>
-{% endfor %}
-
-    {{ form.submit }}
+    
+    {% for tag_category, notification_types in notification_options.items() %}
+        <h3>{{ tag_category.name }}</h3> {{tag_category.description}}
+        {% for notification_type in notification_types %}
+            {% set field_name = 'notification_' ~ tag_category.id ~ '_' ~ notification_type.id %}
+            <div class="form-check form-switch">
+                {{ form[field_name].label(class="form-check-label") }} -
+                {{ form[field_name](class="form-check-input", type="checkbox", id="flexSwitchCheckDefault") }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+    
+    {{ form.submit(class="btn btn-primary") }}
 </form>
+
 {% endblock %}

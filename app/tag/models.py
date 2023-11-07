@@ -5,22 +5,21 @@ from app.utils.mixins import TrackingMixin
 class Tag(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
-    description = db.Column(db.String(255), nullable=True)
-    allow_sms = db.Column(db.Boolean, server_default=expression.true())
-    allow_email = db.Column(db.Boolean, server_default=expression.true())
 
     # Relationships
-    users = db.relationship('User', secondary='users_tags', back_populates='tags')
-    category = db.relationship('TagCategory', secondary='tags_categories', back_populates='tags')
+    tag_users = db.relationship('User', secondary='users_tags', back_populates='tags')
+    tag_category = db.relationship('TagCategory', secondary='tags_categories', back_populates='tags')
+    allowed_roles = db.relationship('Role', secondary='roles_tags', back_populates='allowed_tags')
+    allowed_notification_types = db.relationship('NotificationType', secondary='tags_notifications', back_populates='tags')
 
 class TagCategory(db.Model, TrackingMixin):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), unique=True)
-
+    description = db.Column(db.Text)
 
     # Relationships
-    events = db.relationship('Event', secondary='events_tags', back_populates='tag_category')
-    tags = db.relationship('Tag', secondary='tags_categories', back_populates='category')
+    tags = db.relationship('Tag', secondary='tags_categories', back_populates='tag_category')
+    events = db.relationship('Event', backref='tag_category')
 
 class TagsCategories(db.Model, TrackingMixin):
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id', ondelete='CASCADE'), primary_key=True)

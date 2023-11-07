@@ -21,11 +21,15 @@
       <tbody>
         {% for event, subscriber_count in events %}
         <tr>
-          <td class="align-middle">{{ event.name }}</td>
+          <td class="align-middle">{{ event.tag_category.name }}</td>
           <td class="align-middle">
             {% set dates = event.event_days|map(attribute='date')|list|sort %}
-            {{ format_date(dates[0], format='dd MMMM (YYYY)') }} - {{ format_date(dates[-1], format='dd MMMM (YYYY)') }}
-          </td>
+            {% if dates|length == 1 %}
+              {{ format_date(dates[0], format='dd MMMM YYYY') }}
+            {% else %}
+              {{ format_date(dates[0], format='dd MMMM YYYY') }} - {{ format_date(dates[-1], format='dd MMMM YYYY') }}
+            {% endif %}
+            </td>
           <td class="align-middle">
             {% for event_date in dates %}
             <b>{{ format_datetime(event_date, format='EEEE') }}</b>

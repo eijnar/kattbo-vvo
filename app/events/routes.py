@@ -7,7 +7,7 @@ from datetime import datetime
 from app.events.models import Event, EventDay, UsersEvents
 from app.events.forms import EventForm, RegisterEventDayForm
 from app.users.models import User
-from app.tag.models import Tag, TagCategory
+from app.tag.models import Tag, TagCategory, TagsCategories
 
 events = Blueprint('events', __name__, template_folder='templates')
 
@@ -37,26 +37,25 @@ def list_events():
 @events.route('/create', methods=['GET', 'POST'])
 def create_event():
     urlshortener = current_app.urlshortener
-
     event_form = EventForm()
+
     # Populate choices for tags field
-    event_form.tags.choices = [(t.id, t.name) for t in TagCategory.query.all()]
+    event_form.tag_category.choices = [
+        (tc.id, tc.name) for tc in TagCategory.query
+        .join(TagsCategories)
+        .join(Tag)
+        .filter(Tag.name == 'event_enabled')
+        .all()
+    ]
 
     if event_form.validate_on_submit():
         event = Event(
-            name=event_form.name.data,
-            event_type=event_form.event_type.data,  # Handle event_type
+            tag_category_id=event_form.tag_category.data,
             description=event_form.description.data,
             creator_id=current_user.id
         )
         db.session.add(event)
         db.session.flush()  # This will assign an ID to the event without committing the transaction
-
-        # Handle tags
-        for tag_id in event_form.tags.data:
-            tag = Tag.query.get(tag_id)
-            if tag:
-                event.tags.append(tag)
 
         dates = [d.strip() for d in event_form.dates.data.split(',')]
         for date_str in dates:
@@ -126,7 +125,7 @@ def quick_register():
 def register_event(event_id):
     event = Event.query.get_or_404(event_id)
     form = RegisterEventDayForm()
-    form.event_days.choices = [(ed.id, ed.date) for ed in event.days]
+    form.event_days.choices = [(ed.id, ed.date) for ed in event.event_days]
 
     if form.validate_on_submit():
         day_ids = form.event_days.data
@@ -134,10 +133,10 @@ def register_event(event_id):
 
         for day_id in day_ids:
             # Check if user is already registered for the event day
-            existing_registration = UserEvent.query.filter_by(
+            existing_registration = UsersEvents.query.filter_by(
                 user_id=user_id, day_id=day_id).first()
             if not existing_registration:
-                registration = UserEvent(user_id=user_id, day_id=day_id)
+                registration = UsersEvents(user_id=user_id, day_id=day_id)
                 db.session.add(registration)
 
         db.session.commit()

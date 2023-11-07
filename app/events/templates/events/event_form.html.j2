@@ -1,7 +1,7 @@
 {% extends "layout.html.j2" %}
 {% block content %}
 
-{% set dates = event.days|map(attribute='date')|list|sort %}
+{% set dates = event.event_days|map(attribute='date')|list|sort %}
 
 <h1>Anmäl dig till {{ event.name }}</h1>{{ format_date(dates[0], format='dd MMMM') }} - {{ format_date(dates[-1],
 format='dd MMMM') }}

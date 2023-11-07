@@ -1,32 +1,32 @@
-{% macro opt_in(tags, opt_in_form) %}
+{% macro opt_in(tags, opt_in_form, notification_options, user_notification_types) %}
 <form id="optinform" method="POST" action="{{ url_for('users.update_profile') }}">
   {{ opt_in_form.hidden_tag() }}
   <table class="table table-striped">
     <thead>
       <tr>
-        <th>SMS</th>
-        <th>Epost</th>
+        <th></th>
         <th>Beskrivning</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
-      {% for tag in tags %}
+      {% for tag_category, notification_types in notification_options.items() %}
       <tr>
-        <td class="text-center align-middle">
-        {% if tag.allow_sms == true %}
+        <td class="align-middle">
+        {% for notification_type in notification_types %}
+        {% set field_name = 'notification_' ~ tag_category.id ~ '_' ~ notification_type.id %}
+        
           <div class="form-check form-switch">
-            {{ opt_in_form['tag_sms_' ~ tag.id|string](class="form-check-input", type="checkbox", id="flexSwitchCheckDefault") }}
+            {% if opt_in_form[field_name] %}
+                {{ opt_in_form[field_name].label(class="form-check-label") }} {{ opt_in_form[field_name](class="form-check-input", type="checkbox", id="flexSwitchCheckDefault") }}
+            {% else %}
+            <input class="form-check-input" type="checkbox" disabled>
+            {% endif %}
           </div>
-        {% endif %}
+        {% endfor %}
         </td>
-        <td class="text-center align-middle">
-        {% if tag.allow_email == true %}
-          <div class="form-check form-switch">
-          {{ opt_in_form['tag_email_' ~ tag.id|string](class="form-check-input", type="checkbox", id="flexSwitchCheckDefault") }}
-          </div>
-        {% endif %}
-        </td>
-        <td class="w-100">{{ tag.description }}</td>
+        <td>{{ tag_category.name }}</td> 
+        <td class="w-100">{{ tag_category.description }}</td>
       </tr>
       {% endfor %}
     </tbody>
