@@ -1,21 +1,24 @@
 {% extends "layout.html.j2" %}
 {% block content %}
 
-<div class="d-flex bd-highlight">
-  <div class="flex-grow-1 bd-highlight">
-    <div class="display-3">Kommande händelser</div>
+<div class="row">
+  <div class="col bg-white shadow-sm p-4 py-4">
+    <div class="h5"><b>Kommande händelser</b></div>
   </div>
 </div>
-<div class="row p-3">
-  <div class="col">
-    <table class="table table-striped table-hover">
-      <thead>
+
+<div class="row bg-light">
+  <div class="col p-3">
+  <div class=""
+
+    <table class="table shadow table-striped table-hover">
+      <thead class="p-2">
         <tr>
           <th scope="col" class="col-1">händelse</th>
           <th>datum</th>
-          <th scope="col" class="col-2">dagar</th>
-          <th scope="col" class="col-1">anmälda</th>
-          <th scope="col">#</th>
+          <th scope="col" class="col-2 d-none d-lg-table-cell">dagar</th>
+          <th scope="col" class="col-1 d-none d-lg-table-cell">anmälda</th>
+          <th scope="col text-end">#</th>
         </tr>
       </thead>
       <tbody>
@@ -25,20 +28,20 @@
           <td class="align-middle">
             {% set dates = event.event_days|map(attribute='date')|list|sort %}
             {% if dates|length == 1 %}
-              {{ format_date(dates[0], format='dd MMMM YYYY') }}
+            {{ format_date(dates[0], format='dd MMMM YYYY') }}
             {% else %}
-              {{ format_date(dates[0], format='dd MMMM YYYY') }} - {{ format_date(dates[-1], format='dd MMMM YYYY') }}
+            {{ format_date(dates[0], format='dd MMMM YYYY') }} - {{ format_date(dates[-1], format='dd MMMM YYYY') }}
             {% endif %}
-            </td>
-          <td class="align-middle">
+          </td>
+          <td class="align-middle d-none d-lg-table-cell">
             {% for event_date in dates %}
             <b>{{ format_datetime(event_date, format='EEEE') }}</b>
             {%endfor%}
           </td>
-          <td class="align-middle">
+          <td class="align-middle d-none d-lg-table-cell">
             {{ subscriber_count }}
           </td>
-          <td class="align-middle justify-content-end col-2">
+          <td class="text-end col-xs-2">
             <a href="{{ url_for('events.register_event', event_id=event.id)}}" class="btn btn-outline-success">Anmäl
               dig</a>
           </td>
@@ -48,5 +51,4 @@
     </table>
   </div>
 </div>
-
 {% endblock %}

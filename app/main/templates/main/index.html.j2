@@ -1,8 +1,39 @@
 {% extends "layout.html.j2" %}
 
 {% block content %}
-<p>Välkommen {{current_user.first_name}}!
-<button data-modal-title="ID:" href="https://ifconfig.me" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal">Anmälan</button>
+<div class="container-fluid d-flex text-center align-items-center justify-content-center vh-100">
+  <div class="col-12 d-flex text-center rounded align-items-center justify-content-center">
+
+      <main class="form-signin col-12 col-md-6 col-xl-6">
+        
+          <div class="col-lg-12 p-2 text-black">
+          <p class="display-1">Välkommen</p><p class="h2">till</p><p class="display-4"><b>Kättbo VVO</b></p>
+          </div>
+          <form class="py-3 p-2">
+          <div class="form-floating my-2 shadow-sm">
+            <input type="email" class="form-control w-100" id="floatingInput" placeholder="name@example.com">
+            <label for="floatingInput">Epost adress</label>
+          </div>
+          <div class="form-floating my-2 shadow-sm">
+            <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+            <label for="floatingPassword">Lösenord</label>
+          </div>
+
+          <div class="form-check text-start my-3">
+            <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
+            <label class="form-check-label" for="flexCheckDefault">
+              Kom ihåg mig
+            </label>
+          </div>
+          <button class="btn btn-primary py-2 shadow" type="submit">Logga in</button>
+          <p class="py-2">
+          Inget konto? <a href="#">Registrera dig</a>
+          </p>
+        </form>
+      </main>
+    </div>
+  </div>
+</div>
+</div>
 {% endblock content %}
 {% block modal %}{% include "modal.html.j2" %}{% endblock %}
-

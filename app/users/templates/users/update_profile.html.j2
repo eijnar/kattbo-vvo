@@ -3,9 +3,9 @@
 {% extends "layout.html.j2" %}
 {% block content %}
 
-<div class="row">
+<div class="row bg-light p-4">
   <div class="col-4 d-none d-sm-block">
-    <nav id="navbar-profile" class="h-100 flex-column align-items-stretch pe-4 border-end d-none d-sm-block">
+    <nav id="navbar-profile" class="h-100 flex-column position-static align-items-stretch pe-4 border-end d-none d-sm-block">
       <nav class="nav nav-pills flex-column">
         <a class="nav-link" href="#userinfo">Användarinformation</a>
         <a class="nav-link" href="#subjects">Ämnen</a>
@@ -13,7 +13,7 @@
     </nav>
   </div>
 
-  <div class="col-8">
+  <div class="col">
     <div data-bs-spy="scroll" data-bs-target="#navbar-profile" data-bs-smooth-scroll="true" class="scrollspy-example-2"
       tabindex="0">
       <div id="userinfo">

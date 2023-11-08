@@ -1,15 +1,23 @@
-from flask import Flask, jsonify
-from flask_jwt_extended import JWTManager, create_access_token
+import requests
+from urllib import parse
 
-app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Change this to your secret key
+message = 'Hej, vi planerar en älgjakt '
+number = '+702598032'
 
-jwt = JWTManager(app)
+url = 'http://172.20.10.9:8080/send'
 
-@app.route('/')
-def create_token():
-    access_token = create_access_token(identity='example_user')
-    return jsonify(access_token=access_token)
 
-if __name__ == '__main__':
-    app.run()
+headers = {
+    'Cache-Control': 'no-cache',
+    'Content-Type': 'application/x-www-form-urlencoded',
+}
+
+data = {
+    'message': message,
+    'phoneno': number
+}
+
+send = requests.post(url, data, headers)
+
+for i in send:
+    print(i)
