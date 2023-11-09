@@ -9,7 +9,18 @@ on:
   pull_request:
     branches: [ "main" ]
 env:
-  env_var: ${{ vars.ENV_CONTEXT_VAR }}
+  MAIL_USERNAME: 
+  MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD}}
+  MAIL_SERVER: ${{ secrets.MAIL_SERVER}}
+  SECRET_KEY: ${{ secrets.SECRET_KEY}}
+  SECURITY_PASSWORD_SALT: ${{ secrets.SECURITY_PASSWORD_SALT}}
+  SECURITY_PASSWORD_HASH: ${{ secrets.SECURITY_PASSWORD_HASH}}
+  SECURITY_TRACKABLE: ${{ secrets.SECURITY_TRACKABLE}}
+  SECURITY_REGISTERABLE: ${{ secrets.SECURITY_REGISTERABLE}}
+  SECURITY_CONFIRMABLE: ${{ secrets.SECURITY_CONFIRMABLE}}
+  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY}}
+  JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM}}
+  SQLALCHEMY_DATABASE_URI: ${{ secrets.SQLALCHEMY_DATABASE_URI}}
   
 permissions:
   contents: write
