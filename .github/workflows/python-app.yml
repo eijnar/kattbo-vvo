@@ -21,6 +21,7 @@ env:
   JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY}}
   JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM}}
   SQLALCHEMY_DATABASE_URI_DEV: ${{ secrets.SQLALCHEMY_DATABASE_URI_DEV}}
+  GUNICORN_CMD_ARGS: "--bind=0.0.0.0"
   
 permissions:
   contents: write
