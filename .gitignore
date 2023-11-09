@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+.vscode
+
 # C extensions
 *.so
 
@@ -165,5 +167,5 @@ cython_debug/
 # Flask setup and .env files
 
 .env
-config.py
 app/test
+config.py
