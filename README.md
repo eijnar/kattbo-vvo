@@ -4,4 +4,7 @@ Detta är ett projekt jag startat för att förbättra många aspekter i våran 
 ## Installation
 
 Som vanligt finns deps. i requirements
-Man behöver även en .env fil och en config.py fil. Detta kommer senare
+Man behöver även en .env fil och en config.py fil. Detta kommer senare.
+
+# CI/CD
+Projektet hanteras av gitlab CI/CD runner idag.
