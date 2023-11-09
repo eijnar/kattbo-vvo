@@ -8,7 +8,6 @@ class Config(object):
 
     # Default mail configuration
     MAIL_USERNAME = environ.get('MAIL_USERNAME')
-    print(MAIL_USERNAME)
     MAIL_PASSWORD = environ.get('MAIL_PASSWORD')
     MAIL_PORT = 465
     MAIL_USE_SSL = True
@@ -36,7 +35,7 @@ class Config(object):
 
 class Development(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_DATABASE_URI = $SQLALCHEMY_DATABASE_URI
 
     # Flask-Security-Too settings
     SECURITY_EMAIL_VALIDATOR_ARGS = {"check_deliverability": False}
