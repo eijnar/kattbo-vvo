@@ -1,0 +1,29 @@
+ <div class="toast-container position-absolute p-3 bottom-0 end-0">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+
+    <script>
+      $(document).ready(function () {
+        $('.toast').toast('show');
+      });
+    </script>
+
+    {% for category, message in messages %}
+
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header bg-{{ category }}">
+
+        <strong class="me-auto"><span class="material-icons align-bottom text-light btn"><b>Info</b></span></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        {{ message }}
+      </div>
+    </div>
+
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+  </div>

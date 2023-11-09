@@ -1,46 +1,32 @@
-{% extends "base.html" %}
+{% extends "layout.html.j2" %}
 
 {% block content %}
   <h1>Create Event</h1>
   <form method="POST" action="">
-    {{ form.hidden_tag() }}
+    {{ event_form.hidden_tag() }}
     <div>
-      {{ form.name.label }}<br>
-      {{ form.name }}
-      {% if form.name.errors %}
-        <div class="errors">{{ form.name.errors[0] }}</div>
+      {{ event_form.description.label }}<br>
+      {{ event_form.description }}
+      {% if event_form.description.errors %}
+        <div class="errors">{{ event_form.description.errors[0] }}</div>
       {% endif %}
     </div>
     <div>
-      {{ form.event_type.label }}<br>
-      {{ form.event_type }}
-      {% if form.event_type.errors %}
-        <div class="errors">{{ form.event_type.errors[0] }}</div>
+      {{ event_form.tag_category.label }}<br>
+      {{ event_form.tag_category }}
+      {% if event_form.tag_category.errors %}
+        <div class="errors">{{ event_form.tag_category.errors[0] }}</div>
       {% endif %}
     </div>
     <div>
-      {{ form.description.label }}<br>
-      {{ form.description }}
-      {% if form.description.errors %}
-        <div class="errors">{{ form.description.errors[0] }}</div>
+      {{ event_form.dates.label }}<br>
+      {{ event_form.dates }}
+      {% if event_form.dates.errors %}
+        <div class="errors">{{ event_form.dates.errors[0] }}</div>
       {% endif %}
     </div>
     <div>
-      {{ form.tags.label }}<br>
-      {{ form.tags }}
-      {% if form.tags.errors %}
-        <div class="errors">{{ form.tags.errors[0] }}</div>
-      {% endif %}
-    </div>
-    <div>
-      {{ form.dates.label }}<br>
-      {{ form.dates }}
-      {% if form.dates.errors %}
-        <div class="errors">{{ form.dates.errors[0] }}</div>
-      {% endif %}
-    </div>
-    <div>
-      {{ form.submit }}
+      {{ event_form.submit }}
     </div>
   </form>
 {% endblock %}
