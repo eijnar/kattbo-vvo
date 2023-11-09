@@ -8,7 +8,9 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
+env:
+  env_var: ${{ vars.ENV_CONTEXT_VAR }}
+  
 permissions:
   contents: write
 
@@ -25,6 +27,7 @@ jobs:
         python-version: "3.10"
     - name: Install dependencies
       run: |
+        echo "$MAIL_USERNAME"
         python -m pip install --upgrade pip
         pip install wheel
         pip install gunicorn
