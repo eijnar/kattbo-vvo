@@ -1,32 +1,69 @@
 {% extends "layout.html.j2" %}
-
 {% block content %}
-  <h1>Create Event</h1>
-  <form method="POST" action="">
-    {{ event_form.hidden_tag() }}
-    <div>
-      {{ event_form.description.label }}<br>
-      {{ event_form.description }}
-      {% if event_form.description.errors %}
-        <div class="errors">{{ event_form.description.errors[0] }}</div>
-      {% endif %}
+<div class="row">
+    <div class="col-sm-12 bg-white shadow-sm p-4 pt-5">
+        <h1>Event Form</h1>
+
     </div>
-    <div>
-      {{ event_form.tag_category.label }}<br>
-      {{ event_form.tag_category }}
-      {% if event_form.tag_category.errors %}
-        <div class="errors">{{ event_form.tag_category.errors[0] }}</div>
-      {% endif %}
+</div>
+<div class="row bg-white p-4 pt-5">
+    <div class="col"></div>
+    <div class="col-sm-3 p-3">
+        <form action="" method="post">
+            {{ event_form.hidden_tag() }}
+            {{ event_form.dates(class="form-control", id="selectedDates", type="hidden") }}
+            <div id="datepicker"></div>
+            <small id="datesHelp" class="form-text text-muted">Välj dagar</small>
+            {% if event_form.dates.errors %}
+            <div class="invalid-feedback">
+                {{ event_form.dates.errors[0] }}
+            </div>
+            {% endif %}
     </div>
-    <div>
-      {{ event_form.dates.label }}<br>
-      {{ event_form.dates }}
-      {% if event_form.dates.errors %}
-        <div class="errors">{{ event_form.dates.errors[0] }}</div>
-      {% endif %}
+    <div class="col py-3">
+
+        <div class="row py-1">
+            <label for="tag_category">Typ av händelse</label>
+            {{ event_form.tag_category(class="form-control") }}
+        </div>
+        <div class="row py-1">
+            <label for="description">Tid</label>
+            {{ event_form.time(class="form-control", id="selectedTime") }}
+        </div>
+        <div class="row py-1">
+            <label for="description">Sammanfattning</label>
+            {{ event_form.description(class="form-control", id="description") }}
+        </div>
+        <div class="row py-1">
+            {{ event_form.submit(class='form-control bg-success', id="userinfoform") }}
+        </div>
     </div>
-    <div>
-      {{ event_form.submit }}
-    </div>
-  </form>
-{% endblock %}
+    <div class="col"></div>
+</div>
+</form>
+</div>
+
+<script>
+    $('#datepicker').datepicker({
+        format: 'yyyy-mm-dd',
+        weekStart: 1,
+        maxViewMode: 'year',
+        multidate: true
+    }).on('changeDate', function (e) {
+        // Update the hidden input field with the selected dates
+        var selectedDates = $('#datepicker').datepicker('getDates').map(date => date.toISOString().slice(0, 10)).join(',');
+        $('#selectedDates').val(selectedDates);
+    });
+    $('#selectedTime').datepicker({
+        format: 'LT',
+    }).on('changeTime', function (e) {
+        // Update the hidden input field with the selected dates
+        var selectedTime = $('#selectedTime').datepicker('getDate').map(date => date.toISOString().slice(0, 10)).join(',');
+        $('#selectedTime').val(selectedTime);
+    });
+</script>
+</div>
+
+
+
+{%endblock%}

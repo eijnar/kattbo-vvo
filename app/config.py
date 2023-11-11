@@ -41,8 +41,8 @@ class Development(Config):
     SECURITY_EMAIL_VALIDATOR_ARGS = {"check_deliverability": False}
     
     # Mailman dev. configuration
-    MAIL_DEFAULT_SENDER = 'Kättbo VVO', 'development@kaffesump.se'
+    MAIL_DEFAULT_SENDER = environ.get('MAIL_DEFAULT_SENDER_DEV')
 
 class Production(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI')
+    SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_PROD')

@@ -1,12 +1,13 @@
 from flask_wtf import FlaskForm
 from wtforms import widgets
-from wtforms.fields import StringField, SubmitField, TextAreaField, SelectMultipleField, SelectField
+from wtforms.fields import StringField, SubmitField, TextAreaField, SelectMultipleField, SelectField, DateTimeField
 from wtforms.validators import DataRequired, Length
 
 class EventForm(FlaskForm):
     tag_category = SelectField('Event Type', validators=[DataRequired()], coerce=int)
     description = TextAreaField('Description', validators=[DataRequired(), Length(min=2, max=500)])
     dates = StringField('Dates', validators=[DataRequired()])
+    time = DateTimeField('Time')
     submit = SubmitField('Create Event')
 
 class MultiCheckboxField(SelectMultipleField):

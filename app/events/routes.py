@@ -56,11 +56,11 @@ def create_event():
         )
         db.session.add(event)
         db.session.flush()  # This will assign an ID to the event without committing the transaction
-
         dates = [d.strip() for d in event_form.dates.data.split(',')]
         for date_str in dates:
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
-            event_day = EventDay(event_id=event.id, date=date)
+            time = time.strptime(event_form.time.data, '%HH%MM').date()
+            event_day = EventDay(event_id=event.id, date=date, time=time)
             db.session.add(event_day)
 
         db.session.commit()
@@ -119,6 +119,11 @@ def quick_register():
     # Redirect to a confirmation page or back to the homepage
     return redirect(url_for('main.home'))
 
+@events.route('/register/sms', methods=['GET', 'POST'])
+def register_with_sms():
+    data = request.data
+    print(data)
+    return jsonify(data)
 
 @events.route('/<int:event_id>/register', methods=['GET', 'POST'])
 @login_required
