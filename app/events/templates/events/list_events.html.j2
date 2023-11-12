@@ -53,9 +53,13 @@
           <td class="align-middle d-none d-lg-table-cell">
             {{ subscriber_count }}
           </td>
-          <td class="text-end col-xs-2">
-            <a href="{{ url_for('events.register_event', event_id=event.id)}}" class="btn btn-outline-success">Anmäl
-              dig</a>
+          <td class="text-end align-middle col-xs-2">
+            <a href="{{ url_for('events.register_event', event_id=event.id)}}" class="btn btn-success">Anmäl dig</a>
+            {% if current_user.id == event.creator_id %}
+            <form action="{{ url_for('events.delete_event', event_id=event.id)}}" method="POST">
+              <input class="btn btn-danger" type="submit" value="X">
+            </form>
+            {% endif %}
           </td>
         </tr>
         {% endfor%}

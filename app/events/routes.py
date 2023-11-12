@@ -1,5 +1,5 @@
 from flask_security import current_user, login_required
-from flask import Blueprint, current_app, render_template, flash, redirect, url_for, request
+from flask import Blueprint, current_app, render_template, flash, redirect, url_for, request, abort
 from sqlalchemy.orm import aliased
 from app import db
 from flask_jwt_extended import decode_token
@@ -59,8 +59,8 @@ def create_event():
         dates = [d.strip() for d in event_form.dates.data.split(',')]
         for date_str in dates:
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
-            time = time.strptime(event_form.time.data, '%HH%MM').date()
-            event_day = EventDay(event_id=event.id, date=date, time=time)
+            # time = time.strptime(event_form.time.data, '%H:%M').date()
+            event_day = EventDay(event_id=event.id, date=date)
             db.session.add(event_day)
 
         db.session.commit()
@@ -152,3 +152,15 @@ def register_event(event_id):
     form.event_days.data = [choice[0] for choice in form.event_days.choices]
 
     return render_template('events/event_form.html.j2', form=form, event=event)
+
+
+@events.route('/<int:event_id>/delete', methods=['POST'])
+@login_required
+def delete_event(event_id):
+    event = Event.query.get_or_404(event_id)
+    if event.creator_id != current_user.id:
+        abort(403)
+    db.session.delete(event)
+    db.session.commit()
+    flash(f'Du har tagit bort {event.tag_category.name}')
+    return redirect(url_for('events.list_events'))

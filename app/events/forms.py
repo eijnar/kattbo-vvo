@@ -7,7 +7,7 @@ class EventForm(FlaskForm):
     tag_category = SelectField('Event Type', validators=[DataRequired()], coerce=int)
     description = TextAreaField('Description', validators=[DataRequired(), Length(min=2, max=500)])
     dates = StringField('Dates', validators=[DataRequired()])
-    time = DateTimeField('Time')
+    time = StringField('Time')
     submit = SubmitField('Create Event')
 
 class MultiCheckboxField(SelectMultipleField):

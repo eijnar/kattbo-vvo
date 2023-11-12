@@ -44,7 +44,7 @@ def create_app() -> Flask:
 
     from app.users.models import User, Role  # noqa
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-    app.security = Security(app, user_datastore, confirm_register_form=ExtendedRegisterForm)
+    app.security = Security(app, user_datastore, register_blueprint=True, confirm_register_form=ExtendedRegisterForm)
     
     from app.users.routes import users
     from app.events.routes import events

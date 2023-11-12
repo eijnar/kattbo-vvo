@@ -8,7 +8,7 @@ main = Blueprint('main', __name__, template_folder='templates')
 @main.route("/")
 def home():
     if current_user.is_authenticated:
-        return redirect(url_for('events.create_event'))
+        return redirect(url_for('events.list_events'))
     login_form = LoginForm()
     return redirect('/login')
 
