@@ -2,9 +2,9 @@ import requests
 from urllib import parse
 
 message = 'Hej, vi planerar en älgjakt '
-number = '+702598032'
+number = '+46702598032'
 
-url = 'http://172.20.10.9:8080/send'
+url = 'http://172.30.150.158:8080/send'
 
 
 headers = {

@@ -13,14 +13,13 @@ users = Blueprint('users', __name__, template_folder='templates')
 @users.route('/user/preferences', methods=['GET', 'POST'])
 def edit_preferences():
     user = User.query.filter(user.id == current_user.id).first()
-    form = NotificationPreferencesForm(user=user)
+    form = UserNotificationPreference(user=user)
 
     if form.validate_on_submit():
         for field in form:
             if field.name.startswith('opt_in_'):
                 tag_id = int(field.name.split('_')[3])
                 tag = Tag.query.get(tag_id)
-                # Assuming a method 'set_opt_in' on the user model to update the preference.
                 user.set_opt_in(tag, field.data)
         db.session.commit()
         flash('Your preferences have been updated.', 'success')
