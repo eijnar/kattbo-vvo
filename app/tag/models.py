@@ -4,7 +4,8 @@ from app.utils.mixins import TrackingMixin
 
 class Tag(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(50), nullable=False, unique=True)
+    name = db.Column(db.String(50))
+    description = db.Column(db.String(50), nullable=False, unique=True)
 
     # Relationships
     tag_users = db.relationship('User', secondary='users_tags', back_populates='tags')

@@ -12,13 +12,15 @@ class Event(db.Model, TrackingMixin, CRUDMixin):
     tag_category_id = db.Column(db.Integer, db.ForeignKey('tag_category.id'))
 
     # Relationships
-    event_days = db.relationship('EventDay', back_populates='event', cascade='all,delete')
+    event_days = db.relationship(
+        'EventDay', back_populates='event', cascade='all,delete')
 
 
 class EventDay(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, default='07:00:00', nullable=True)
+    cancelled = db.Column(db.SmallInteger, default=0)
 
     # ForeignKeys
     event_id = db.Column(db.Integer, db.ForeignKey(
@@ -28,13 +30,19 @@ class EventDay(db.Model, TrackingMixin):
     event = db.relationship('Event', back_populates='event_days')
     users_events = db.relationship('UsersEvents', back_populates='days')
 
+    @property
+    def is_active(self):
+        active_days = EventDay.query.filter_by(
+            event_id=self.id, cancelled=0).count()
+        return active_days > 0
+
 
 class EventType(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
 
 
-#### Many to many 
+# Many to many
 
 class UsersEvents(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)

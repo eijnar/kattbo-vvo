@@ -11,6 +11,7 @@ users = Blueprint('users', __name__, template_folder='templates')
 
 
 @users.route('/user/preferences', methods=['GET', 'POST'])
+@auth_required
 def edit_preferences():
     user = User.query.filter(user.id == current_user.id).first()
     form = UserNotificationPreference(user=user)
@@ -46,7 +47,7 @@ def update_profile():
     # Use the factory to dynamically get TagCategories user can subscribe to
     UserPreferenceForm = UserPreferenceFormFactory(
         notification_options, user_preferences)
-    
+
     # Define the forms
     profile_form = UpdateProfileForm()
     opt_in_form = UserPreferenceForm()

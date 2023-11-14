@@ -27,6 +27,7 @@ class User(db.Model, fsqla.FsUserMixin, UserMixin, CRUDMixin):
     tags = db.relationship('Tag', secondary='users_tags', back_populates='tag_users')
     general_preferences = db.relationship('UserPreference', back_populates='preference_user')
     notification_preferences = db.relationship('UserNotificationPreference', back_populates='user_notification_preferences')
+    hunt_years = db.relationship('UserTeamYear', backref='user', lazy='dynamic')
 
     def set_opt_in(self, tag_category_id, opt_in=True):
         # Loop through the user's notification preferences to find if one already exists
@@ -76,10 +77,6 @@ class UserPreference(db.Model, TrackingMixin):
         return f'<UserPreference user_id={self.user_id} tag_category_id={self.tag_category_id} opt_in={self.opt_in}>'
 
 class UsersTags(db.Model, TrackingMixin):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    subscribe_sms = db.Column(db.Boolean, default=False)
-    subscribe_email = db.Column(db.Boolean, default=False)
-
     # Relationships
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id', ondelete='CASCADE'), primary_key=True)
