@@ -27,29 +27,6 @@
 
   <!-- Custom styles -->
   <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-  <style>
-    html,
-    body {
-      padding-top: 28px;
-    }
-
-    .background {
-      position: absolute;
-      height: 100%;
-      width: 100%;
-      background:
-        linear-gradient(180deg, rgba(105, 105, 105, 0.0) 0%, rgba(255, 255, 255, 0.9) 45%, rgb(255, 255, 255) 50%) fixed,
-        url("https://images.unsplash.com/photo-1549471013-3364d7220b75?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") no-repeat center center fixed;
-      -webkit-background-size: cover;
-      -moz-background-size: cover;
-      background-size: cover;
-      -o-background-size: cover;
-      background-attachment: fixed;
-      background-color: color(rgba(0, 0, 0, 0));
-      z-index: -1;
-
-    }
-  </style>
 
   {% if title %}
   <title> Kättbo VVO - {{ title }}</title>
@@ -62,12 +39,13 @@
 <body>
   <div class="background"></div>
   {% if current_user.is_authenticated %}
-  {% include "nav_menu.html.j2" %}
+    {% include "nav_menu.html.j2" %}
   {% endif %}
+
 
   <!-- Content area -->
   <div class="container">
-      {% block content %}{% endblock %}
+    {% block content %}{% endblock %}
   </div>
 
 

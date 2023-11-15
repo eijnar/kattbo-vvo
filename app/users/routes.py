@@ -1,5 +1,5 @@
 from app import db
-from flask_security import auth_required, current_user
+from flask_security import login_required, current_user
 from flask import Blueprint, redirect, url_for, flash, request, render_template
 from app.utils.notification import get_notification_options_for_user, get_distinct_notification_types_for_user
 from app.users.forms import UpdateProfileForm, UserPreferenceFormFactory
@@ -11,16 +11,16 @@ users = Blueprint('users', __name__, template_folder='templates')
 
 
 @users.route('/user/preferences', methods=['GET', 'POST'])
+@login_required
 def edit_preferences():
     user = User.query.filter(user.id == current_user.id).first()
-    form = NotificationPreferencesForm(user=user)
+    form = UserNotificationPreference(user=user)
 
     if form.validate_on_submit():
         for field in form:
             if field.name.startswith('opt_in_'):
                 tag_id = int(field.name.split('_')[3])
                 tag = Tag.query.get(tag_id)
-                # Assuming a method 'set_opt_in' on the user model to update the preference.
                 user.set_opt_in(tag, field.data)
         db.session.commit()
         flash('Your preferences have been updated.', 'success')
@@ -30,7 +30,7 @@ def edit_preferences():
 
 
 @users.route('/profile/update', methods=['GET', 'POST'])
-@auth_required()
+@login_required
 def update_profile():
     user = current_user
     notification_options = get_notification_options_for_user(user)
@@ -47,7 +47,7 @@ def update_profile():
     # Use the factory to dynamically get TagCategories user can subscribe to
     UserPreferenceForm = UserPreferenceFormFactory(
         notification_options, user_preferences)
-    
+
     # Define the forms
     profile_form = UpdateProfileForm()
     opt_in_form = UserPreferenceForm()

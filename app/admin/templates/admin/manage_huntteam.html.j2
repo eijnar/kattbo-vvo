@@ -1,0 +1,109 @@
+{% extends 'layout.html.j2'%}
+
+{% block content %}
+<div class="row">
+    <div class="col bg-white shadow-sm p-4 pt-5">
+        <div class="h3">
+            <b>Ändra tilldelning bland jägare</b>
+        </div>
+    </div>
+</div>
+<div class="row bg-light">
+    <div class="col text-center pt-2">selector row, future update</div>
+
+</div>
+<div class="row bg-light">
+    <div class="col-sm-12 p-3">
+        {{ form.hidden_tag() }}
+        {% for team_name, users in team_users.items() %}
+        <h2>{{ team_name }}</h2>
+
+        <table class="table table-striped" id="team-{{team_name}}-table">
+            <tr>
+                <th class="col-1 text-center">Pass</th>
+                <th> Namn </th>
+                <th class="col-2 text-center">Ändra jaktlag</th>
+                <th class="col-2 text-center">Jaktår</th>
+                <th class="col-2 text-center">Roll</th>
+                <th class="col-1 text-end">#</th>
+            </tr>
+            {% for user in users %}
+            <div>
+                <tr id="user-row-{{ user.id }}">
+                    <td class="text-center align-middle">{{ user.id }}</td>
+                    <td class="align-middle"><b>{{ user.first_name }} {{ user.last_name }}{{user}}</b></td>
+                    <td>
+                        <select class="form-select" id="team-selector-{{ user.id }}" data-user-id="{{ user.id }}">
+                            {% for team in teams %}
+                            <option value="{{ team.id }}">{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select" id="year-selector-{{ user.id }}" data-user-id="{{ user.id }}">
+                            {% for year in years %}
+                            <option value="{{ year.id }}">{{ year.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-select" id="tags-selector" data-user-id="{{ user.id }}">
+
+                            {% for tag in tags %}
+                            <option value="{{ tag.id }}">{{ tag.description }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-success edit-button" data-user-id="{{ user.id }}"
+                            type="submit">Ändra</button>
+                    </td>
+                </tr>
+                {% endfor %}
+        </table>
+
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+
+    $(".edit-button").click(function () {
+        var user_id = $(this).data('user-id');
+        var hunt_team_id = $('#team-selector-' + user_id).val();
+        var hunt_year_id = $('#year-selector-' + user_id).val();
+        var newTeamName = $('#team-selector-' + user_id + ' option:selected').text();
+        var csrf_token = $('#csrf_token').val();
+
+        console.log("User ID: " + user_id);
+        console.log("Hunt Team ID: " + hunt_team_id);
+        console.log("Hunt Year ID: " + hunt_year_id);
+        console.log("New Team Name: " + newTeamName);
+
+        $.ajax({
+            url: '{{ url_for('admin.add_hunt_team') }}',
+            type: 'POST',
+            data: {
+                user_id: user_id,
+                hunt_team_id: hunt_team_id,
+                hunt_year_id: hunt_year_id,
+                csrf_token: csrf_token
+            },
+            success: function (response) {
+                if (response.status == 'success') {
+                    // Move the user row to the new team table
+                    var userRow = $("#user-row-" + user_id).detach();
+                    $("#team-" + newTeamName + "-table").append(userRow);
+                    console.log("Moved user " + user_id + " to team " + newTeamName);
+                } else {
+                    console.error("Failed to update: " + response.message);
+                }
+            }
+        });
+    });
+
+
+</script>
+
+
+{% endblock %}

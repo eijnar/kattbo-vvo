@@ -1,5 +1,6 @@
 from app import db
-from flask_security.models import fsqla_v3 as fsqla
+from flask_security import UserMixin, RoleMixin
+from flask_security.models import fsqla_v3 as fsqla 
 from app.utils.mixins import TrackingMixin
 from app.utils.crud import CRUDMixin
 
@@ -13,11 +14,11 @@ class RolesTags(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('role.id', ondelete='CASCADE'), primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id', ondelete='CASCADE'), primary_key=True)
 
-class User(db.Model, fsqla.FsUserMixin, CRUDMixin):
+class User(db.Model, fsqla.FsUserMixin, UserMixin, CRUDMixin):
     # Extra fields from the default FsUserMixin
     first_name = db.Column(db.String(255))
     last_name = db.Column(db.String(255))
-    phone_number = db.Column(db.String(12))
+    phone_number = db.Column(db.String(255))
 
     # Relationships
     roles = db.relationship('Role', secondary='roles_users', backref=db.backref('users', lazy='dynamic'))
@@ -26,13 +27,7 @@ class User(db.Model, fsqla.FsUserMixin, CRUDMixin):
     tags = db.relationship('Tag', secondary='users_tags', back_populates='tag_users')
     general_preferences = db.relationship('UserPreference', back_populates='preference_user')
     notification_preferences = db.relationship('UserNotificationPreference', back_populates='user_notification_preferences')
-
-    def has_opted_in(self, tag_category_id):
-        # Loop through the user's notification preferences and return True if opt_in is found
-        for preference in self.notification_preferences:
-            if preference.tag_category_id == tag_category_id:
-                return preference.opt_in
-        return False
+    hunt_years = db.relationship('UserTeamYear', backref='user', lazy='dynamic')
 
     def set_opt_in(self, tag_category_id, opt_in=True):
         # Loop through the user's notification preferences to find if one already exists
@@ -66,7 +61,7 @@ class UserNotificationPreference(db.Model, TrackingMixin):
     tag_category = db.relationship('TagCategory')
     notification_type = db.relationship('NotificationType')
 
-class Role(db.Model, fsqla.FsRoleMixin):
+class Role(db.Model, fsqla.FsRoleMixin, RoleMixin):
     
     # Relationships
     allowed_tags = db.relationship('Tag', secondary='roles_tags', back_populates='allowed_roles')
@@ -82,10 +77,6 @@ class UserPreference(db.Model, TrackingMixin):
         return f'<UserPreference user_id={self.user_id} tag_category_id={self.tag_category_id} opt_in={self.opt_in}>'
 
 class UsersTags(db.Model, TrackingMixin):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    subscribe_sms = db.Column(db.Boolean, default=False)
-    subscribe_email = db.Column(db.Boolean, default=False)
-
     # Relationships
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id', ondelete='CASCADE'), primary_key=True)
