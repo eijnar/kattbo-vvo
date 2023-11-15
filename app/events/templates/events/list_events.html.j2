@@ -26,17 +26,17 @@
     <table class="table shadow table-striped table-hover">
       <thead class="p-2">
         <tr>
-          <th scope="col" class="col-1">händelse</th>
-          <th>datum</th>
-          <th scope="col" class="col-2 d-none d-lg-table-cell">dagar</th>
-          <th scope="col" class="col-1 d-none d-lg-table-cell">anmälda</th>
+          <th scope="col" class="col-1">Händelse</th>
+          <th>Datum</th>
+          <th scope="col" class="col-2 d-none d-lg-table-cell">Dagar</th>
+          <th scope="col" class="col-1 d-none d-lg-table-cell">Anmälda</th>
           <th scope="col text-end">#</th>
         </tr>
       </thead>
       <tbody>
         {% for event, subscriber_count in events %}
         <tr>
-          <td class="align-middle">{{ event.tag_category.name }}</td>
+          <td class="align-middle text-center">{{ event.tag_category.name }}</td>
           <td class="align-middle">
             {% set dates = event.event_days|map(attribute='date')|list|sort %}
             {% if dates|length == 1 %}
@@ -54,11 +54,13 @@
             {{ subscriber_count }}
           </td>
           <td class="text-end align-middle col-xs-2">
+          {% if current_user.role == 'hunt-leader' %}
             <div class="btn-group">
               <form action="{{ url_for('events.delete_event', event_id=event.id)}}" method="POST">
-                <input class="btn btn-outline-danger" type="submit" value="Ta bort">
+                <input class="btn btn-outline-danger" type="submit" value="Ställ in">
               </form>
             </div>
+          {% endif %}
             <div class="btn-group">
               <a href="{{ url_for('events.register_event', event_id=event.id)}}" class="btn btn-outline-success"
                 type="button">

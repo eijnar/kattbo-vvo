@@ -1,5 +1,4 @@
 from app import db
-from sqlalchemy.sql import expression
 from app.utils.mixins import TrackingMixin
 
 class Tag(db.Model, TrackingMixin):

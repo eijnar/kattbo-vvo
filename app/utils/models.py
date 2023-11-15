@@ -20,3 +20,9 @@ class ShortLink(db.Model, TrackingMixin):
     original_url = db.Column(db.String(2048), nullable=False)
     short_code = db.Column(db.String(10), unique=True, nullable=False)
     expires_at = db.Column(db.DateTime, nullable=True)
+
+# Documents model
+class Document(db.Model, TrackingMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    short_name = db.Column(db.String(50), nullable=False, unique=True)
+    document = db.Column(db.Text)

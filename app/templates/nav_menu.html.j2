@@ -19,6 +19,13 @@
         </li>
       </ul>
       {% if current_user.is_authenticated %}
+        {% set user_roles = [] %}
+        {% for role in current_user.roles %}
+            {% if role.name not in user_roles %}
+                {% do user_roles.append(role.name) %}
+            {% endif %}
+        {% endfor %}
+      {% if 'admin' in user_roles or 'hunt-leader' in user_roles%}
       <div class="p-2 bd-highlight">
         <div class="btn-group" role="group">
           <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -39,12 +46,13 @@
             <span class="visually-hidden">Toggle Dropdown</span>
           </button>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="">Användare</a></li>
-            <li><a class="dropdown-item" href="">Tag</a></li>
-            <li><a class="dropdown-item" href="">Events</a></li>
+            <li><a class="dropdown-item" href="" disabled>SMS</a></li>
+            <li><a class="dropdown-item" href="" disabled>Användare</a></li>
+            <li><a class="dropdown-item" href="" disabled>Påminnelse</a></li>
           </ul>
         </div>
       </div>
+      {% endif %}
       <a href="{{ url_for('users.update_profile') }}" class="btn btn-outline-light me-2">Ändra profil</a>
       <a href="{{ url_for('security.logout') }}" class="btn btn-danger">Logga ut</a>
       {% else %}

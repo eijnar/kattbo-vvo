@@ -1,5 +1,5 @@
 from app import db
-from flask_security import auth_required, current_user
+from flask_security import login_required, current_user
 from flask import Blueprint, redirect, url_for, flash, request, render_template
 from app.utils.notification import get_notification_options_for_user, get_distinct_notification_types_for_user
 from app.users.forms import UpdateProfileForm, UserPreferenceFormFactory
@@ -11,7 +11,7 @@ users = Blueprint('users', __name__, template_folder='templates')
 
 
 @users.route('/user/preferences', methods=['GET', 'POST'])
-@auth_required
+@login_required
 def edit_preferences():
     user = User.query.filter(user.id == current_user.id).first()
     form = UserNotificationPreference(user=user)
@@ -30,7 +30,7 @@ def edit_preferences():
 
 
 @users.route('/profile/update', methods=['GET', 'POST'])
-@auth_required()
+@login_required
 def update_profile():
     user = current_user
     notification_options = get_notification_options_for_user(user)

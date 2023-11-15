@@ -1,7 +1,8 @@
-from flask import Blueprint, redirect, url_for
-from flask_security import LoginForm, current_user
-from time import sleep
+from flask import Blueprint, redirect, url_for, render_template, render_template_string
+from flask_security import current_user
 from app.utils.pdf import PDFCreator
+from app.utils.models import Document
+from markdown import markdown
 
 main = Blueprint('main', __name__, template_folder='templates')
 
@@ -12,6 +13,12 @@ def home():
         return redirect(url_for('events.list_events'))
     return redirect('/login')
 
+
+@main.route("/pm")
+def pm():
+    doc = Document.query.first()
+    print
+    return render_template('markdown.html.j2', doc=markdown(doc.document))
 
 # @shared_task
 @main.route("/celery")

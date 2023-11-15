@@ -18,7 +18,6 @@ babel = Babel()
 jwt = JWTManager()
 migrate = Migrate()
 
-
 def create_app() -> Flask:
     app = Flask(__name__)
 
@@ -37,32 +36,43 @@ def create_app() -> Flask:
     jwt.init_app(app)
     migrate.init_app(app, db)
     celery_init_app(app)
-
+    
     fsqla.FsModels.set_db_info(db)
 
     # To get the functions to jinja2
     app.jinja_env.globals['format_date'] = format_date
     app.jinja_env.globals['format_datetime'] = format_datetime
     app.jinja_env.globals['getattr'] = getattr
+    app.jinja_env.add_extension('jinja2.ext.do')
 
     from app.users.models import User, Role  # noqa
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-    app.security = Security(app, user_datastore, register_blueprint=True, confirm_register_form=ExtendedRegisterForm)
-    
-    from app.users.routes import users
-    from app.events.routes import events
-    from app.main.routes import main
-    from app.utils.routes import utils
+    app.security = Security(app, user_datastore, register_blueprint=True,
+                            confirm_register_form=ExtendedRegisterForm)
+
     from app.tag.routes import tags
-    from app.hunting.routes import hunting
-    from app.admin.routes import admin
+    app.register_blueprint(tags, url_prefix='/tags')
+
+    from app.users.routes import users
     app.register_blueprint(users, url_prefix='/user')
+
+    from app.events.routes import events
     app.register_blueprint(events, url_prefix='/events')
-    app.register_blueprint(tags)
+
+    from app.main.routes import main
     app.register_blueprint(main)
+
+    from app.utils.routes import utils
     app.register_blueprint(utils)
+
+    from app.hunting.routes import hunting
     app.register_blueprint(hunting, url_prefix='/jakt')
+
+    from app.admin.routes import admin
     app.register_blueprint(admin, url_prefix='/admins')
+
+    from app.errors.handlers import errors
+    app.register_blueprint(errors)
 
     # Custom URL shortening with JTW tokens. This function is mainly used for
     # quick registration
@@ -73,28 +83,29 @@ def create_app() -> Flask:
     )
 
     # At last, create the database structure within the construct.
-    #with app.app_context():
-        #db.create_all()
+    # with app.app_context():
+    # db.create_all()
 
-        # data = urllib.request.urlopen('https://api.namnapi.se/v2/names.json?limit=20').read()
-        # data = json.loads(data)
-        # def random_with_N_digits(n):
-        #     range_start = 10**(n-1)
-        #     range_end = (10**n)-1
-        #     return random.randint(range_start, range_end)
+    # data = urllib.request.urlopen('https://api.namnapi.se/v2/names.json?limit=20').read()
+    # data = json.loads(data)
+    # def random_with_N_digits(n):
+    #     range_start = 10**(n-1)
+    #     range_end = (10**n)-1
+    #     return random.randint(range_start, range_end)
 
-        # for i in data['names']:
-        #     rand_mail = ''.join(random.choice("abcdefghijklmnopqrstyv") for _ in range(6))
-        #     # rand_phone = f'070{random_with_N_digits(7)}'
-        #     r_email = rand_mail + "@kaffesump.se"
-        #     r_first_name = i['firstname']
-        #     r_last_name = i['surname']
-        #     r_phone_number = f'070{random_with_N_digits(7)}'
+    # for i in data['names']:
+    #     rand_mail = ''.join(random.choice("abcdefghijklmnopqrstyv") for _ in range(6))
+    #     # rand_phone = f'070{random_with_N_digits(7)}'
+    #     r_email = rand_mail + "@kaffesump.se"
+    #     r_first_name = i['firstname']
+    #     r_last_name = i['surname']
+    #     r_phone_number = f'070{random_with_N_digits(7)}'
 
-        #     # print(r_email, r_phone_number, r_first_name, r_last_name)
-        #     app.security.datastore.create_user(email=r_email, first_name=r_first_name, last_name=r_last_name, phone_number=r_phone_number)
-        # db.session.commit()
+    #     # print(r_email, r_phone_number, r_first_name, r_last_name)
+    #     app.security.datastore.create_user(email=r_email, first_name=r_first_name, last_name=r_last_name, phone_number=r_phone_number)
+    # db.session.commit()
     return app
+
 
 def celery_init_app(app: Flask) -> Celery:
     class FlaskTask(Task):

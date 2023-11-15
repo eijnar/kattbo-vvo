@@ -1,4 +1,4 @@
-from flask_security import current_user, auth_required, roles_accepted
+from flask_security import current_user, login_required, roles_accepted
 from flask import Blueprint, current_app, render_template, flash, redirect, url_for, request, abort, make_response
 from app import db
 from flask_jwt_extended import decode_token
@@ -8,8 +8,7 @@ from app.events.forms import EventForm, RegisterEventDayForm
 from app.users.models import User, UsersTags
 from app.tag.models import Tag, TagCategory, TagsCategories
 from app.hunting.models import UserTeamYear, HuntTeam
-from app.utils.pdf import PDFCreator
-from pdfkit import pdfkit, from_string
+from pdfkit import from_string
 
 events = Blueprint('events', __name__, template_folder='templates')
 
@@ -72,8 +71,7 @@ def register_with_sms():
 #
 
 
-@events.route('/events')
-@auth_required
+@events.route('/')
 @roles_accepted('admin', 'hunt-leader', 'hunter')
 def list_events():
     teams = HuntTeam.query.all()
@@ -98,8 +96,8 @@ def list_events():
 
 
 @events.route('/create', methods=['GET', 'POST'])
-@auth_required
-@roles_accepted('admin', 'hunt-leader', 'communicator')
+@login_required
+@roles_accepted('admin', 'hunt-leader')
 def create_event():
     urlshortener = current_app.urlshortener
     event_form = EventForm()
@@ -143,9 +141,9 @@ def create_event():
 
 
 
-@events.route('/fte/<int:event_id>/register', methods=['GET', 'POST'])
-@auth_required
-@roles_accepted('admin', 'hunt-leader', 'hunter')
+@events.route('/<int:event_id>/register', methods=['GET', 'POST'])
+@login_required
+@roles_accepted('admin', 'hunter', 'hunt-leader')
 def register_event(event_id):
     event = Event.query.get_or_404(event_id)
     form = RegisterEventDayForm()
@@ -174,8 +172,8 @@ def register_event(event_id):
 
 
 
-@events.route('dfafa//<int:event_id>/_pdf', methods=['GET', 'POST'])
-@auth_required
+@events.route('/<int:event_id>/_pdf', methods=['GET', 'POST'])
+@login_required
 @roles_accepted('admin', 'hunt-leader')
 def generate_event_pdf(event_id):
     event_days = EventDay.query.filter_by(event_id=event_id).all()
@@ -260,8 +258,8 @@ def generate_event_pdf(event_id):
 
 
 
-@events.route('/jfjjfjjf/<int:event_id>/delete', methods=['POST'])
-@auth_required
+@events.route('/<int:event_id>/delete', methods=['POST'])
+@login_required
 @roles_accepted('admin', 'hunt-leader')
 def delete_event(event_id):
     event = Event.query.get_or_404(event_id)

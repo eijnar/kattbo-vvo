@@ -1,5 +1,5 @@
 from app import db
-from flask_security import auth_required, roles_accepted, login_required
+from flask_security import login_required, roles_accepted, login_required
 from flask import Blueprint, render_template, request, jsonify
 from app.users.models import User, UsersTags
 from app.tag.models import Tag, TagsCategories, TagCategory
@@ -12,6 +12,7 @@ admin = Blueprint('admin', __name__, template_folder='templates')
 
 @admin.route("/edit_hunt_teams")
 @login_required
+@roles_accepted('admin', 'hunt-leader')
 def edit_hunt_teams():
     form = EditUserForm()
     users = User.query.all()
@@ -64,7 +65,8 @@ def edit_hunt_teams():
 
 
 @admin.route("/add_hunt_team", methods=["POST"])
-@auth_required
+@login_required
+@roles_accepted('admin', 'hunt-leader')
 def add_hunt_team():
     form = EditUserForm()
     user_id = request.form.get('user_id')
