@@ -3,10 +3,10 @@ from flask import Blueprint, current_app, render_template, flash, redirect, url_
 from app import db
 from flask_jwt_extended import decode_token
 from datetime import datetime
-from app.events.models import Event, EventDay, UsersEvents
+from app.events.models import Event, EventDay, UsersEvents, EventType, EventCategory
 from app.events.forms import EventForm, RegisterEventDayForm
 from app.users.models import User, UsersTags
-from app.tag.models import Tag, TagCategory, TagsCategories
+from app.tag.models import Tag, TagCategory
 from app.hunting.models import UserTeamYear, HuntTeam
 from pdfkit import from_string
 
@@ -15,6 +15,7 @@ events = Blueprint('events', __name__, template_folder='templates')
 #
 # This section doesn't require to be logged in
 #
+
 
 @events.route('/quick_registration', methods=['GET'])
 def quick_register():
@@ -73,17 +74,29 @@ def register_with_sms():
 
 @events.route('/')
 @roles_accepted('admin', 'hunt-leader', 'hunter')
+@login_required
 def list_events():
+    event_category = request.args.get('event_category', None)
+
     teams = HuntTeam.query.all()
-    events = db.session.query(
+
+    query = db.session.query(
         Event,
-        db.func.count(
-            db.func.distinct(UsersEvents.user_id)).label('subscriber_count')
+        db.func.count(db.func.distinct(UsersEvents.user_id)).label('subscriber_count')
     ).join(
-        EventDay, EventDay.event_id == Event.id
+        Event.event_days
     ).outerjoin(
-        UsersEvents, UsersEvents.day_id == EventDay.id
-    ).group_by(
+        UsersEvents, UsersEvents.day_id == EventDay.id 
+    ).join(
+        EventType, EventType.id == Event.event_type_id
+    ).join(
+        EventCategory, EventCategory.id == EventType.event_category_id
+    )
+
+    if event_category is not None:
+        query = query.filter(EventCategory.name == event_category)
+
+    events = query.group_by(
         Event
     ).having(
         db.func.max(EventDay.date) > datetime.utcnow()
@@ -94,26 +107,27 @@ def list_events():
     return render_template('events/list_events.html.j2', events=events, teams=teams)
 
 
-
 @events.route('/create', methods=['GET', 'POST'])
 @login_required
 @roles_accepted('admin', 'hunt-leader')
 def create_event():
+    event_category_name = request.args.get('event_category')
+    event_category = EventCategory.query.filter_by(
+        name=event_category_name).first()
+    event_types = EventType.query.filter_by(
+        event_category_id=event_category.id).all()
     urlshortener = current_app.urlshortener
     event_form = EventForm()
 
     # Populate choices for tags field
-    event_form.tag_category.choices = [
-        (tc.id, tc.name) for tc in TagCategory.query
-        .join(TagsCategories)
-        .join(Tag)
-        .filter(Tag.name == 'event_enabled')
-        .all()
+    event_form.event_type.choices = [
+        (et.id, et.name) for et in event_types
     ]
 
     if event_form.validate_on_submit():
+        print(event_form.event_type.data, event_form.description.data, )
         event = Event(
-            tag_category_id=event_form.tag_category.data,
+            event_type_id=event_form.event_type.data,
             description=event_form.description.data,
             creator_id=current_user.id
         )
@@ -122,7 +136,6 @@ def create_event():
         dates = [d.strip() for d in event_form.dates.data.split(',')]
         for date_str in dates:
             date = datetime.strptime(date_str, '%Y-%m-%d').date()
-            # time = time.strptime(event_form.time.data, '%H:%M').date()
             event_day = EventDay(event_id=event.id, date=date)
             db.session.add(event_day)
 
@@ -134,11 +147,14 @@ def create_event():
             urlshortener.create_short_link_with_jwt(jwt_payload)
 
         flash('The event has been created!', 'success')
-        return redirect(url_for('events.create_event'))
+        if event_category_name is not None:
+            return redirect(url_for('events.list_events') + '?event_category=' + event_category_name)
+        else:
+            return redirect(url_for('events.list_events'))
+        
     else:
         print("Form errors:", event_form.errors)  # Add this line
     return render_template('events/create_event.html.j2', event_form=event_form)
-
 
 
 @events.route('/<int:event_id>/register', methods=['GET', 'POST'])
@@ -169,7 +185,6 @@ def register_event(event_id):
     form.event_days.data = [choice[0] for choice in form.event_days.choices]
 
     return render_template('events/event_form.html.j2', form=form, event=event)
-
 
 
 @events.route('/<int:event_id>/_pdf', methods=['GET', 'POST'])
@@ -257,8 +272,8 @@ def generate_event_pdf(event_id):
     return response
 
 
-
-@events.route('/<int:event_id>/delete', methods=['POST'])
+# Needs rework, new func. per EventDay has been added to the DB, cancelled defaults to False (0)
+@events.route('/<int:event_id>/cancel', methods=['POST'])
 @login_required
 @roles_accepted('admin', 'hunt-leader')
 def delete_event(event_id):

@@ -21,10 +21,9 @@
             {% endif %}
     </div>
     <div class="col py-3">
-
         <div class="row py-1">
-            <label for="tag_category">Typ av händelse</label>
-            {{ event_form.tag_category(class="form-control") }}
+            <label for="event_type">Händelse</label>
+            {{ event_form.event_type(class="form-control") }}
         </div>
         <div class="row py-1">
             <label for="description">Tid</label>
@@ -44,8 +43,8 @@
 </div>
 
 <script>
-var nowDate = new Date();
-var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0, 0);
+    var nowDate = new Date();
+    var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0, 0, 0);
     $('#datepicker').datepicker({
         format: 'yyyy-mm-dd',
         weekStart: 1,
@@ -58,6 +57,23 @@ var today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(
         var selectedDates = $('#datepicker').datepicker('getDates').map(date => date.toISOString().slice(0, 10)).join(',');
         $('#selectedDates').val(selectedDates);
     });
+</script>
+<script>
+function updateEventTypes() {
+    var category = document.getElementById("event_category").value;
+    fetch('/get_event_types/' + category)
+        .then(response => response.json())
+        .then(data => {
+            var eventTypeSelect = document.getElementById("event_type");
+            eventTypeSelect.innerHTML = '';
+            data.forEach(function(et) {
+                var opt = document.createElement('option');
+                opt.value = et[0];
+                opt.innerHTML = et[1];
+                eventTypeSelect.appendChild(opt);
+            });
+        });
+}
 </script>
 </div>
 
