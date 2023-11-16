@@ -9,6 +9,7 @@ class Tag(db.Model, TrackingMixin):
     # Relationships
     tag_users = db.relationship('User', secondary='users_tags', back_populates='tags')
     tag_category = db.relationship('TagCategory', secondary='tags_categories', back_populates='tags')
+    event_types = db.relationship('EventType', secondary='event_type_tags', back_populates='tags')
     allowed_roles = db.relationship('Role', secondary='roles_tags', back_populates='allowed_tags')
     allowed_notification_types = db.relationship('NotificationType', secondary='tags_notifications', back_populates='tags')
 
@@ -19,7 +20,7 @@ class TagCategory(db.Model, TrackingMixin):
 
     # Relationships
     tags = db.relationship('Tag', secondary='tags_categories', back_populates='tag_category')
-    events = db.relationship('Event', backref='tag_category')
+
 
 class TagsCategories(db.Model, TrackingMixin):
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id', ondelete='CASCADE'), primary_key=True)

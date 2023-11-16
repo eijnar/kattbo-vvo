@@ -2,14 +2,12 @@
 {% from "security/_macros.html" import render_field_with_errors, render_field, render_form_errors %}
 
 {% block content %}
-{% include "security/_messages.html" %}
 
-<div class="container-fluid d-flex align-items-center justify-content-center vh-100">
-  <div class="col-12 d-flex rounded align-items-center justify-content-center">
+<div class="row vh-100">
+  <div class="col-lg-12 d-flex align-items-center justify-content-center">
 
 
-    <div class="row justify-content-center shadow">
-      <div class="col-lg-2 shadow bg-test"></div>
+    <div class="row justify-content-center">
       <div class="col-lg-6 shadow bg-white">
 
         {% include "legal/tos.html.j2" %}
@@ -66,7 +64,7 @@
           </div>
 
           {{ register_user_form.submit(class="btn btn-success align-left", value="Registrera") }}
-
+          {% include "security/_messages.html" %}
         </form>
       </div>
     </div>

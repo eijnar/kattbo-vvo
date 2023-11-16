@@ -83,8 +83,8 @@ def create_app() -> Flask:
     )
 
     # At last, create the database structure within the construct.
-    # with app.app_context():
-    # db.create_all()
+    with app.app_context():
+        db.create_all()
 
     # data = urllib.request.urlopen('https://api.namnapi.se/v2/names.json?limit=20').read()
     # data = json.loads(data)
@@ -103,7 +103,7 @@ def create_app() -> Flask:
 
     #     # print(r_email, r_phone_number, r_first_name, r_last_name)
     #     app.security.datastore.create_user(email=r_email, first_name=r_first_name, last_name=r_last_name, phone_number=r_phone_number)
-    # db.session.commit()
+        db.session.commit()
     return app
 
 

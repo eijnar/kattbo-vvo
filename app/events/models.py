@@ -9,7 +9,8 @@ class Event(db.Model, TrackingMixin, CRUDMixin):
 
     # ForeignKeys
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    tag_category_id = db.Column(db.Integer, db.ForeignKey('tag_category.id'))
+    event_type_id = db.Column(db.Integer, db.ForeignKey('event_type.id'))
+    event_type = db.relationship('EventType', back_populates='events')
 
     # Relationships
     event_days = db.relationship(
@@ -41,8 +42,20 @@ class EventType(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
 
+    # Relationships
+    event_category_id = db.Column(db.Integer, db.ForeignKey('event_category.id'), nullable=False)
+    events = db.relationship('Event', back_populates='event_type')
+    tags = db.relationship(
+        'Tag', secondary='event_type_tags', back_populates='event_types')
+
+
+class EventCategory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    event_types = db.relationship('EventType', backref='event_category', lazy=True)
 
 # Many to many
+
 
 class UsersEvents(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,8 +69,8 @@ class UsersEvents(db.Model, TrackingMixin):
     days = db.relationship('EventDay', back_populates='users_events')
 
 
-class EventsTags(db.Model, TrackingMixin):
+class EventTypeTags(db.Model, TrackingMixin):
     event_id = db.Column(db.Integer, db.ForeignKey(
-        'event.id', ondelete='CASCADE'), primary_key=True)
-    tag_category_id = db.Column(db.Integer, db.ForeignKey(
-        'tag_category.id', ondelete='CASCADE'), primary_key=True)
+        'event_type.id', ondelete='CASCADE'), primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey(
+        'tag.id', ondelete='CASCADE'), primary_key=True)
