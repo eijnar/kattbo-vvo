@@ -10,4 +10,4 @@ class TrackingMixin:
     """
     
     created_at = db.Column(db.TIMESTAMP(), server_default=db.func.current_timestamp(), nullable=False)
-    updated_at = db.Column(db.TIMESTAMP(), server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), nullable=False)
+    updated_at = db.Column(db.TIMESTAMP(), server_default=db.func.current_timestamp(), nullable=False)

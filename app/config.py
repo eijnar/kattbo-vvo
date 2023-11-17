@@ -38,7 +38,7 @@ class Config(object):
 
 class Development(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://kattbovvo_web:6QdEUA7p3t2ZBKngQXh8bW5h@172.30.149.3/kattbovvo_web_dev"
+    SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_DEV')
 
     # Flask-Security-Too settings
     SECURITY_EMAIL_VALIDATOR_ARGS = {"check_deliverability": False}

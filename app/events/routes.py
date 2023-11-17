@@ -103,7 +103,7 @@ def list_events():
     ).order_by(
         db.func.min(EventDay.date)
     ).all()
-
+    print(events)
     return render_template('events/list_events.html.j2', events=events, teams=teams)
 
 

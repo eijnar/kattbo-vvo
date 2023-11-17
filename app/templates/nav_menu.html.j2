@@ -28,9 +28,9 @@
           </a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}">Alla händelser</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=hunt">Jakt</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?category=meeting">Möten</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?category=other">Övrigt</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=hunting">Jakt</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=meetings">Möten</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=other">Övrigt</a></li>
             {% if 'hunter' in user_roles %}
             <li>
               <hr class="dropdown-divider">
@@ -69,9 +69,9 @@
             Admin
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=hunt">Lägg till
+            <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=hunting">Lägg till
                 jakt</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=meeting">Lägg till
+            <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=meetings">Lägg till
                 möte</a></li>
             <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=other">Lägg till
                 övrigt</a></li>
