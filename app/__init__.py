@@ -22,20 +22,13 @@ def create_app() -> Flask:
     app = Flask(__name__)
 
     app.config.from_object(Development)
-    app.config.from_mapping(
-        CELERY=dict(
-            broker_url="amqp://vvo_celery:dp58nYaiJM8ymNEdebj5s8eqc4vzCJn@vvo.srv.kaffesump.se:5672/kattbo_vvo",
-            result_backend="db+mysql://kattbo_vvo_celery:Aj8Ze5etTeYTX8qMHd2MfxZYKzH5wqU@172.30.149.3/kattbo_vvo_celery",
-            task_ignore_result=True,
-        ),
-    )
 
     db.init_app(app)
     mail.init_app(app)
     babel.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
-    celery_init_app(app)
+ 
     
     fsqla.FsModels.set_db_info(db)
 

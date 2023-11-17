@@ -20,16 +20,16 @@ def edit_hunt_teams():
     years = HuntYear.query.all()
 
     # Query for the specific TagCategory
-    category_name = 'hunter'
+    tag_category_name = 'hunters'
 
-    tag_category = TagCategory.query.filter_by(name=category_name).first()
+    tag_category = TagCategory.query.filter_by(name=tag_category_name).first()
 
     tags = Tag.query.join(TagsCategories).filter(
         TagsCategories.tag_category_id == tag_category.id).all()
 
     # Query to get the 'main' category ID
     main_category_id = TagCategory.query.filter_by(
-        name=category_name).with_entities(TagCategory.id).subquery()
+        name=tag_category_name).with_entities(TagCategory.id).subquery()
 
     # Query users, sorting by hunting_team and including related tags
     hunters = User.query \
