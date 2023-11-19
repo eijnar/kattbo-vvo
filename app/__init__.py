@@ -67,6 +67,9 @@ def create_app() -> Flask:
     from app.admin.routes import admin
     app.register_blueprint(admin, url_prefix='/admin')
 
+    from app.map.routes import map
+    app.register_blueprint(map, url_prefix='/map')
+
     from app.errors.handlers import errors
     app.register_blueprint(errors)
 

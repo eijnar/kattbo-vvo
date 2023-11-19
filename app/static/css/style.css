@@ -24,3 +24,10 @@
     background-size: cover;
     background-clip: content-box;
 }
+
+.map-iframe {
+    width: 100%;
+    height: 600px;
+    overflow: hidden;  /* Disables scrollbars */
+    border: none;     /* Optional: removes the border */
+}
