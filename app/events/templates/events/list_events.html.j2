@@ -38,9 +38,10 @@
         <tr>
           <td class="align-middle text-center">{{ event.event_type.name }}</td>
           <td class="align-middle">
+            
             {% set dates = event.event_days|map(attribute='date')|list|sort %}
             {% if dates|length == 1 %}
-            {{ format_date(dates[0], format='dd MMMM YYYY') }}
+            {{ format_date(dates[0], format='dd MMMM YYYY') }} 
             {% else %}
             {{ format_date(dates[0], format='dd MMMM YYYY') }} - {{ format_date(dates[-1], format='dd MMMM YYYY') }}
             {% endif %}
@@ -80,13 +81,8 @@
                 {% endfor %}
               </ul>
             </div>
-
-
-
             {% if current_user.id == event.creator_id %}
-
   </div>
-
   {% endif %}
   </td>
   </tr>
@@ -95,4 +91,14 @@
   </table>
 </div>
 </div>
+<script>
+if ("geolocation" in navigator) {
+  navigator.geolocation.getCurrentPosition(function(position) {
+    const { latitude, longitude } = position.coords;
+    console.log("Latitude:", latitude, "Longitude:", longitude)
+  });
+} else {
+  console.log("Geolocation is not available.");
+}
+</script>
 {% endblock %}

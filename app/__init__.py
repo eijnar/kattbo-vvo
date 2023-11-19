@@ -10,6 +10,9 @@ from flask_babel import Babel, format_date, format_datetime
 from flask_migrate import Migrate
 from app.config import Development
 from app.utils.forms import ExtendedRegisterForm
+import urllib
+import json
+import random
 
 
 db = SQLAlchemy()
@@ -62,7 +65,7 @@ def create_app() -> Flask:
     app.register_blueprint(hunting, url_prefix='/jakt')
 
     from app.admin.routes import admin
-    app.register_blueprint(admin, url_prefix='/admins')
+    app.register_blueprint(admin, url_prefix='/admin')
 
     from app.errors.handlers import errors
     app.register_blueprint(errors)
@@ -71,7 +74,7 @@ def create_app() -> Flask:
     # quick registration
     from app.utils.urlshorter import URLShortener  # noqa
     app.urlshortener = URLShortener(
-        base_url='https://dev.kattbovvo.se',
+        base_url='https://vvo.srv.kaffesump.se',
         registration_route='/events/quick_registration'
     )
 
@@ -79,24 +82,24 @@ def create_app() -> Flask:
     with app.app_context():
         db.create_all()
 
-    # data = urllib.request.urlopen('https://api.namnapi.se/v2/names.json?limit=20').read()
-    # data = json.loads(data)
-    # def random_with_N_digits(n):
-    #     range_start = 10**(n-1)
-    #     range_end = (10**n)-1
-    #     return random.randint(range_start, range_end)
+        # data = urllib.request.urlopen('https://api.namnapi.se/v2/names.json?limit=5').read()
+        # data = json.loads(data)
+        # def random_with_N_digits(n):
+        #     range_start = 10**(n-1)
+        #     range_end = (10**n)-1
+        #     return random.randint(range_start, range_end)
 
-    # for i in data['names']:
-    #     rand_mail = ''.join(random.choice("abcdefghijklmnopqrstyv") for _ in range(6))
-    #     # rand_phone = f'070{random_with_N_digits(7)}'
-    #     r_email = rand_mail + "@kaffesump.se"
-    #     r_first_name = i['firstname']
-    #     r_last_name = i['surname']
-    #     r_phone_number = f'070{random_with_N_digits(7)}'
+        # for i in data['names']:
+        #     rand_mail = ''.join(random.choice("abcdefghijklmnopqrstyv") for _ in range(6))
+        #     # rand_phone = f'070{random_with_N_digits(7)}'
+        #     r_email = rand_mail + "@kaffesump.se"
+        #     r_first_name = i['firstname']
+        #     r_last_name = i['surname']
+        #     r_phone_number = f'070{random_with_N_digits(7)}'
 
-    #     # print(r_email, r_phone_number, r_first_name, r_last_name)
-    #     app.security.datastore.create_user(email=r_email, first_name=r_first_name, last_name=r_last_name, phone_number=r_phone_number)
-        db.session.commit()
+        #     # print(r_email, r_phone_number, r_first_name, r_last_name)
+        #     app.security.datastore.create_user(email=r_email, first_name=r_first_name, last_name=r_last_name, phone_number=r_phone_number)
+        #     db.session.commit()
     return app
 
 
