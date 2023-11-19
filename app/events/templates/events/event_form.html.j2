@@ -5,7 +5,7 @@
 
 <div class="row bg-light">
   <div class="col shadow   p-4">
-    <h1>Anmäl dig till {{ event.tag_category_id }}</h1>
+    <h1>Anmäl dig till {{ event.event_type.name | lower }}</h1>
   </div>
 </div>
 <div class="row p-4 bg-light">
@@ -30,31 +30,21 @@
   </div>
 
   <div class="col-lg-5">
-  <h5> Deltagarlista </h5>
+  <h5> Anmälda </h5>
     <table class="table">
       <thead>
         <tr>
-          <th>Pass</th>
-          <th>Namn</td>
+          <th>Namn</th>
+          <th>Dagar</td>
         </tr>
       </thead>
       <tbody>
+        {% for user, days in user_subscriptions.items() %}
         <tr>
-          <th>1</th>
-          <td>Johan Andersson</td>
+            <td><b>{{ user.first_name }} {{ user.last_name }}</b></td>
+            <td>{{ days|join(', ') }}</td>  <!-- Adjust format as needed -->
         </tr>
-                <tr>
-          <td>4</td>
-          <td>Fredrik Kullman</td>
-        </tr>
-                <tr>
-          <td>12</td>
-          <td>Niklas Holmberg</td>
-        </tr>
-                <tr>
-          <td>30</td>
-          <td>Anders Johansson</td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>

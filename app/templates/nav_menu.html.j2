@@ -6,7 +6,7 @@
 {% endfor %}
 
 <nav class="navbar navbar-expand-sm bg-dark shadow navbar-dark" aria-label="Third navbar example">
-  <div class="container">
+  <div class="container-fluid">
     <a class="navbar-brand" href="#"><img src="{{ url_for('static', filename='logo-2.png')}}" alt="Bootstrap" width="30"
         height="30">Kättbo VVO</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarVVO"
@@ -29,7 +29,7 @@
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}">Alla händelser</a></li>
             <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=hunting">Jakt</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=meetings">Möten</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=meeting">Möten</a></li>
             <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=other">Övrigt</a></li>
             {% if 'hunter' in user_roles %}
             <li>
@@ -71,14 +71,14 @@
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=hunting">Lägg till
                 jakt</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=meetings">Lägg till
+            <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=meeting">Lägg till
                 möte</a></li>
             <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=other">Lägg till
                 övrigt</a></li>
             <li>
               <hr class="dropdown-divider">
             </li>
-            <li><a class="dropdown-item" href="{{ url_for('admin.edit_hunt_teams')}}">Hantera jaktmedlemmar</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('admin.edit_hunt_teams', year_name="2023-2024")}}">Hantera jaktmedlemmar</a></li>
           </ul>
         </li>
         {% endif %}

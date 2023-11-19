@@ -32,9 +32,9 @@
                         <tbody>
                             {% for user in team_info.users_by_specific_tags['shooter'] %}
                             <tr>
-                                <th class="text-center">12</th>                                
-                                <td>{{ user.first_name }} {{ user.last_name }}</td>
-                                <td>{{ user.phone_number}}</td>
+                                <th class="text-center">{{ user.stand_number }}</th>                                
+                                <td>{{ user.user_details.first_name }} {{ user.user_details.last_name }}</td>
+                                <td>{{ user.user_details.phone_number}}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -52,10 +52,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for user in team_info.users_by_specific_tags['dogkeeper'] %}
+                            {% for user in team_info.users_by_specific_tags['doghandler'] %}
                             <tr>
-                                <td>{{ user.first_name }} {{ user.last_name }}</td>
-                                <td>{{ user.phone_number}}</td>
+                                <td>{{ user.user_details.first_name }} {{ user.user_details.last_name }}</td>
+                                <td>{{ user.user_details.phone_number}}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

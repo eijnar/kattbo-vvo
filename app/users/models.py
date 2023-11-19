@@ -28,12 +28,14 @@ class User(db.Model, fsqla.FsUserMixin, UserMixin, CRUDMixin):
     general_preferences = db.relationship('UserPreference', back_populates='preference_user')
     notification_preferences = db.relationship('UserNotificationPreference', back_populates='user_notification_preferences')
     hunt_years = db.relationship('UserTeamYear', backref='user', lazy='dynamic')
+    stand_assignments = db.relationship('StandAssignment', backref='user', lazy='dynamic')
+    posts = db.relationship('Post', backref='author', lazy=True)
 
-    def set_opt_in(self, tag_category_id, opt_in=True):
+    def set_opt_in(self, event_type_id, opt_in=True):
         # Loop through the user's notification preferences to find if one already exists
         notification_preference = None
         for preference in self.notification_preferences:
-            if preference.tag_category_id == tag_category_id:
+            if preference.event_type_id == event_type_id:
                 notification_preference = preference
                 break
         
@@ -42,7 +44,7 @@ class User(db.Model, fsqla.FsUserMixin, UserMixin, CRUDMixin):
             notification_preference.opt_in = opt_in
         else:
             # Or create a new preference record
-            notification_preference = UserNotificationPreference(user_id=self.id, tag_category_id=tag_category_id, opt_in=opt_in)
+            notification_preference = UserNotificationPreference(user_id=self.id, event_type_id=event_type_id, opt_in=opt_in)
             db.session.add(notification_preference)
 
         # Commit changes to the database
@@ -53,12 +55,12 @@ class UserNotificationPreference(db.Model, TrackingMixin):
     
     # ForeignKeys
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    tag_category_id = db.Column(db.Integer, db.ForeignKey('tag_category.id'), primary_key=True)
+    event_type_id = db.Column(db.Integer, db.ForeignKey('event_type.id'), primary_key=True)
     notification_type_id = db.Column(db.Integer, db.ForeignKey('notification_type.id'), primary_key=True)
 
     # Relationships
     user_notification_preferences = db.relationship('User', back_populates='notification_preferences')
-    tag_category = db.relationship('TagCategory')
+    event_type = db.relationship('EventType')
     notification_type = db.relationship('NotificationType')
 
 class Role(db.Model, fsqla.FsRoleMixin, RoleMixin):

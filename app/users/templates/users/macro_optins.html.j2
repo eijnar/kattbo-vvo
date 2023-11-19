@@ -10,11 +10,11 @@
       </tr>
     </thead>
     <tbody>
-      {% for tag_category, notification_types in notification_options.items() %}
+      {% for event_type, notification_types in notification_options.items() %}
       <tr>
         <td class="align-middle">
         {% for notification_type in notification_types %}
-        {% set field_name = 'notification_' ~ tag_category.id ~ '_' ~ notification_type.id %}
+        {% set field_name = 'notification_' ~ event_type.id ~ '_' ~ notification_type.id %}
         
           <div class="form-check form-switch">
             {% if opt_in_form[field_name] %}
@@ -25,8 +25,8 @@
           </div>
         {% endfor %}
         </td>
-        <td>{{ tag_category.name }}</td> 
-        <td class="w-100 d-none d-lg-table-cell">{{ tag_category.description }}</td>
+        <td>{{ event_type.name }}</td> 
+        <td class="w-100 d-none d-lg-table-cell">{{ event_type.description }}</td>
       </tr>
       {% endfor %}
     </tbody>

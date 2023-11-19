@@ -36,11 +36,12 @@ def update_profile():
     notification_options = get_notification_options_for_user(user)
     user_notification_types = get_distinct_notification_types_for_user(user)
 
+
     # Get the users opt_ins to display in form
     user_prefs_query = UserNotificationPreference.query.filter_by(
         user_id=user.id)
     user_preferences = {
-        (pref.tag_category_id, pref.notification_type_id): pref.opt_in
+        (pref.event_type_id, pref.notification_type_id): pref.opt_in
         for pref in user_prefs_query
     }
 
@@ -61,14 +62,14 @@ def update_profile():
         flash('Din profil har blivit uppdaterad', category='success')
         return redirect(url_for('users.update_profile'))
     elif opt_in_form.validate_on_submit():
-        for tag_category, notification_types in notification_options.items():
+        for event_type, notification_types in notification_options.items():
             for notification_type in notification_types:
-                field_name = f'notification_{tag_category.id}_{notification_type.id}'
+                field_name = f'notification_{event_type.id}_{notification_type.id}'
                 opt_in_value = getattr(opt_in_form, field_name).data
                 # Query the existing preference
                 preference = UserNotificationPreference.query.filter_by(
                     user_id=user.id,
-                    tag_category_id=tag_category.id,
+                    event_type_id=event_type.id,
                     notification_type_id=notification_type.id
                 ).first()
 
@@ -76,7 +77,7 @@ def update_profile():
                     preference.opt_in = opt_in_value
                 else:
                     new_preference = UserNotificationPreference(
-                        tag_category_id=tag_category.id,
+                        event_type_id=event_type.id,
                         user_id=user.id,
                         notification_type_id=notification_type.id,
                         opt_in=opt_in_value
@@ -103,3 +104,63 @@ def update_profile():
         opt_in_form=opt_in_form,
         user=current_user
     )
+
+
+@users.route('test')
+def test_user():
+    from app.users.models import Role, RolesTags, RolesUsers
+    from app.events.models import EventType, EventTypeTags
+    from app.utils.models import TagsNotifications, NotificationType
+    user = User.query.filter(User.id == current_user.id).first()
+    if user:
+        print("User found:", user)
+    else:
+        print("User not found")
+
+    roles = Role.query.join(RolesUsers, Role.id == RolesUsers.role_id).filter(RolesUsers.user_id == user.id).all()
+    if roles:
+        print("Roles associated with user:", roles)
+    else:
+        print("No roles associated with this user")
+
+
+    tags = Tag.query.join(RolesTags, Tag.id == RolesTags.tag_id).join(Role, RolesTags.role_id == Role.id).filter(Role.id.in_([role.id for role in roles])).all()
+    if tags:
+        print("Tags associated with roles:", tags)
+    else:
+        print("No tags associated with these roles")
+
+    event_types = EventType.query.join(EventTypeTags, EventType.id == EventTypeTags.event_id).join(Tag, EventTypeTags.tag_id == Tag.id).filter(Tag.id.in_([tag.id for tag in tags])).all()
+    notification_types = NotificationType.query.join(TagsNotifications, NotificationType.id == TagsNotifications.notification_type_id).join(Tag, TagsNotifications.tag_id == Tag.id).filter(Tag.id.in_([tag.id for tag in tags])).all()
+
+    if event_types:
+        print("Event types associated with tags:", event_types)
+    else:
+        print("No event types associated with these tags")
+
+    if notification_types:
+        print("Notification types associated with tags:", notification_types)
+    else:
+        print("No notification types associated with these tags")
+
+    print("----------------------------------")
+
+    def get_opted_in_users_for_event_notification(event_type_id, notification_type_id):
+        opted_in_users = (
+            db.session.query(User)
+            .join(UserNotificationPreference, User.id == UserNotificationPreference.user_id)
+            .join(EventType, UserNotificationPreference.event_type_id == EventType.id)
+            .join(NotificationType, UserNotificationPreference.notification_type_id == NotificationType.id)
+            .filter(
+                UserNotificationPreference.opt_in == True,
+                EventType.id == event_type_id,
+                NotificationType.id == notification_type_id
+            )
+            .distinct()
+            .all()
+        )
+        return opted_in_users
+    
+    test = get_opted_in_users_for_event_notification(1, 2)
+    print(test)
+    return "<html></html>"

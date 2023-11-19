@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col bg-white shadow-sm p-4 pt-5">
         <div class="h3">
-            <b>Ändra tilldelning bland jägare</b>
+            Ändra tilldelning bland jägare för jaktåret <b></b>{{ year.name }}</b>
         </div>
     </div>
 </div>
@@ -22,27 +22,19 @@
             <tr>
                 <th class="col-1 text-center">Pass</th>
                 <th> Namn </th>
-                <th class="col-2 text-center">Ändra jaktlag</th>
-                <th class="col-2 text-center">Jaktår</th>
-                <th class="col-2 text-center">Roll</th>
+                <th class="col-2 text-center">Jaktlag</th>
+                <th class="col-2 text-center">Passnummer</th>
                 <th class="col-1 text-end">#</th>
             </tr>
             {% for user in users %}
             <div>
                 <tr id="user-row-{{ user.id }}">
-                    <td class="text-center align-middle">{{ user.id }}</td>
+                    <td class="text-center align-middle"><input type="text" id="stand_number-input-{{ user.id }}" /></td>
                     <td class="align-middle"><b>{{ user.first_name }} {{ user.last_name }}{{user}}</b></td>
                     <td>
                         <select class="form-select" id="team-selector-{{ user.id }}" data-user-id="{{ user.id }}">
                             {% for team in teams %}
-                            <option value="{{ team.id }}">{{ team.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td>
-                        <select class="form-select" id="year-selector-{{ user.id }}" data-user-id="{{ user.id }}">
-                            {% for year in years %}
-                            <option value="{{ year.id }}">{{ year.name }}</option>
+                            <option value="{{ team.id }}" {% if team_name == team.name %} selected {%endif%}>{{ team.name }}</option>
                             {% endfor %}
                         </select>
                     </td>
@@ -68,11 +60,13 @@
 
 <script>
 
+
     $(".edit-button").click(function () {
         var user_id = $(this).data('user-id');
         var hunt_team_id = $('#team-selector-' + user_id).val();
-        var hunt_year_id = $('#year-selector-' + user_id).val();
+        var hunt_year_id = {{ year.id }}
         var newTeamName = $('#team-selector-' + user_id + ' option:selected').text();
+        var stand_number = $('#stand_number-input-' + user_id).val();
         var csrf_token = $('#csrf_token').val();
 
         console.log("User ID: " + user_id);
@@ -87,6 +81,7 @@
                 user_id: user_id,
                 hunt_team_id: hunt_team_id,
                 hunt_year_id: hunt_year_id,
+                stand_number: stand_number,
                 csrf_token: csrf_token
             },
             success: function (response) {
