@@ -73,6 +73,9 @@ def create_app() -> Flask:
     from app.errors.handlers import errors
     app.register_blueprint(errors)
 
+    from app.api.routes import api
+    app.register_blueprint(api, url_prefix='/api')
+
     # Custom URL shortening with JTW tokens. This function is mainly used for
     # quick registration
     from app.utils.urlshorter import URLShortener  # noqa
@@ -101,7 +104,7 @@ def create_app() -> Flask:
         #     r_phone_number = f'070{random_with_N_digits(7)}'
 
         #     # print(r_email, r_phone_number, r_first_name, r_last_name)
-        #     app.security.datastore.create_user(email=r_email, first_name=r_first_name, last_name=r_last_name, phone_number=r_phone_number)
+        #     app.security.datastore.create_user(email=r_email, first_name=r_first_name, last_name=r_last_name)
         #     db.session.commit()
     return app
 

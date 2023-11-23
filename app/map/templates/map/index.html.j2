@@ -1,13 +1,6 @@
-<html>
-
-<head>
-    <title> Test mapping function </title>
-</head>
-
-<body>
-
-<h1> My test map </h1>
-
-</body>
-
-</html>
+{% extends "layout.html.j2" %}
+{% block content %}
+<div class="embed-responsive embed-responsive-16by9">
+<iframe src="{{ url_for('map.mapview') }}" width="100%" height="800px"></iframe>
+</div>
+{% endblock %}

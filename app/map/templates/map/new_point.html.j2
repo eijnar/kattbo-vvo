@@ -1,0 +1,17 @@
+{% include "layout.html.j2" %}
+
+{% block content %}
+<form method="post">
+{{ form.hidden_tag() }}<br>
+{{ form.name.label() }}{{ form.name() }}<br>
+{{ form.lat.label() }}{{ form.lat() }}<br>
+{{ form.long.label() }}{{ form.long() }}<br>
+{{ form.category.label() }}{{ form.category() }}<br>
+{{ form.description.label() }}{{ form.description() }}<br>
+{{ form.submit }}
+</form> 
+
+Hej <br>
+<i class="fa-solid fa-fire"></i>
+
+{% endblock %}

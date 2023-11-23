@@ -2,17 +2,17 @@ from flask_security import current_user, login_required, roles_accepted
 from flask import Blueprint, current_app, render_template, flash, redirect, url_for, request, abort, make_response
 from app import db
 from flask_jwt_extended import decode_token
-from datetime import datetime
 from app.events.forms import EventForm, RegisterEventDayForm
-from app.events.models import Event, EventDay, UsersEvents, EventType, EventCategory
+from app.events.models import Event, EventDay, UsersEvents, EventType, EventCategory, EventDayGathering
 from app.users.models import User, UsersTags
 from app.tag.models import Tag
 from app.hunting.models import UserTeamYear, HuntTeam, StandAssignment, Stand
-from app.utils.models import Document, NotificationType
-from app.utils.notification import get_opted_in_users_for_event_notification, send_sms
-from app.events.utils import handle_user_event_day_registration
+from app.utils.models import Document
+from app.map.models import PointOfIntrest
+from app.events.utils import handle_user_event_day_registration, create_event_and_gatherings, notify_users_about_event
 from pdfkit import from_string
 from markdown import markdown
+from datetime import datetime
 from collections import defaultdict
 
 
@@ -26,7 +26,6 @@ events = Blueprint('events', __name__, template_folder='templates')
 def quick_register():
     token = request.args.get('token')
     decoded_token = decode_token(token)
-    print(decoded_token)
     if not token:
         flash('No token provided.')
         return redirect(url_for('main.home'))
@@ -88,28 +87,29 @@ def list_events():
 
     teams = HuntTeam.query.all()
 
-    query = db.session.query(
-        Event,
-        db.func.count(db.func.distinct(UsersEvents.user_id)).label('subscriber_count')
+    # Subquery for EventDay with future dates
+    future_event_days = db.session.query(EventDay.event_id).filter(
+        EventDay.date > datetime.utcnow()
+    ).subquery()
+
+    # Query Event objects
+    query = Event.query.join(
+        future_event_days, Event.id == future_event_days.c.event_id
     ).join(
-        Event.event_days
-    ).outerjoin(
-        UsersEvents, UsersEvents.day_id == EventDay.id 
+        EventDay, EventDay.event_id == Event.id
     ).join(
         EventType, EventType.id == Event.event_type_id
     ).join(
         EventCategory, EventCategory.id == EventType.event_category_id
     )
 
+    # Filter by event category if provided
     if event_category is not None:
         query = query.filter(EventCategory.name == event_category)
 
-    events = query.group_by(
-        Event
-    ).having(
-        db.func.max(EventDay.date) > datetime.utcnow()
-    ).order_by(
-        db.func.min(EventDay.date)
+    # Fetch events, grouped by Event
+    events = query.group_by(Event.id).order_by(
+        db.func.min(EventDay.date)  # Order by the earliest EventDay date
     ).all()
 
     return render_template('events/list_events.html.j2', events=events, teams=teams)
@@ -122,49 +122,19 @@ def create_event():
     event_category_name = request.args.get('event_category')
     event_category = EventCategory.query.filter_by(name=event_category_name).first()
     event_types = EventType.query.filter_by(event_category_id=event_category.id).all()
-    urlshortener = current_app.urlshortener
     event_form = EventForm()
+    gathering_places = PointOfIntrest.query.all()
 
-    # Populate choices for tags field
+    # Populate choices for gathering places
     event_form.event_type.choices = [(et.id, et.name) for et in event_types]
+    event_form.joint_gathering_place.choices = [(jg.id, jg.name) for jg in gathering_places]
+    event_form.hemmalaget_gathering_place.choices = [(hg.id, hg.name) for hg in gathering_places]
+    event_form.bortalaget_gathering_place.choices = [(bg.id, bg.name) for bg in gathering_places]
+
 
     if event_form.validate_on_submit():
-
-        event = Event(
-            event_type_id=event_form.event_type.data,
-            description=event_form.description.data,
-            creator_id=current_user.id
-        )
-
-        db.session.add(event)
-        db.session.flush()  # This will assign an ID to the event without committing the transaction
-
-        dates = [d.strip() for d in event_form.dates.data.split(',')]
-        for date_str in dates:
-            date = datetime.strptime(date_str, '%Y-%m-%d').date()
-            event_day = EventDay(event_id=event.id, date=date)
-            db.session.add(event_day)
-
-        db.session.commit()
-        
-        notification_types = NotificationType.query.all()
-        event = Event.query.filter_by(id=event.id).first()
-        
-        if event:
-            event_type_name = event.event_type.name
-            event_days_list = sorted([event_day.date for event_day in event.event_days])
-
-        for notification_type in notification_types:
-            users_to_notify = get_opted_in_users_for_event_notification(event_form.event_type.data, notification_type.id)
-            for user in users_to_notify:
-                if notification_type.name == 'SMS':
-                    event_days_str = ', '.join(day.strftime("%d/%m") for day in event_days_list)
-                    jwt_payload = {'user_id': user.id, 'event_id': event_form.event_type.data}
-                    shortlink = urlshortener.create_short_link_with_jwt(jwt_payload)
-                    message = f'Hej {user.first_name}!\n Välkommen på {event_type_name.lower()} {event_days_str}.\n\nKlicka på länken för att anmäla dig samt få mer information: {shortlink}'
-                    send_sms(user.phone_number, message)
-                if notification_type.name == 'E-post':
-                    print("Skickar E-post")
+        new_event = create_event_and_gatherings(event_form, current_user)
+        notify_users_about_event(new_event, event_form)
 
         flash('The event has been created!', 'success')
         if event_category_name is not None:
@@ -173,8 +143,8 @@ def create_event():
             return redirect(url_for('events.list_events'))
         
     else:
-        print("Form errors:", event_form.errors)  # Add this line
-    return render_template('events/create_event.html.j2', event_form=event_form)
+        print("Form errors:", event_form.errors)
+    return render_template('events/create_event.html.j2', event_form=event_form, event_category=event_category)
 
 
 @events.route('/<int:event_id>/register', methods=['GET', 'POST'])
@@ -302,14 +272,16 @@ def generate_event_pdf(event_id):
 
 
 # Needs rework, new func. per EventDay has been added to the DB, cancelled defaults to False (0)
-@events.route('/<int:event_id>/cancel', methods=['POST'])
+@events.route('/<int:event_id>/cancel', methods=['GET', 'POST'])
 @login_required
 @roles_accepted('admin', 'hunt-leader')
 def delete_event(event_id):
     event = Event.query.get_or_404(event_id)
     if event.creator_id != current_user.id:
         abort(403)
-    db.session.delete(event)
-    db.session.commit()
-    flash(f'Du har tagit bort {event.tag_category.name}')
-    return redirect(url_for('events.list_events'))
+    for event_day in event.event_days:
+        event_day.cancelled = True
+        db.session.commit()
+
+    flash(f'Du har tagit bort {event.event_type.name}')
+    return '<html></html>'

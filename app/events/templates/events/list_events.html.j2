@@ -17,7 +17,8 @@
   </div>
 </div>
 <div class="row bg-light">
-  <div class="col text-center pt-2">selector row, future update</div>
+  <div class="col text-center pt-2"><div id="calendar"></div>
+  </div>
 
 </div>
 <div class="row bg-light">
@@ -34,9 +35,9 @@
         </tr>
       </thead>
       <tbody>
-        {% for event, subscriber_count in events %}
-        <tr>
-          <td class="align-middle text-center">{{ event.event_type.name }}</td>
+        {% for event in events %}
+        <tr class="bg-danger">
+          <td class="align-middle text-center {% if event.is_active %}bg-danger{% endif %}">{{ event.event_type.name }} </td>
           <td class="align-middle">
             
             {% set dates = event.event_days|map(attribute='date')|list|sort %}
@@ -52,7 +53,7 @@
             {%endfor%}
           </td>
           <td class="align-middle d-none d-lg-table-cell">
-            {{ subscriber_count }}
+          {% if event.is_active %}  {% endif %} AKJAK
           </td>
           <td class="text-end align-middle col-xs-2">
           {% if current_user.role == 'hunt-leader' %}
@@ -92,13 +93,38 @@
 </div>
 </div>
 <script>
-if ("geolocation" in navigator) {
-  navigator.geolocation.getCurrentPosition(function(position) {
-    const { latitude, longitude } = position.coords;
-    console.log("Latitude:", latitude, "Longitude:", longitude)
-  });
-} else {
-  console.log("Geolocation is not available.");
-}
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        plugins: [ 'interaction', 'dayGrid' ],
+        defaultView: 'dayGridMonth',
+        events: function(fetchInfo, successCallback, failureCallback) {
+            $.ajax({
+                url: '/api/event/get_all_events', // Flask route to fetch events
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    var events = [];
+                    data.forEach(function(event) {
+                        events.push({
+                            title: event.title,
+                            start: event.start,
+                            end: event.end
+                            // Add other event properties as needed
+                        });
+                    });
+                    successCallback(events);
+                },
+                error: function() {
+                    failureCallback();
+                }
+            });
+        },
+        // Additional options and event handlers (like eventClick for details or accepting events)
+    });
+
+    calendar.render();
+});
 </script>
 {% endblock %}

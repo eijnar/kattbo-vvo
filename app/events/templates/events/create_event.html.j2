@@ -8,7 +8,7 @@
 </div>
 <div class="row bg-white p-4 pt-5">
     <div class="col"></div>
-    <div class="col-sm-3 p-3">
+    <div class="col-lg-3 p-3">
         <form action="" method="post">
             {{ event_form.hidden_tag() }}
             {{ event_form.dates(class="form-control", id="selectedDates", type="hidden") }}
@@ -26,9 +26,28 @@
             {{ event_form.event_type(class="form-control") }}
         </div>
         <div class="row py-1">
+        {% if event_category.name == 'hunting'%}
+            <label for="description">Samling</label>
+        {% else %}
             <label for="description">Tid</label>
-            {{ event_form.time(class="form-control", id="selectedTime") }}
+        {% endif %}
+            {{ event_form.start_time(class="form-control") }}
         </div>
+        <div class="row py-1">
+    <div class="form-check">
+        {{ event_form.joint_gathering(id="toggleCheckbox", class="form-check-input") }}
+        {{ event_form.joint_gathering.label(for="toggleCheckbox", class="form-check-label") }}
+
+    </div>
+
+    <div id="block1">
+        <label for="joint_gathering_place">Samlingsplats</label>
+        {{ event_form.joint_gathering_place(class="form-control") }}
+    </div>
+    <div id="block2">
+        Hemmalaget: {{ event_form.hemmalaget_gathering_place(class="form-control") }}
+        Bortalaget: {{ event_form.bortalaget_gathering_place(class="form-control") }}
+    </div>
         <div class="row py-1">
             <label for="description">Sammanfattning</label>
             {{ event_form.description(class="form-control", id="description") }}
@@ -74,6 +93,43 @@ function updateEventTypes() {
             });
         });
 }
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var checkbox = document.getElementById('toggleCheckbox');
+    var block1 = document.getElementById('block1');
+    var block2 = document.getElementById('block2');
+
+    var hemmalagetSelect = document.getElementById('hemmalaget_gathering_place');
+    var bortalagetSelect = document.getElementById('bortalaget_gathering_place');
+    var gemensamSelect = document.getElementById('joint_gathering_place');
+    block2.style.display = 'none';
+
+    toggleBlocks(checkbox.checked);
+
+    checkbox.addEventListener('change', function() {
+        toggleBlocks(this.checked);
+    });
+
+    function toggleBlocks(isChecked) {
+        if(isChecked) {
+            // Show Block 1 and hide Block 2
+            block1.style.display = 'block';
+            block2.style.display = 'none';
+
+            hemmalagetSelect.disabled = true;
+            bortalagetSelect.disabled = true;
+            gemensamSelect.disabled = false;
+        } else {
+            // Hide or remove Block 1 and show Block 2
+            block1.style.display = 'none';
+            block2.style.display = 'block';
+            hemmalagetSelect.disabled = false;
+            bortalagetSelect.disabled = false;
+            gemensamSelect.disabled = true;
+        }
+    }
+});
 </script>
 </div>
 

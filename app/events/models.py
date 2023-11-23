@@ -15,13 +15,22 @@ class Event(db.Model, TrackingMixin, CRUDMixin):
     # Relationships
     event_days = db.relationship(
         'EventDay', back_populates='event', cascade='all,delete')
+    
+    @property
+    def is_active(self):
+        # Count the number of active (non-cancelled) days for this event
+        active_days = EventDay.query.filter_by(
+            event_id=self.id, cancelled=True  # Assuming cancelled is a boolean field
+        ).count()
+        return active_days > 0
 
 
 class EventDay(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     start_time = db.Column(db.Time, default='07:00:00', nullable=True)
-    cancelled = db.Column(db.SmallInteger, default=0)
+    end_time = db.Column(db.Time, default='16:00:00', nullable=True)
+    cancelled = db.Column(db.Boolean, default=False)
 
     # ForeignKeys
     event_id = db.Column(db.Integer, db.ForeignKey(
@@ -30,12 +39,6 @@ class EventDay(db.Model, TrackingMixin):
     # Relationships
     event = db.relationship('Event', back_populates='event_days')
     users_events = db.relationship('UsersEvents', back_populates='days')
-
-    @property
-    def is_active(self):
-        active_days = EventDay.query.filter_by(
-            event_id=self.id, cancelled=0).count()
-        return active_days > 0
 
 
 class EventType(db.Model, TrackingMixin):
@@ -74,3 +77,11 @@ class EventTypeTags(db.Model, TrackingMixin):
         'event_type.id', ondelete='CASCADE'), primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey(
         'tag.id', ondelete='CASCADE'), primary_key=True)
+
+class EventDayGathering(db.Model, TrackingMixin):
+    event_day_id = db.Column(db.Integer, db.ForeignKey('event_day.id', ondelete='CASCADE'), primary_key=True)
+    place_id = db.Column(db.Integer, db.ForeignKey('point_of_intrest.id', ondelete='CASCADE'), primary_key=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('hunt_team.id', ondelete='CASCADE'), nullable=True)
+    event_day = db.relationship('EventDay', backref=db.backref('gatherings', lazy=True))
+    place = db.relationship('PointOfIntrest', backref=db.backref('event_days', lazy=True))
+    team = db.relationship('HuntTeam', backref=db.backref('event_days', lazy=True))
