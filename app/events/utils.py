@@ -104,7 +104,7 @@ def notify_users_about_event(event, form):
         for user in users_to_notify:
             if notification_type.name == 'SMS':
                 event_days_str = ', '.join(day.strftime("%d/%m") for day in event_days_list)
-                jwt_payload = {'user_id': user.id, 'event_id': form.event_type.data}
+                jwt_payload = {'user_id': user.id, 'event_id': event.id}
                 shortlink = urlshortener.create_short_link_with_jwt(jwt_payload)
                 message = f'Hej {user.first_name}!\nVälkommen på {event_type_name.lower()} {event_days_str}.\n\n{gathering_message}\n\nKlicka på länken för att anmäla dig samt få mer information: {shortlink}'
                 send_sms(user.phone_number, message)
