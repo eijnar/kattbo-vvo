@@ -34,7 +34,6 @@ def quick_register():
         decoded_token = decode_token(token)
         event_id = decoded_token['sub']['event_id']
         user_id = decoded_token['sub']['user_id']
-        print(decoded_token)
 
         # Retrieve the event including its event days using the relationship
         event = Event.query.filter_by(id=event_id).first()
@@ -194,6 +193,7 @@ def generate_event_pdf(event_id):
     else:
         teams = [HuntTeam.id for huntteam in HuntTeam.query.all()]
 
+    organized_data = []
     for event_day in event_days:
         # Fetch users and their team information for the event day
         users_in_day = User.query \
@@ -212,41 +212,40 @@ def generate_event_pdf(event_id):
             .distinct() \
             .all()
 
-    for user, team_name, team_id, event_date, tag_name, stand_number in users_in_day:
-        team_key = (team_id, team_name)
-        if team_key not in users_by_team_and_day:
-            users_by_team_and_day[team_key] = {}
-        if event_date not in users_by_team_and_day[team_key]:
-            users_by_team_and_day[team_key][event_date] = {'users': []}
+        users_by_team_and_day = {}
+        for user, team_name, team_id, event_date, tag_name, stand_number in users_in_day:
+            team_key = (team_id, team_name)
+            if team_key not in users_by_team_and_day:
+                users_by_team_and_day[team_key] = {}
+            if event_date not in users_by_team_and_day[team_key]:
+                users_by_team_and_day[team_key][event_date] = {'users': []}
 
-        user_info = {
-            'user': user,
-            'tag': tag_name,
-            'stand': stand_number if stand_number else None
-        }
-        users_by_team_and_day[team_key][event_date]['users'].append(user_info)
-
-    organized_data = []
-
-    for (team_id, team_name), dates in users_by_team_and_day.items():
-        for date, data in dates.items():
-            users_by_specific_tags = {tag: [] for tag in specific_tags}
-
-            for user_info in data['users']:
-                user_data = {
-                    'user_details': user_info['user'],
-                    'stand_number': user_info['stand']
-                }
-                if user_info['tag'] in specific_tags:
-                    users_by_specific_tags[user_info['tag']].append(user_data)
-
-            team_info = {
-                'team_id': team_id,
-                'team_name': team_name,
-                'date': date,
-                'users_by_specific_tags': users_by_specific_tags
+            user_info = {
+                'user': user,
+                'tag': tag_name,
+                'stand': stand_number if stand_number else None
             }
-            organized_data.append(team_info)
+            users_by_team_and_day[team_key][event_date]['users'].append(user_info)
+
+        for (team_id, team_name), dates in users_by_team_and_day.items():
+            for date, data in dates.items():
+                users_by_specific_tags = {tag: [] for tag in specific_tags}
+
+                for user_info in data['users']:
+                    user_data = {
+                        'user_details': user_info['user'],
+                        'stand_number': user_info['stand']
+                    }
+                    if user_info['tag'] in specific_tags:
+                        users_by_specific_tags[user_info['tag']].append(user_data)
+
+                team_info = {
+                    'team_id': team_id,
+                    'team_name': team_name,
+                    'date': date,
+                    'users_by_specific_tags': users_by_specific_tags
+                }
+                organized_data.append(team_info)
 
     def get_pdf_options():
         return {
@@ -258,7 +257,6 @@ def generate_event_pdf(event_id):
             'margin-right': '12mm'
         }
     
-    print(organized_data)
     rendered_page = render_template(
         'events/pdf/attendance.html.j2', data=organized_data)
 
