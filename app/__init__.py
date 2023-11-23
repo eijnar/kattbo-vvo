@@ -80,7 +80,7 @@ def create_app() -> Flask:
     # quick registration
     from app.utils.urlshorter import URLShortener  # noqa
     app.urlshortener = URLShortener(
-        base_url='https://dev.kaffesump.se',
+        base_url='https://dev.kattbovvo.se',
         registration_route='/events/quick_registration'
     )
 
