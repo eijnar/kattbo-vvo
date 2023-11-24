@@ -29,7 +29,7 @@
             {% for user in users %}
             <div>
                 <tr id="user-row-{{ user.id }}">
-                    <td class="text-center align-middle"><input type="text" id="stand_number-input-{{ user.id }}" /></td>
+                    <td class="text-center align-middle"><input type="text" id="stand_number-input-{{ user.id }}" style="width: 40px;" class="text-center"/></td>
                     <td class="align-middle"><b>{{ user.first_name }} {{ user.last_name }}{{user}}</b></td>
                     <td>
                         <select class="form-select" id="team-selector-{{ user.id }}" data-user-id="{{ user.id }}">

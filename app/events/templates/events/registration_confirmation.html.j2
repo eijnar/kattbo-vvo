@@ -3,8 +3,11 @@
 <div class="row justify-content-center">
     <div class="col bg-light p-4">
         <div class="row">
-        <div class="col text-center py-2"><h1><b>Tack för att du registrerat dig till {{ event_type.name|lower }}</b></h1><h4> {% set dates = event.event_days|map(attribute='date')|list|sort %}
-                {{ dates[0] }} - {{ dates[-1] }}</h4></div>
+            <div class="col text-center py-2">
+                <h1><b>Tack för att du registrerat dig till {{ event_type.name|lower }}</b></h1>
+                <h4> {% set dates = event.event_days|map(attribute='date')|list|sort %}
+                    {{ dates[0] }} - {{ dates[-1] }}</h4>
+            </div>
         </div>
         <div class="row">
             <div class="col">
@@ -15,33 +18,25 @@
                     planera jakten enklare. Skulle det bli inställt någon av dagarna eller hela jakten så kommer du få
                     ett sms om detta så snart detta görs.</p>
             </div>
-            <div class="col-lg">
-                <h5>Kvarvarande älgar</h5>
+            <div class="col-lg py-4">
                 <table class="table table-bordered shadow">
                     <tr class="table-active">
-                        <th>Jaktlag</th>
+                        <th>Kvarvarande älgar</th>
                         <th class="text-center">Oxar</th>
                         <th class="text-center">Kor</th>
                         <th class="text-center">Kalv</th>
                     </tr>
+
+                    <!-- Table body -->
+                    {% for team_name, quotas in statistics.items() %}
+
                     <tr>
-                        <th>Hemmalaget</th>
-                        <td class="text-center">2</td>
-                        <td class="text-center">0</td>
-                        <td class="text-center">2</td>
+                        <th>{{ team_name }}</th>
+                        <td class="text-center">{{ quotas.get('Oxe', 0) }}</td>
+                        <td class="text-center">{{ quotas.get('Ko', 0) }}</td>
+                        <td class="text-center">{{ quotas.get('Kalv', 0) }}</td>
                     </tr>
-                    <tr>
-                        <th>Bortalaget</th>
-                        <td class="text-center">0</td>
-                        <td class="text-center">0</td>
-                        <td class="text-center">11</td>
-                    </tr>
-                    <tr class="table-active">
-                        <th>Totalt</th>
-                        <th class="text-center">2</th>
-                        <th class="text-center">0</th>
-                        <th class="text-center">13</th>
-                    </tr>
+                    {% endfor %}
                 </table>
             </div>
         </div>

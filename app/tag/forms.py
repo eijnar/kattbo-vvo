@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import widgets
-from wtforms.fields import StringField, SubmitField, BooleanField, SelectMultipleField
+from wtforms.fields import StringField, SubmitField, BooleanField, SelectMultipleField, SelectField
 from wtforms.validators import DataRequired, Length
 
 class TagForm(FlaskForm):

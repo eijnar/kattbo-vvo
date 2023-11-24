@@ -6,7 +6,7 @@ from app.events.forms import EventForm, RegisterEventDayForm
 from app.events.models import Event, EventDay, UsersEvents, EventType, EventCategory, EventDayGathering
 from app.users.models import User, UsersTags
 from app.tag.models import Tag
-from app.hunting.models import UserTeamYear, HuntTeam, StandAssignment, Stand
+from app.hunting.models import UserTeamYear, HuntTeam, StandAssignment, Stand, AnimalQuota
 from app.utils.models import Document
 from app.map.models import PointOfIntrest
 from app.events.utils import handle_user_event_day_registration, create_event_and_gatherings, notify_users_about_event
@@ -60,10 +60,28 @@ def quick_register():
         # Handle exceptions, such as token expiration or decoding errors
         flash(str(e))
 
+    def get_quota_statistics(hunt_year_id):
+        quotas = AnimalQuota.query.filter_by(hunt_year_id=hunt_year_id).all()
+        statistics = {}
+
+        for quota in quotas:
+            team_name = quota.hunt_team.name
+            animal_name = quota.animal_type.name
+            remaining_quota = quota.initial_quota - len(quota.animals_shot)
+
+            if team_name not in statistics:
+                statistics[team_name] = {}
+
+            statistics[team_name][animal_name] = remaining_quota
+            
+        return statistics
+
+    statistics = get_quota_statistics(1)
+
     pm = Document.query.filter_by(short_name='pm').first()
     event_type = EventType.query.filter_by(id = event.event_type_id).first()
     # Redirect to a confirmation page or back to the homepage
-    return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type)
+    return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics)
 
 
 @events.route('/register/sms', methods=['GET', 'POST'])
@@ -175,7 +193,7 @@ def register_event(event_id):
         for users_event in day.users_events:
             user_subscriptions[users_event.user].append(day.date)
 
-    return render_template('events/event_form.html.j2', form=form, event=event, user_subscriptions=user_subscriptions)
+    return render_template('events/accept_event.html.j2', form=form, event=event, user_subscriptions=user_subscriptions)
 
 
 @events.route('/<int:event_id>/_pdf', methods=['GET', 'POST'])

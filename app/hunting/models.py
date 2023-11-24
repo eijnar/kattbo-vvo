@@ -19,6 +19,7 @@ class HuntTeam(db.Model, TrackingMixin):
     
     # Relationships
     areas = db.relationship('Area', back_populates='hunt_team', lazy=True)
+    animal_quotas = db.relationship('AnimalQuota', back_populates='hunt_team')
 
 
 class UserTeamYear(db.Model):
@@ -78,12 +79,15 @@ class AnimalQuota(db.Model):
     animal_type = db.relationship('AnimalType', back_populates='quotas')
     initial_quota = db.Column(db.Integer, nullable=True)
     animals_shot = db.relationship('AnimalShot', back_populates='quota')
+    hunt_team_id = db.Column(db.Integer, db.ForeignKey('hunt_team.id'), nullable=False)
+    hunt_team = db.relationship('HuntTeam', back_populates='animal_quotas')
 
 
 class AnimalType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     quotas = db.relationship('AnimalQuota', back_populates='animal_type')
+    group = db.Column(db.String(100), nullable=False)
 
 
 class AnimalShot(db.Model):

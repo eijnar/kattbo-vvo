@@ -1,38 +1,64 @@
-{% extends "base_layout.html.j2" %}
-
+{% extends "layout.html.j2" %}
 {% block content %}
-  <h1>Accept Hunt</h1>
-  <form method="POST">
-    {{ form.hidden_tag() }}
-    <div class="mb-3">
-      {{ form.days.label }}
-      {{ form.days(class="form-control") }}
-      {% if form.days.errors %}
-        <div class="invalid-feedback">
-          {{ form.days.errors[0] }}
-        </div>
-      {% endif %}
-    </div>
-    <div class="form-check">
-      <input type="checkbox" class="form-check-input" id="selectAll" onclick="selectAllDays()">
-      <label class="form-check-label" for="selectAll">Select All</label>
-    </div>
-    {{ form.submit(class="btn btn-primary") }}
-  </form>
 
-  <script>
-    function selectAllDays() {
-      const selectAllCheckbox = document.getElementById('selectAll');
-      const daysSelect = document.getElementById('days');
-      if (selectAllCheckbox.checked) {
-        for (let option of daysSelect.options) {
-          option.selected = true;
-        }
-      } else {
-        for (let option of daysSelect.options) {
-          option.selected = false;
-        }
-      }
-    }
-  </script>
+{% set dates = event.event_days|map(attribute='date')|list|sort %}
+
+<div class="row bg-light">
+  <div class="col shadow   p-4">
+    <h1>Anmäl dig till {{ event.event_type.name | lower }}</h1>
+  </div>
+</div>
+<div class="row p-4 bg-light">
+  <div class="col-lg-7">
+    <h5><b>{{ format_date(dates[0], format='dd MMMM') }} - {{ format_date(dates[-1], format='dd MMMM') }}</b></h5>
+    <p class="px-4">{{ event.description }}</p>
+    <p><b>Dåligt med tid? Klicka på de dagar som du inte kan vara med på</b></p>
+    <form method="POST" action="" class="form">
+      {{ form.hidden_tag() }}
+      <div class="row p-1">
+        <div class="col">
+          <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+            {% for subfield in form.event_days %}
+
+            {{ subfield(class="btn-check ") }}
+            {{ subfield.label(class="btn btn-outline-success")}}
+
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="row p-1">
+        <div class="col">
+          {{ form.submit(class="btn btn-success") }}
+        </div>
+      </div>
+      {% if form.event_days.errors %}
+      <div class="errors">{{ form.event_days.errors[0] }}</div>
+      {% endif %}
+    </form>
+  </div>
+
+  <div class="col-lg-5">
+    <h5> Anmälda </h5>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Namn</th>
+          <th>Dagar</td>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user, days in user_subscriptions.items() %}
+        <tr>
+          <td><b>{{ user.first_name }} {{ user.last_name }}</b></td>
+          <td>{{ days|join(', ') }}</td> <!-- Adjust format as needed -->
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
 {% endblock %}
