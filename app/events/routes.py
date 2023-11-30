@@ -34,6 +34,7 @@ def quick_register():
         decoded_token = decode_token(token)
         event_id = decoded_token['sub']['event_id']
         user_id = decoded_token['sub']['user_id']
+        print(f'Event id: {event_id}\nUser_id {user_id}')
 
         # Retrieve the event including its event days using the relationship
         event = Event.query.filter_by(id=event_id).first()
