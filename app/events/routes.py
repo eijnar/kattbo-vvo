@@ -101,9 +101,7 @@ def register_with_sms():
 @login_required
 def list_events():
     event_category = request.args.get('event_category', None)
-
     teams = HuntTeam.query.all()
-
     # Subquery for EventDay with future dates
     future_event_days = db.session.query(EventDay.event_id).filter(
         EventDay.date > datetime.utcnow()
@@ -119,7 +117,6 @@ def list_events():
     ).join(
         EventCategory, EventCategory.id == EventType.event_category_id
     )
-
     # Filter by event category if provided
     if event_category is not None:
         query = query.filter(EventCategory.name == event_category)
@@ -141,6 +138,8 @@ def create_event():
     event_types = EventType.query.filter_by(event_category_id=event_category.id).all()
     event_form = EventForm()
     gathering_places = PointOfIntrest.query.all()
+    default_hemmalaget_name = "Sågen"
+    default_bortalaget_name = "Slaktladan"
 
     # Populate choices for gathering places
     event_form.event_type.choices = [(et.id, et.name) for et in event_types]
@@ -148,10 +147,18 @@ def create_event():
     event_form.hemmalaget_gathering_place.choices = [(hg.id, hg.name) for hg in gathering_places]
     event_form.bortalaget_gathering_place.choices = [(bg.id, bg.name) for bg in gathering_places]
 
+    default_hemmalaget_id = next((place.id for place in gathering_places if place.name == default_hemmalaget_name), None)
+    default_bortalaget_id = next((place.id for place in gathering_places if place.name == default_bortalaget_name), None)
+
+    if default_hemmalaget_id is not None:
+        event_form.hemmalaget_gathering_place.data = default_hemmalaget_id
+    if default_bortalaget_id is not None:
+        event_form.bortalaget_gathering_place.data = default_bortalaget_id
+
 
     if event_form.validate_on_submit():
         new_event = create_event_and_gatherings(event_form, current_user)
-        notify_users_about_event(new_event, event_form)
+        notify_users_about_event(new_event, event_form.event_type.data)
 
         flash('The event has been created!', 'success')
         if event_category_name is not None:
@@ -287,17 +294,28 @@ def generate_event_pdf(event_id):
     return response
 
 
-# Needs rework, new func. per EventDay has been added to the DB, cancelled defaults to False (0)
 @events.route('/<int:event_id>/cancel', methods=['GET', 'POST'])
 @login_required
 @roles_accepted('admin', 'hunt-leader')
-def delete_event(event_id):
+def cancel_event(event_id):
     event = Event.query.get_or_404(event_id)
     if event.creator_id != current_user.id:
         abort(403)
-    for event_day in event.event_days:
-        event_day.cancelled = True
+
+    # Check if all event days are already cancelled
+    if all(event_day.cancelled for event_day in event.event_days):
+        flash('Evenemanget har redan blivit inställt.', 'info')
+        return redirect(url_for('events.list_events'))  # Redirect to a relevant page
+
+    try:
+        for event_day in event.event_days:
+            event_day.cancelled = True
         db.session.commit()
 
-    flash(f'Du har tagit bort {event.event_type.name}')
-    return '<html></html>'
+        notify_users_about_event(event, event.event_type.id, cancelled=True)
+        flash(f'Du har ställt in {event.event_type.name}', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Ett fel inträffade när evenemanget skulle avbrytas: {str(e)}', 'error')
+
+    return redirect(url_for('events.list_events'))  # Redirect to a relevant page after processing

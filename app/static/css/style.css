@@ -31,3 +31,7 @@
     overflow: hidden;  /* Disables scrollbars */
     border: none;     /* Optional: removes the border */
 }
+
+.weekend {
+    background-color: rgb(255, 201, 201); /* Color for holidays */
+}

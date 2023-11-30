@@ -4,6 +4,7 @@ from app.hunting.models import HuntTeam, AnimalType, AnimalShot, AnimalQuota, Us
 from app.hunting.forms import RegisterShotMoose
 from app.users.models import User, UsersTags
 from app.tag.models import Tag
+from app.hunting.utils import get_hunt_years, get_hunt_team_for_user_and_year, find_quota_id
 from app import db
 
 
@@ -28,48 +29,68 @@ def register_moose():
     hunters = User.query.join(UsersTags).join(Tag).filter(Tag.name.in_(tag_names)).all()
     form.moose_type.choices = [(mt.id, mt.name) for mt in moose_types]
     form.hunter.choices = [(h.id, f'{h.first_name} {h.last_name}') for h in hunters]
+    current_hunt_year, prev_hunt_year, next_hunt_year = get_hunt_years()
 
     if form.validate_on_submit():
-        def get_hunt_team_for_user_and_year(user_id, hunt_year_id):
-            user_team_year = UserTeamYear.query.filter_by(
-                user_id=user_id, 
-                hunt_year_id=hunt_year_id
-            ).first()
 
-            return user_team_year.hunt_team_id if user_team_year else None
-
-        def find_quota_id(hunt_year_id, hunt_team_id, animal_type_id):
-            quota = AnimalQuota.query.filter_by(
-                hunt_year_id=hunt_year_id,
-                hunt_team_id=hunt_team_id,
-                animal_type_id=animal_type_id
-            ).first()
-
-            if quota:
-                return quota.id
-            else:
-                # Handle the case where no matching quota is found
-                return None
-        
-        hunt_year_id = 1
-        hunt_team_id = get_hunt_team_for_user_and_year(form.hunter.data, hunt_year_id)
+        hunt_team_id = get_hunt_team_for_user_and_year(form.hunter.data, current_hunt_year.id)
         quota_id = find_quota_id(
-            hunt_year_id,
+            current_hunt_year.id,
             hunt_team_id,
             form.moose_type.data
         )
+        
+        if form.moose_type.data == 1: # Kalv
+            animal_shot = AnimalShot(
+                animal_type_id = form.moose_type.data,
+                gender = form.gender.data,
+                date_shot = form.date.data,
+                weight = form.weight.data,
+                age = "0.5",
+                user_id = form.hunter.data,
+                quota_id = quota_id,
+            )
 
-        animal_shot = AnimalShot(
-            date_shot = form.date.data,
-            weight = form.weight.data,
-            age = form.age.data,
-            user_id = form.hunter.data,
-            quota_id = quota_id,
-            gender = "male"
-        )
+        elif form.moose_type.data == 2: # Oxe
+            animal_shot = AnimalShot(
+                animal_type_id = form.moose_type.data,
+                date_shot = form.date.data,
+                weight = form.weight.data,
+                age = form.age.data,
+                user_id = form.hunter.data,
+                quota_id = quota_id,
+                gender = "male",
+                antler_type = form.antler_type.data,
+                antlers = form.antlers.data
+            )
+
+        elif form.moose_type.data == 3: # Ko
+            animal_shot = AnimalShot(
+                animal_type_id = form.moose_type.data,
+                date_shot = form.date.data,
+                weight = form.weight.data,
+                age = form.age.data,
+                user_id = form.hunter.data,
+                quota_id = quota_id,
+                gender = "female",
+                milk = form.milk.data
+            )
+
+
         db.session.add(animal_shot)
         db.session.commit()
     else:
         print(form.errors)
 
-    return render_template('register/moose.html.j2', form=form)
+    return render_template('register/register_moose.html.j2', form=form)
+
+@hunting.route('/hunt_year/<int:hunt_year_id>/downed_animals')
+def downed_animals(hunt_year_id):
+    # Query to fetch downed animals and related user info
+    downed_animals = AnimalShot.query \
+        .join(User, AnimalShot.user_id == User.id) \
+        .join(AnimalQuota, AnimalShot.quota_id == AnimalQuota.id) \
+        .filter(AnimalQuota.hunt_year_id == hunt_year_id) \
+        .all()
+
+    return render_template('downed_animals.html.j2', downed_animals=downed_animals, hunt_year_id=hunt_year_id)

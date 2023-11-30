@@ -99,8 +99,9 @@ class AnimalShot(db.Model):
     animal_type_id = db.Column(db.Integer, db.ForeignKey('animal_type.id'))
     animal_type = db.relationship('AnimalType')
     antler_type = db.Column(db.String(255))
-    antlers = db.Column(db.String(255))  # Could be an enum if you have specific categories
+    antlers = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User')
+    milk = db.Column(db.Boolean, default=False)
     quota_id = db.Column(db.Integer, db.ForeignKey('animal_quota.id'), nullable=False)
     quota = db.relationship('AnimalQuota', back_populates='animals_shot')

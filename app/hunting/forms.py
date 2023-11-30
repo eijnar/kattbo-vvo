@@ -11,7 +11,7 @@ class RegisterShotMoose(FlaskForm):
     age = StringField('Ålder')
     hunter = SelectField('Jägare', validators=[DataRequired()], coerce=int)
     gender = RadioField('Kön', choices=[("male", "Oxe"), ("female", "Kviga")], validators=[Optional()])
-    antlers = StringField('Antal piggar', validators=[Optional()])
+    antlers = StringField('Antal taggar', validators=[Optional()])
     antler_type = RadioField('Horntyp', choices=[("skovel", "Skovel"), ("stång", "Stång")], validators=[Optional()])
     milk = BooleanField('Mjölk', default=False, validators=[Optional()])
     submit = SubmitField('Registrera')

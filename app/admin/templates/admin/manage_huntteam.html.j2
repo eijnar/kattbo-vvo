@@ -20,17 +20,16 @@
 
         <table class="table table-striped" id="team-{{team_name}}-table">
             <tr>
-                <th class="col-1 text-center">Pass</th>
                 <th> Namn </th>
                 <th class="col-2 text-center">Jaktlag</th>
-                <th class="col-2 text-center">Passnummer</th>
+
                 <th class="col-1 text-end">#</th>
             </tr>
             {% for user in users %}
             <div>
                 <tr id="user-row-{{ user.id }}">
-                    <td class="text-center align-middle"><input type="text" id="stand_number-input-{{ user.id }}" style="width: 40px;" class="text-center"/></td>
-                    <td class="align-middle"><b>{{ user.first_name }} {{ user.last_name }}{{user}}</b></td>
+              
+                    <td class="align-middle"><b><a href="{{url_for('admin.edit_user', user_id=user.id)}}">{{ user.first_name }} {{ user.last_name }}</a></b></td>
                     <td>
                         <select class="form-select" id="team-selector-{{ user.id }}" data-user-id="{{ user.id }}">
                             {% for team in teams %}
@@ -38,14 +37,7 @@
                             {% endfor %}
                         </select>
                     </td>
-                    <td>
-                        <select class="form-select" id="tags-selector" data-user-id="{{ user.id }}">
 
-                            {% for tag in tags %}
-                            <option value="{{ tag.id }}">{{ tag.description }}</option>
-                            {% endfor %}
-                        </select>
-                    </td>
                     <td class="text-end">
                         <button class="btn btn-success edit-button" data-user-id="{{ user.id }}"
                             type="submit">Ändra</button>
@@ -57,16 +49,14 @@
         {% endfor %}
     </div>
 </div>
-
 <script>
 
 
     $(".edit-button").click(function () {
         var user_id = $(this).data('user-id');
         var hunt_team_id = $('#team-selector-' + user_id).val();
-        var hunt_year_id = {{ year.id }}
+        var hunt_year_id = {{ year.id }};
         var newTeamName = $('#team-selector-' + user_id + ' option:selected').text();
-        var stand_number = $('#stand_number-input-' + user_id).val();
         var csrf_token = $('#csrf_token').val();
 
         console.log("User ID: " + user_id);
@@ -81,7 +71,6 @@
                 user_id: user_id,
                 hunt_team_id: hunt_team_id,
                 hunt_year_id: hunt_year_id,
-                stand_number: stand_number,
                 csrf_token: csrf_token
             },
             success: function (response) {

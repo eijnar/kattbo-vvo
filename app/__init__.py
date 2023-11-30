@@ -10,9 +10,7 @@ from flask_babel import Babel, format_date, format_datetime
 from flask_migrate import Migrate
 from app.config import Development
 from app.utils.forms import ExtendedRegisterForm
-import urllib
-import json
-import random
+
 
 
 db = SQLAlchemy()
@@ -83,6 +81,21 @@ def create_app() -> Flask:
         base_url='https://dev.kattbovvo.se',
         registration_route='/events/quick_registration'
     )
+
+    @app.context_processor
+    def inject_hunt_years():
+        from app.hunting.models import HuntYear #noqa
+        from app.utils.hunt_year import get_hunt_years
+        from sqlalchemy import desc
+        
+        current_hunt_year, prev_hunt_year, next_hunt_year = get_hunt_years()
+        hunt_years = HuntYear.query.order_by(desc(HuntYear.name)).all()
+        return  {
+            'current_hunt_year': current_hunt_year,
+            'next_hunt_year': next_hunt_year,
+            'hunt_years': hunt_years
+        }
+
 
     # At last, create the database structure within the construct.
     with app.app_context():

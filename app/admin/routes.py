@@ -1,6 +1,6 @@
 from app import db
 from flask_security import login_required, roles_accepted, login_required
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, session
 from app.users.models import User, UsersTags
 from app.tag.models import Tag, TagsCategories, TagCategory
 from app.hunting.models import UserTeamYear, HuntYear, HuntTeam, StandAssignment, Stand
@@ -10,16 +10,37 @@ from app.admin.forms import EditUserForm
 admin = Blueprint('admin', __name__, template_folder='templates')
 
 
-@admin.route("/edit/<string:year_name>")
+@admin.route("/user/<int:user_id>")
 @login_required
 @roles_accepted('admin', 'hunt-leader')
-def edit_hunt_teams(year_name):
+def edit_user(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    tags = Tag.query.join(TagsCategories, Tag.id == TagsCategories.tag_id) \
+                    .join(TagCategory, TagCategory.id == TagsCategories.tag_category_id) \
+                    .filter(TagCategory.name == 'hunter') \
+                    .all()
+    stand_query = db.session.query(Stand.number) \
+        .join(StandAssignment, Stand.id == StandAssignment.stand_id) \
+        .filter(StandAssignment.user_id == user_id) \
+        .filter(StandAssignment.hunt_year_id == 1) \
+        .group_by(Stand.number) \
+        .all()
+    for stand_tuple in stand_query:
+        stand = stand_tuple[0]
+
+
+    return render_template('admin/edit_user.html.j2', user=user, tags=tags, stand=stand)
+
+
+@admin.route("/edit/<int:selected_hunt_year_id>")
+@login_required
+@roles_accepted('admin', 'hunt-leader')
+def edit_hunt_teams(selected_hunt_year_id):
     form = EditUserForm()
     users = User.query.all()
     teams = HuntTeam.query.all()
-    year = HuntYear.query.filter_by(name=year_name).first()
-
-    print(year.id, year.name)
+    year = HuntYear.query.filter_by(id=selected_hunt_year_id).first()
+    print(f'År: {selected_hunt_year_id}')
     # Query for the specific TagCategory
     tag_category_name = 'hunter'
 
@@ -28,39 +49,28 @@ def edit_hunt_teams(year_name):
     tags = Tag.query.join(TagsCategories).filter(
         TagsCategories.tag_category_id == tag_category.id).all()
 
-    # Query to get the 'main' category ID
-    main_category_id = TagCategory.query.filter_by(
-        name=tag_category_name).with_entities(TagCategory.id).subquery()
-
-    # Query users, sorting by hunting_team and including related tags
     hunters = User.query \
-        .outerjoin(User.hunt_years) \
+        .outerjoin(UserTeamYear, (UserTeamYear.user_id == User.id) & (UserTeamYear.hunt_year_id == selected_hunt_year_id)) \
         .outerjoin(UsersTags) \
         .outerjoin(Tag, Tag.id == UsersTags.tag_id) \
         .outerjoin(TagsCategories, Tag.id == TagsCategories.tag_id) \
         .outerjoin(TagCategory, TagCategory.id == TagsCategories.tag_category_id) \
-        .filter(
-            db.or_(
-                TagCategory.id == main_category_id,  # Filter by 'main' category
-                TagCategory.id.is_(None)  # Include users with no tags
-            )
-        ) \
-        .order_by(User.hunt_years) \
         .all()
 
     team_users = defaultdict(list)
     unassigned_key = 'Ej tilldelade'
 
     for user in hunters:
-        # Use first() to get the first UserHuntYear object, or None if there are none
-        hunt_year = user.hunt_years.first()
+        # Check if the user is assigned to a team for the selected hunt year
+        user_team_year = next((uty for uty in user.hunt_years if uty.hunt_year_id == selected_hunt_year_id), None)
 
-        if hunt_year and hunt_year.hunt_team:
-            team_name = hunt_year.hunt_team.name
+        if user_team_year and user_team_year.hunt_team:
+            team_name = user_team_year.hunt_team.name
         else:
             team_name = unassigned_key
 
         team_users[team_name].append(user)
+
 
     return render_template('admin/manage_huntteam.html.j2', users=users, teams=teams, year=year, team_users=team_users, tags=tags, form=form)
 
@@ -73,7 +83,6 @@ def add_hunt_team():
     user_id = request.form.get('user_id')
     hunt_team_id = request.form.get('hunt_team_id')
     hunt_year_id = request.form.get('hunt_year_id')
-    stand_number = request.form.get('stand_number')
 
     def assign_user_to_stands(user_id, stand_number):
         user = User.query.get(user_id)
@@ -111,7 +120,7 @@ def add_hunt_team():
 
     if form.validate_on_submit():
         reassign_user_to_new_team(user_id, hunt_team_id, hunt_year_id)
-        assign_user_to_stands(user_id, stand_number)
+        # assign_user_to_stands(user_id, stand_number)
         return jsonify({'status': 'success', 'message': 'User added to team successfully'})
     else:
         print(form.errors)

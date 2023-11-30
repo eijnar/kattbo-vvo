@@ -9,7 +9,7 @@
   </div>
 </div>
 <div class="row p-4 bg-light">
-  <div class="col-lg-7">
+  <div class="col-lg-5">
     <h5><b>{{ format_date(dates[0], format='dd MMMM') }} - {{ format_date(dates[-1], format='dd MMMM') }}</b></h5>
     <p class="px-4">{{ event.description }}</p>
     <p><b>Dåligt med tid? Klicka på de dagar som du inte kan vara med på</b></p>
@@ -17,7 +17,7 @@
       {{ form.hidden_tag() }}
       <div class="row p-1">
         <div class="col">
-          <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+          <div class="btn-group" role="group" aria-label="toggle-buttons">
             {% for subfield in form.event_days %}
 
             {{ subfield(class="btn-check ") }}
@@ -38,7 +38,7 @@
     </form>
   </div>
 
-  <div class="col-lg-5">
+  <div class="col-lg-7">
     <h5> Anmälda </h5>
     <table class="table">
       <thead>

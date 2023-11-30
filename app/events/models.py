@@ -17,7 +17,7 @@ class Event(db.Model, TrackingMixin, CRUDMixin):
         'EventDay', back_populates='event', cascade='all,delete')
     
     @property
-    def is_active(self):
+    def is_cancelled(self):
         # Count the number of active (non-cancelled) days for this event
         active_days = EventDay.query.filter_by(
             event_id=self.id, cancelled=True  # Assuming cancelled is a boolean field

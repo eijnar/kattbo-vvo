@@ -29,13 +29,14 @@
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}">Alla händelser</a></li>
             <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=hunting">Jakt</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=meeting">Möten</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=meeting">Möten</a>
+            </li>
             <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=other">Övrigt</a></li>
             {% if 'hunter' in user_roles %}
             <li>
               <hr class="dropdown-divider">
             </li>
-            <li><a class="dropdown-item" href="{{ url_for('events.create_event')}}">Planera småviltsjakt</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.create_event')}}?event_category=hunting">Planera småviltsjakt</a></li>
             {% endif %}
           </ul>
         </li>
@@ -78,7 +79,8 @@
             <li>
               <hr class="dropdown-divider">
             </li>
-            <li><a class="dropdown-item" href="{{ url_for('admin.edit_hunt_teams', year_name="2023-2024")}}">Hantera jaktmedlemmar</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('admin.edit_hunt_teams', selected_hunt_year_id=1)}}">Hantera
+                jaktmedlemmar</a></li>
           </ul>
         </li>
         {% endif %}
@@ -93,3 +95,4 @@
     </div>
   </div>
 </nav>
+<script src="{{ url_for('static', filename='js/setHuntYear.js')}}"></script>
