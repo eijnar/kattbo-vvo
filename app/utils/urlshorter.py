@@ -61,7 +61,6 @@ class URLShortener:
     def get_original_url(self, short_code):
         """Retrieves the original URL from a short code."""
         link = ShortLink.query.filter_by(short_code=short_code).first()
-        print(link)
         if link and link.expires_at > datetime.utcnow():
             return link.original_url
-        return None
+        return link.original_url
