@@ -63,4 +63,4 @@ class URLShortener:
         link = ShortLink.query.filter_by(short_code=short_code).first()
         if link and link.expires_at > datetime.utcnow():
             return link.original_url
-        return link.original_url
+        return

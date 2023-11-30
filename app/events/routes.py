@@ -25,11 +25,23 @@ events = Blueprint('events', __name__, template_folder='templates')
 @events.route('/quick_registration', methods=['GET'])
 def quick_register():
     token = request.args.get('token')
+
     if not token:
         flash('No token provided.')
         return redirect(url_for('main.home'))
 
     try:
+        # Decode the token to get the event ID and user identity
+        decoded_token = decode_token(token)
+        event_id = decoded_token['sub']['event_id']
+        user_id = decoded_token['sub']['user_id']
+        print(f'Event id: {event_id}\nUser_id {user_id}')
+
+        # Retrieve the event including its event days using the relationship
+        event = Event.query.filter_by(id=event_id).first()
+        event_type = EventType.query.filter_by(id = event.event_type_id).first()
+        pm = Document.query.filter_by(short_name='pm').first()
+
         def get_quota_statistics(hunt_year_id):
             quotas = AnimalQuota.query.filter_by(hunt_year_id=hunt_year_id).all()
             statistics = {}
@@ -47,18 +59,6 @@ def quick_register():
             return statistics
 
         statistics = get_quota_statistics(1)
-
-        pm = Document.query.filter_by(short_name='pm').first()
-        event_type = EventType.query.filter_by(id = event.event_type_id).first()
-
-        # Decode the token to get the event ID and user identity
-        decoded_token = decode_token(token)
-        event_id = decoded_token['sub']['event_id']
-        user_id = decoded_token['sub']['user_id']
-        print(f'Event id: {event_id}\nUser_id {user_id}')
-
-        # Retrieve the event including its event days using the relationship
-        event = Event.query.filter_by(id=event_id).first()
         if event is None:
             flash('Event not found.')
             return redirect(url_for('main.home'))
@@ -76,16 +76,11 @@ def quick_register():
 
         db.session.commit()
 
-
         # Redirect to a confirmation page or back to the homepage
         flash('You have successfully registered for the event!')
         return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics)
-
     except Exception as e:
-        # Handle exceptions, such as token expiration or decoding errors
-        flash(str(e))
-
-    return f'<html>{token}</html>'
+        return e
 
 
 @events.route('/register/sms', methods=['GET', 'POST'])
