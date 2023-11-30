@@ -37,7 +37,7 @@ class URLShortener:
             expires_delta = timedelta(seconds=3600)  # 1 hour, for example
             return create_access_token(identity=identity, expires_delta=expires_delta)
 
-    def create_short_link_with_jwt(self, identity, expires_at=3600):
+    def create_short_link_with_jwt(self, identity, expires_at=360000):
         """Creates a shortened link embedding a JWT token."""
         jwt_token = self._generate_jwt_token(identity, expires_at)
         short_code = self._generate_short_code()
@@ -50,7 +50,7 @@ class URLShortener:
         short_link = ShortLink(
             original_url=f"{self.base_url}{self.registration_route}?token={jwt_token}",
             short_code=short_code,
-            expires_at=datetime.utcnow() + timedelta(seconds=3600)
+            expires_at=datetime.utcnow() + timedelta(seconds=360000)
             #expires_at=expires_at if expires_at is not None else datetime.utcnow() + timedelta(seconds=3600)
         )
         db.session.add(short_link)
