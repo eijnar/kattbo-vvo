@@ -30,31 +30,6 @@ def quick_register():
         return redirect(url_for('main.home'))
 
     try:
-        # Decode the token to get the event ID and user identity
-        decoded_token = decode_token(token)
-        event_id = decoded_token['sub']['event_id']
-        user_id = decoded_token['sub']['user_id']
-        print(f'Event id: {event_id}\nUser_id {user_id}')
-
-        # Retrieve the event including its event days using the relationship
-        event = Event.query.filter_by(id=event_id).first()
-        if event is None:
-            flash('Event not found.')
-            return redirect(url_for('main.home'))
-
-        # Check if the user is already registered for this event
-        for event_day in event.event_days:
-            if UsersEvents.query.filter_by(user_id=user_id, day_id=event_day.id).first():
-                flash('You are already registered for one or more days of this event.')
-                return render_template(url_for('events.registration_confirmation'))
-
-        # If not already registered, register the user for all event days
-        for event_day in event.event_days:
-            user_event = UsersEvents(user_id=user_id, day_id=event_day.id)
-            db.session.add(user_event)
-
-        db.session.commit()
-
         def get_quota_statistics(hunt_year_id):
             quotas = AnimalQuota.query.filter_by(hunt_year_id=hunt_year_id).all()
             statistics = {}
@@ -75,6 +50,33 @@ def quick_register():
 
         pm = Document.query.filter_by(short_name='pm').first()
         event_type = EventType.query.filter_by(id = event.event_type_id).first()
+
+        # Decode the token to get the event ID and user identity
+        decoded_token = decode_token(token)
+        event_id = decoded_token['sub']['event_id']
+        user_id = decoded_token['sub']['user_id']
+        print(f'Event id: {event_id}\nUser_id {user_id}')
+
+        # Retrieve the event including its event days using the relationship
+        event = Event.query.filter_by(id=event_id).first()
+        if event is None:
+            flash('Event not found.')
+            return redirect(url_for('main.home'))
+
+        # Check if the user is already registered for this event
+        for event_day in event.event_days:
+            if UsersEvents.query.filter_by(user_id=user_id, day_id=event_day.id).first():
+                flash('You are already registered for one or more days of this event.')
+                return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics)
+
+        # If not already registered, register the user for all event days
+        for event_day in event.event_days:
+            user_event = UsersEvents(user_id=user_id, day_id=event_day.id)
+            db.session.add(user_event)
+
+        db.session.commit()
+
+
         # Redirect to a confirmation page or back to the homepage
         flash('You have successfully registered for the event!')
         return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics)
