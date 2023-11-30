@@ -85,7 +85,7 @@ def quick_register():
         # Handle exceptions, such as token expiration or decoding errors
         flash(str(e))
 
-    return '<html></html>'
+    return f'<html>{token}</html>'
 
 
 @events.route('/register/sms', methods=['GET', 'POST'])
