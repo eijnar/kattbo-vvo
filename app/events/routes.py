@@ -54,35 +54,36 @@ def quick_register():
             db.session.add(user_event)
 
         db.session.commit()
+
+        def get_quota_statistics(hunt_year_id):
+            quotas = AnimalQuota.query.filter_by(hunt_year_id=hunt_year_id).all()
+            statistics = {}
+
+            for quota in quotas:
+                team_name = quota.hunt_team.name
+                animal_name = quota.animal_type.name
+                remaining_quota = quota.initial_quota - len(quota.animals_shot)
+
+                if team_name not in statistics:
+                    statistics[team_name] = {}
+
+                statistics[team_name][animal_name] = remaining_quota
+                
+            return statistics
+
+        statistics = get_quota_statistics(1)
+
+        pm = Document.query.filter_by(short_name='pm').first()
+        event_type = EventType.query.filter_by(id = event.event_type_id).first()
+        # Redirect to a confirmation page or back to the homepage
         flash('You have successfully registered for the event!')
-        return render_template(url_for('events.registration_confirmation'))
+        return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics)
 
     except Exception as e:
         # Handle exceptions, such as token expiration or decoding errors
         flash(str(e))
 
-    def get_quota_statistics(hunt_year_id):
-        quotas = AnimalQuota.query.filter_by(hunt_year_id=hunt_year_id).all()
-        statistics = {}
-
-        for quota in quotas:
-            team_name = quota.hunt_team.name
-            animal_name = quota.animal_type.name
-            remaining_quota = quota.initial_quota - len(quota.animals_shot)
-
-            if team_name not in statistics:
-                statistics[team_name] = {}
-
-            statistics[team_name][animal_name] = remaining_quota
-            
-        return statistics
-
-    statistics = get_quota_statistics(1)
-
-    pm = Document.query.filter_by(short_name='pm').first()
-    event_type = EventType.query.filter_by(id = event.event_type_id).first()
-    # Redirect to a confirmation page or back to the homepage
-    return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics)
+    return '<html></html>'
 
 
 @events.route('/register/sms', methods=['GET', 'POST'])
