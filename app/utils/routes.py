@@ -9,7 +9,7 @@ utils = Blueprint('utils', '__name__', template_folder='templates')
 def redirect_to_original_url(short_code):
     urlshortener = current_app.urlshortener
     original_url = urlshortener.get_original_url(short_code)
-
+    print(original_url)
     if original_url is not None:
         return redirect(original_url)
     else:
