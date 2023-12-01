@@ -1,15 +1,16 @@
 from flask_security import current_user, login_required, roles_accepted
-from flask import Blueprint, current_app, render_template, flash, redirect, url_for, request, abort, make_response
+from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, make_response, current_app
 from app import db
 from flask_jwt_extended import decode_token
 from app.events.forms import EventForm, RegisterEventDayForm
-from app.events.models import Event, EventDay, UsersEvents, EventType, EventCategory, EventDayGathering
+from app.events.models import Event, EventDay, UsersEvents, EventType, EventCategory
 from app.users.models import User, UsersTags
 from app.tag.models import Tag
 from app.hunting.models import UserTeamYear, HuntTeam, StandAssignment, Stand, AnimalQuota
 from app.utils.models import Document
 from app.map.models import PointOfIntrest
-from app.events.utils import handle_user_event_day_registration, create_event_and_gatherings, notify_users_about_event
+from app.events.utils import handle_user_event_day_registration, create_event_and_gatherings
+from app.utils.notification import notify_users_about_event
 from pdfkit import from_string
 from markdown import markdown
 from datetime import datetime
@@ -206,6 +207,7 @@ def register_event(event_id):
 @login_required
 @roles_accepted('admin', 'hunt-leader')
 def generate_event_pdf(event_id):
+    current_app.logger.info(f'{current_user.email} is creating a PDF')
     event_days = EventDay.query.filter_by(event_id=event_id).all()
 
     users_by_team_and_day = {}

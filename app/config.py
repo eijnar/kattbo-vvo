@@ -1,5 +1,4 @@
 from os import environ
-from app.utils.forms import ExtendedRegisterForm
 
 
 class Config(object):
@@ -8,11 +7,11 @@ class Config(object):
     """
 
     # Default mail configuration
-    MAIL_USERNAME = "eijnar@fastmail.com"
-    MAIL_PASSWORD = "nmvlsb8vt38e9faf"
-    MAIL_PORT = 465
-    MAIL_USE_SSL = True
-    MAIL_SERVER = "smtp.fastmail.com"
+    MAIL_USERNAME = environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = environ.get('MAIL_PASSWORD')
+    MAIL_PORT = environ.get('MAIL_PORT')
+    MAIL_USE_SSL = environ.get('MAIL_USE_SSL')
+    MAIL_SERVER = environ.get('MAIL_SERVER')
     MAIL_DEFAULT_SENDER = "dev@kattbovvo.se"
 
     # Flask-WTF Secret key

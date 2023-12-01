@@ -28,7 +28,6 @@ def edit_user(user_id):
     for stand_tuple in stand_query:
         stand = stand_tuple[0]
 
-
     return render_template('admin/edit_user.html.j2', user=user, tags=tags, stand=stand)
 
 

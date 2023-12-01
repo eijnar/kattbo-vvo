@@ -1,10 +1,120 @@
+import requests
 from app import db
+from flask import render_template, current_app
 from app.utils.models import NotificationType, TagsNotifications
 from app.tag.models import Tag
 from app.events.models import EventType, EventTypeTags
 from app.users.models import RolesTags, Role, RolesUsers, User, UserNotificationPreference
 from phonenumbers import format_number, PhoneNumberFormat, parse
 from requests import post
+from flask_mailman import EmailMessage
+from celery import shared_task
+
+
+class NotificationSender:
+    def __init__(self, user, event):
+        self.user = user
+        self.event = event
+
+    def send(self):
+        raise NotImplementedError
+    
+class SMSNotificationSender(NotificationSender):
+    def send(self, message_builder):
+        message = message_builder.build_message()
+        send_sms(self.user.phone_number, message)
+
+class EmailNotificationSender(NotificationSender):
+    def send(self, message_builder):
+        message = message_builder.build_message()
+        subject = f'Subject is included'
+        send_email_task.delay(self.user.email, subject, message)
+
+class NotificationFactory:
+    @staticmethod
+    def get_notification_sender(notification_type, user, event):
+        if notification_type == 'SMS':
+            return SMSNotificationSender(user, event)
+        elif notification_type == 'E-post':
+            return EmailNotificationSender(user, event)
+        else:
+            raise ValueError("Unsupported notification type")
+
+class MessageBuilder:
+    def __init__(self, event, user, urlshortener, notification_type, cancelled=False):
+        self.user = user
+        self.event = event
+        self.urlshortener = urlshortener
+        self.cancelled = cancelled
+        self.notification_type = notification_type
+        self.event_type = event.event_type.name.lower()
+
+    def build_message(self):
+        context = self.get_template_context()
+        template_prefix = 'cancel' if self.cancelled else 'event'
+        template_name = f'messages/{template_prefix}_{self.event_type}_{self.notification_type}.html'
+
+        return render_template(template_name, **context)
+
+    def get_template_context(self):
+        event_type_name = self.event.event_type.name
+        event_days_list = sorted([event_day.date for event_day in self.event.event_days])
+
+        if len(event_days_list) > 1:
+            event_days_str = f"{event_days_list[0].strftime('%d/%m -%y')} till {event_days_list[-1].strftime('%d/%m -%y')}"
+        else:
+            event_days_str = event_days_list[0].strftime('%d/%m')
+
+        gathering_message = self.get_gathering_message()
+        jwt_payload = {'user_id': self.user.id, 'event_id': self.event.id}
+        shortlink = self.urlshortener.create_short_link_with_jwt(jwt_payload)
+
+        return {
+            'user_first_name': self.user.first_name,
+            'event_type_name': event_type_name.lower(),
+            'event_days_str': event_days_str,
+            'gathering_message': gathering_message,
+            'shortlink': shortlink
+        }
+
+    def get_gathering_message(self):
+        if not self.event.event_days:
+            return "Samlingsinformation ej tillgänglig"
+
+        first_day = sorted(self.event.event_days, key=lambda x: x.date)[0]
+        start_time = first_day.start_time.strftime('%H:%M') if first_day.start_time else "ingen specifik tid"
+        end_time = first_day.end_time.strftime('%H:%M') if first_day.end_time else "ingen specifik tid"
+        event_category_name = self.event.event_type.event_category.name.lower()
+
+        if event_category_name == 'meeting':
+            place = first_day.gatherings[0].place.name if first_day.gatherings else "okänd plats"
+            return f'Mötet hålls i {place.lower()} från kl {start_time} till ca. {end_time}'
+
+        elif event_category_name == 'hunting':
+            gatherings_info = []
+            for gathering in first_day.gatherings:
+                team_name = gathering.team.name if gathering.team else "Vi"
+                place_name = gathering.place.name
+                gatherings_info.append(f'{team_name} samlas vid {place_name}')
+
+            if gatherings_info:
+                return ', '.join(gatherings_info) + f' kl {start_time}'
+            else:
+                return 'Inga samlingsplatser tillgängliga för första dagen'
+
+        return "Samlingsinformation ej tillgänglig"
+
+def notify_users_about_event(event, notification_type_param, cancelled=False):
+    notification_types = NotificationType.query.all()
+    urlshortener = current_app.urlshortener  # Assuming urlshortener is set up in your app context
+
+    for notification_type in notification_types:
+        users_to_notify = get_opted_in_users_for_event_notification(notification_type_param, notification_type.id)
+
+        for user in users_to_notify:
+            sender = NotificationFactory.get_notification_sender(notification_type.name, user, event)
+            message_builder = MessageBuilder(event, user, urlshortener, notification_type.name.lower(), cancelled=cancelled)
+            sender.send.delay(message_builder)
 
 def get_notification_options_for_user(user):
     # Get a list of tuples where each tuple contains a EventType and the associated NotificationTypes
@@ -68,7 +178,17 @@ def get_opted_in_users_for_event_notification(event_type_id, notification_type_i
     
     return opted_in_users
 
-def send_sms(number, message):
+def send_sms(number: str, message: str) -> tuple[int, str]:
+    """
+    Sends an SMS message to a specified phone number using a third-party API.
+
+    Args:
+        number (str): The phone number to send the SMS to.
+        message (str): The content of the SMS message.
+
+    Returns:
+        tuple[int, str]: The HTTP status code of the API response and the text content of the API response.
+    """
     country_code = 'SE'
     url = "http://172.30.150.158:8080/send"
     headers = {
@@ -82,5 +202,38 @@ def send_sms(number, message):
         'message': message,
         'phoneno': formatted_number_no_spaces
     }
-    response = post(url, headers=headers, data=data)
+    response = requests.post(url, headers=headers, data=data)
     return response.status_code, response.text
+
+@shared_task
+def send_email_task(email, subject, message):
+    """
+    Sends an email with the given email, subject, and message.
+    
+    Args:
+        email (str): The recipient's email address.
+        subject (str): The subject of the email.
+        message (str): The body of the email.
+    
+    Returns:
+        str: The status of the email sending process (success or failure).
+    """
+    try:
+        if not isinstance(email, str):
+            raise ValueError("Invalid email parameter")
+        if not isinstance(subject, str):
+            raise ValueError("Invalid subject parameter")
+        if not isinstance(message, str):
+            raise ValueError("Invalid message parameter")
+        
+        email = EmailMessage(
+            subject=subject,
+            body=message,
+            to=[email]
+        )
+        email.send()
+        return "success"
+
+    except Exception as e:
+    
+        return "failure"

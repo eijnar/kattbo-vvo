@@ -1,3 +1,5 @@
+import logging
+from logging.handlers import RotatingFileHandler
 from flask import Flask
 from celery import Celery
 from celery import Task
@@ -12,12 +14,31 @@ from app.config import Development
 from app.utils.forms import ExtendedRegisterForm
 
 
-
 db = SQLAlchemy()
 mail = Mail()
 babel = Babel()
 jwt = JWTManager()
 migrate = Migrate()
+
+def setup_logging(app):
+    log_format = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+
+    if app.debug:
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(log_format)
+        console_handler.setLevel(logging.DEBUG)
+        app.logger.addHandler(console_handler)
+        file_handler = RotatingFileHandler('kattbo_vvo_dev_flask.log', maxBytes=10240, backupCount=10)
+        file_handler.setFormatter(log_format)
+        file_handler.setLevel(logging.DEBUG)
+        app.logger.addHandler(file_handler)
+    else:
+        file_handler = RotatingFileHandler('kattbo_vvo_flask.log', maxBytes=10240, backupCount=10)
+        file_handler.setFormatter(log_format)
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+
+    app.logger.setLevel(logging.DEBUG if app.debug else logging.INFO)
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -29,7 +50,10 @@ def create_app() -> Flask:
     babel.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
- 
+
+    # Setup logging
+    setup_logging(app)
+    app.logger.info('Webpage is starting up...')
     
     fsqla.FsModels.set_db_info(db)
 
@@ -85,10 +109,11 @@ def create_app() -> Flask:
     @app.context_processor
     def inject_hunt_years():
         from app.hunting.models import HuntYear #noqa
-        from app.utils.hunt_year import get_hunt_years
+        from app.utils.hunt_year import HuntYearFinder
         from sqlalchemy import desc
-        
-        current_hunt_year, prev_hunt_year, next_hunt_year = get_hunt_years()
+        hunt_year = HuntYearFinder()
+        current_hunt_year = hunt_year.current
+        next_hunt_year = hunt_year.next()
         hunt_years = HuntYear.query.order_by(desc(HuntYear.name)).all()
         return  {
             'current_hunt_year': current_hunt_year,
@@ -101,24 +126,7 @@ def create_app() -> Flask:
     with app.app_context():
         db.create_all()
 
-        # data = urllib.request.urlopen('https://api.namnapi.se/v2/names.json?limit=5').read()
-        # data = json.loads(data)
-        # def random_with_N_digits(n):
-        #     range_start = 10**(n-1)
-        #     range_end = (10**n)-1
-        #     return random.randint(range_start, range_end)
 
-        # for i in data['names']:
-        #     rand_mail = ''.join(random.choice("abcdefghijklmnopqrstyv") for _ in range(6))
-        #     # rand_phone = f'070{random_with_N_digits(7)}'
-        #     r_email = rand_mail + "@kaffesump.se"
-        #     r_first_name = i['firstname']
-        #     r_last_name = i['surname']
-        #     r_phone_number = f'070{random_with_N_digits(7)}'
-
-        #     # print(r_email, r_phone_number, r_first_name, r_last_name)
-        #     app.security.datastore.create_user(email=r_email, first_name=r_first_name, last_name=r_last_name)
-        #     db.session.commit()
     return app
 
 

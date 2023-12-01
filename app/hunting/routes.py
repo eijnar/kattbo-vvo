@@ -4,10 +4,9 @@ from app.hunting.models import HuntTeam, AnimalType, AnimalShot, AnimalQuota, Us
 from app.hunting.forms import RegisterShotMoose
 from app.users.models import User, UsersTags
 from app.tag.models import Tag
-from app.hunting.utils import get_hunt_years, get_hunt_team_for_user_and_year, find_quota_id
+from app.hunting.utils import get_hunt_team_for_user_and_year, find_quota_id
+from app.utils.hunt_year import HuntYearFinder
 from app import db
-
-
 
 hunting = Blueprint('hunting', __name__, template_folder='templates')
 
@@ -29,7 +28,8 @@ def register_moose():
     hunters = User.query.join(UsersTags).join(Tag).filter(Tag.name.in_(tag_names)).all()
     form.moose_type.choices = [(mt.id, mt.name) for mt in moose_types]
     form.hunter.choices = [(h.id, f'{h.first_name} {h.last_name}') for h in hunters]
-    current_hunt_year, prev_hunt_year, next_hunt_year = get_hunt_years()
+    hunt_year_finder = HuntYearFinder()
+    current_hunt_year = hunt_year_finder.current
 
     if form.validate_on_submit():
 
