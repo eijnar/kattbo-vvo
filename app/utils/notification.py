@@ -1,14 +1,17 @@
+import re
+import logging
 import requests
-from app import db
+from app import db, create_app
 from flask import render_template, current_app
 from app.utils.models import NotificationType, TagsNotifications
 from app.tag.models import Tag
 from app.events.models import EventType, EventTypeTags
 from app.users.models import RolesTags, Role, RolesUsers, User, UserNotificationPreference
 from phonenumbers import format_number, PhoneNumberFormat, parse
-from requests import post
 from flask_mailman import EmailMessage
 from celery import shared_task
+from celery.contrib.abortable import AbortableTask
+from app.events.models import Event
 
 
 class NotificationSender:
@@ -27,8 +30,9 @@ class SMSNotificationSender(NotificationSender):
 class EmailNotificationSender(NotificationSender):
     def send(self, message_builder):
         message = message_builder.build_message()
-        subject = f'Subject is included'
-        send_email_task.delay(self.user.email, subject, message)
+        event_type = message_builder.event.event_type.name
+        subject = f'Välkommen på {event_type.lower()}!'
+        send_email_task(self.user.email, subject, message)
 
 class NotificationFactory:
     @staticmethod
@@ -104,17 +108,33 @@ class MessageBuilder:
 
         return "Samlingsinformation ej tillgänglig"
 
-def notify_users_about_event(event, notification_type_param, cancelled=False):
-    notification_types = NotificationType.query.all()
-    urlshortener = current_app.urlshortener  # Assuming urlshortener is set up in your app context
 
-    for notification_type in notification_types:
-        users_to_notify = get_opted_in_users_for_event_notification(notification_type_param, notification_type.id)
+@shared_task(base=AbortableTask)
+def notify_users_about_event(event_id, notification_type_param, cancelled=False):
+    with create_app().app_context():
+        from flask import current_app
+        event = Event.query.get(event_id)
+        notification_types = (notification_type for notification_type in NotificationType.query.all())
+        urlshortener = current_app.urlshortener  # Assuming urlshortener is set up in your app context
 
-        for user in users_to_notify:
-            sender = NotificationFactory.get_notification_sender(notification_type.name, user, event)
-            message_builder = MessageBuilder(event, user, urlshortener, notification_type.name.lower(), cancelled=cancelled)
-            sender.send.delay(message_builder)
+        for notification_type in notification_types:
+            users_to_notify = get_opted_in_users_for_event_notification(notification_type_param, notification_type.id)
+
+            if not users_to_notify:
+                continue
+
+            message_builder = MessageBuilder(event, None, urlshortener, notification_type.name.lower(), cancelled=cancelled)
+            for user in users_to_notify:
+                message_builder.user = user
+                sender = NotificationFactory.get_notification_sender(notification_type.name, user, event)
+                try:
+                    sender.send(message_builder)
+                except Exception as e:
+                    # Handle the exception, log the error, or take appropriate action
+                    current_app.logger.error(f"Error sending notification to user {user.id}: {str(e)}")
+
+                # Add logging to track task progress and aid in debugging
+                current_app.logger.info(f"{notification_type.name} sent to user: {user.email}")
 
 def get_notification_options_for_user(user):
     # Get a list of tuples where each tuple contains a EventType and the associated NotificationTypes
@@ -205,7 +225,9 @@ def send_sms(number: str, message: str) -> tuple[int, str]:
     response = requests.post(url, headers=headers, data=data)
     return response.status_code, response.text
 
-@shared_task
+class InvalidParameterError(Exception):
+    pass
+
 def send_email_task(email, subject, message):
     """
     Sends an email with the given email, subject, and message.
@@ -216,15 +238,19 @@ def send_email_task(email, subject, message):
         message (str): The body of the email.
     
     Returns:
-        str: The status of the email sending process (success or failure).
+        bool: True if the email sending process is successful, False otherwise.
     """
     try:
         if not isinstance(email, str):
-            raise ValueError("Invalid email parameter")
+            raise InvalidParameterError("Invalid email parameter")
         if not isinstance(subject, str):
-            raise ValueError("Invalid subject parameter")
+            raise InvalidParameterError("Invalid subject parameter")
         if not isinstance(message, str):
-            raise ValueError("Invalid message parameter")
+            raise InvalidParameterError("Invalid message parameter")
+        
+        # Validate email format
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            raise InvalidParameterError("Invalid email format")
         
         email = EmailMessage(
             subject=subject,
@@ -232,8 +258,8 @@ def send_email_task(email, subject, message):
             to=[email]
         )
         email.send()
-        return "success"
+        return True
 
     except Exception as e:
-    
-        return "failure"
+        current_app.logger.exception("An error occurred while sending the email")
+        return False

@@ -1,3 +1,4 @@
+{% from "macro_event_days.html.j2" import event_days_selector %}
 {% extends 'layout.html.j2' %}
 {% block content %}
 <div class="row justify-content-center">
@@ -16,7 +17,9 @@
                 <p> Du har nu automatiskt blivit anmäld till alla dagar, är det så att du
                     inte kan komma någon av dagarna, vänligen klicka ur de dagar du inte kan vara med nedan så vi kan
                     planera jakten enklare. Skulle det bli inställt någon av dagarna eller hela jakten så kommer du få
-                    ett sms om detta så snart detta görs.</p>
+                    ett sms om detta så snart detta görs.
+                </p>
+                {{ event_days_selector(event_days) }}
             </div>
             <div class="col-lg py-4">
                 <table class="table table-bordered shadow">

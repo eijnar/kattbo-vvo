@@ -1,13 +1,13 @@
 from flask_security import current_user, login_required, roles_accepted
 from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, make_response, current_app
-from app import db
+from app import db, celery
 from flask_jwt_extended import decode_token
 from app.events.forms import EventForm, RegisterEventDayForm
 from app.events.models import Event, EventDay, UsersEvents, EventType, EventCategory
 from app.users.models import User, UsersTags
 from app.tag.models import Tag
 from app.hunting.models import UserTeamYear, HuntTeam, StandAssignment, Stand, AnimalQuota
-from app.utils.models import Document
+from app.utils.models import Document, NotificationTask
 from app.map.models import PointOfIntrest
 from app.events.utils import handle_user_event_day_registration, create_event_and_gatherings
 from app.utils.notification import notify_users_about_event
@@ -15,6 +15,7 @@ from pdfkit import from_string
 from markdown import markdown
 from datetime import datetime
 from collections import defaultdict
+from celery.result import AsyncResult
 
 
 events = Blueprint('events', __name__, template_folder='templates')
@@ -77,9 +78,23 @@ def quick_register():
 
         db.session.commit()
 
+
+        form = RegisterEventDayForm()
+        form.event_days.choices = [(ed.id, ed.date) for ed in event.event_days]       
+
+        if form.validate_on_submit():
+            user_id = current_user.id
+            day_ids = form.event_days.data
+            success = handle_user_event_day_registration(user_id, day_ids)
+            if success:
+                flash('Din registreting har hanterats', 'success')
+            else:
+                flash('Det blev något fel när vi hanterade din registrering', 'error')
+
         # Redirect to a confirmation page or back to the homepage
         flash('You have successfully registered for the event!')
-        return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics)
+        return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics, form=form)
+    
     except Exception as e:
         return e
 
@@ -158,7 +173,14 @@ def create_event():
 
     if event_form.validate_on_submit():
         new_event = create_event_and_gatherings(event_form, current_user)
-        notify_users_about_event(new_event, event_form.event_type.data)
+        task = notify_users_about_event.apply_async(args=[new_event.id, event_form.event_type.data], countdown=60)
+        notification_task = NotificationTask(
+            celery_task_id=task.id,
+            event_id=new_event.id,
+            event_type=event_form.event_type.data
+        )
+        db.session.add(notification_task)
+        db.session.commit()
 
         flash('The event has been created!', 'success')
         if event_category_name is not None:
@@ -309,14 +331,27 @@ def cancel_event(event_id):
         return redirect(url_for('events.list_events'))  # Redirect to a relevant page
 
     try:
+        
         for event_day in event.event_days:
             event_day.cancelled = True
         db.session.commit()
 
-        notify_users_about_event(event, event.event_type.id, cancelled=True)
+        if not abort_task(event_id):
+            notify_users_about_event.delay(event.id, event.event_type.id, cancelled=True)
+
         flash(f'Du har ställt in {event.event_type.name}', 'success')
+
     except Exception as e:
         db.session.rollback()
         flash(f'Ett fel inträffade när evenemanget skulle avbrytas: {str(e)}', 'error')
 
     return redirect(url_for('events.list_events'))  # Redirect to a relevant page after processing
+
+def abort_task(event_id):
+    task = NotificationTask.query.filter_by(event_id=event_id).first()
+    if task:
+        celery.control.revoke(task.celery_task_id)
+        task_result = AsyncResult(task.celery_task_id)
+        current_app.logger.info(task_result)
+        return True
+    return False

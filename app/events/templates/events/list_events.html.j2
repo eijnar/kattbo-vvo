@@ -76,10 +76,16 @@
                 <li>
 
                 </li>
-                <li><a class="dropdown-item" href="{{ url_for('events.generate_event_pdf', event_id=event.id)}}"><b>Fullständig deltaraglista</b></a></li>
+                <li><a class="dropdown-item" href="{{ url_for('events.generate_event_pdf', event_id=event.id) }}"><b>Fullständig deltaraglista</b></a></li>
                 {% for team in teams %}
-                <li><a class="dropdown-item"href="{{ url_for('events.generate_event_pdf', event_id=event.id)}}?team_id={{ team.id }}">Deltagarlista: {{ team.name }}</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('events.generate_event_pdf', event_id=event.id) }}?team_id={{ team.id }}">Deltagarlista: {{ team.name }}</a></li>
                 {% endfor %}
+                <li>
+                <hr class="dropdown-divider">
+                </li>
+                <li class="bg-danger">
+                <a class="dropdown-item href" href="{{ url_for('events.cancel_event', event_id=event.id) }}">Ställ in</a>
+                </li>
               </ul>
             </div>
             {% endif %}

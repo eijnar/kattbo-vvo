@@ -34,6 +34,15 @@ class Config(object):
     JWT_SECRET_KEY = environ.get('JWT_SECRET_KEY')
     JWT_ALGORITHM = environ.get('JWT_ALGORITHM')
 
+    # Celery 
+    CELERY = dict(
+        broker_url=environ.get('CELERY_BROKER_URL'),
+        result_backend=environ.get('CELERY_BACKEND_URL'),
+        task_ignore_result=False,
+        task_serializer='pickle',
+        result_serializer='pickle',
+        accept_content=['pickle', 'application/x-python-serialize', 'json'],
+    )
 
 class Development(Config):
     DEBUG = True
@@ -44,6 +53,7 @@ class Development(Config):
     
     # Mailman dev. configuration
     MAIL_DEFAULT_SENDER = "dev@kattbovvo.se"
+
 
 class Production(Config):
     DEBUG = False

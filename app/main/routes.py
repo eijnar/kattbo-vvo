@@ -1,10 +1,11 @@
-from flask import Blueprint, redirect, url_for, render_template, request, render_template_string
+from flask import Blueprint, redirect, url_for, render_template, request
 from flask_security import current_user
-from app.utils.pdf import PDFCreator
+from celery import shared_task
 from app.utils.models import Document
 from markdown import markdown
 from app.main.models import Post
 from app.hunting.models import AnimalQuota
+from time import sleep
 
 main = Blueprint('main', __name__, template_folder='templates')
 
@@ -53,16 +54,13 @@ def statistics():
 
 
 
-# @shared_task
-# @main.route("/celery")
-# def celery():
-#     context = {
-#         'variable1': 'Some data',
-#         'variable2': 'Other data'
-#     }
+@main.route("/celery")
+def celery():
+    print("test")
+    wait.delay()
+    return "hej"
 
-#     pdf_creator = PDFCreator('pdf/pdf_template.html.j2', 'test.pdf')
-
-#     pdf_creator.generate_pdf(context=context)
-
-#     return render_template_string('test')
+@shared_task
+def wait():
+    sleep(10)
+    return True

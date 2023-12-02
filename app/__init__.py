@@ -1,8 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask
-from celery import Celery
-from celery import Task
+from celery import Celery, Task
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import Security, SQLAlchemyUserDatastore
@@ -19,43 +18,28 @@ mail = Mail()
 babel = Babel()
 jwt = JWTManager()
 migrate = Migrate()
+celery = Celery()
 
-def setup_logging(app):
-    log_format = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
-
-    if app.debug:
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(log_format)
-        console_handler.setLevel(logging.DEBUG)
-        app.logger.addHandler(console_handler)
-        file_handler = RotatingFileHandler('kattbo_vvo_dev_flask.log', maxBytes=10240, backupCount=10)
-        file_handler.setFormatter(log_format)
-        file_handler.setLevel(logging.DEBUG)
-        app.logger.addHandler(file_handler)
-    else:
-        file_handler = RotatingFileHandler('kattbo_vvo_flask.log', maxBytes=10240, backupCount=10)
-        file_handler.setFormatter(log_format)
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
-
-    app.logger.setLevel(logging.DEBUG if app.debug else logging.INFO)
 
 def create_app() -> Flask:
     app = Flask(__name__)
 
     app.config.from_object(Development)
+    app.config.from_prefixed_env()
 
     db.init_app(app)
     mail.init_app(app)
     babel.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
-
+    celery_init_app(app)
+    
     # Setup logging
     setup_logging(app)
     app.logger.info('Webpage is starting up...')
     
-    fsqla.FsModels.set_db_info(db)
+    #fsqla.FsModels.set_db_info(db)
+    from app.users.models import User, Role  # noqa
 
     # To get the functions to jinja2
     app.jinja_env.globals['format_date'] = format_date
@@ -63,7 +47,6 @@ def create_app() -> Flask:
     app.jinja_env.globals['getattr'] = getattr
     app.jinja_env.add_extension('jinja2.ext.do')
 
-    from app.users.models import User, Role  # noqa
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)
     app.security = Security(app, user_datastore, register_blueprint=True,
                             confirm_register_form=ExtendedRegisterForm)
@@ -106,27 +89,10 @@ def create_app() -> Flask:
         registration_route='/events/quick_registration'
     )
 
-    @app.context_processor
-    def inject_hunt_years():
-        from app.hunting.models import HuntYear #noqa
-        from app.utils.hunt_year import HuntYearFinder
-        from sqlalchemy import desc
-        hunt_year = HuntYearFinder()
-        current_hunt_year = hunt_year.current
-        next_hunt_year = hunt_year.next()
-        hunt_years = HuntYear.query.order_by(desc(HuntYear.name)).all()
-        return  {
-            'current_hunt_year': current_hunt_year,
-            'next_hunt_year': next_hunt_year,
-            'hunt_years': hunt_years
-        }
-
-
     # At last, create the database structure within the construct.
     with app.app_context():
         db.create_all()
-
-
+        
     return app
 
 
@@ -139,5 +105,22 @@ def celery_init_app(app: Flask) -> Celery:
     celery_app = Celery(app.name, task_cls=FlaskTask)
     celery_app.config_from_object(app.config["CELERY"])
     celery_app.set_default()
-    app.extensions["celery"] = celery_app
     return celery_app
+
+
+def setup_logging(app):
+    log_format = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+
+    if not app.logger.handlers:
+        if app.debug:
+            file_handler = RotatingFileHandler('kattbo_vvo_dev_flask.log', maxBytes=10240, backupCount=10)
+            file_handler.setFormatter(log_format)
+            file_handler.setLevel(logging.DEBUG)
+            app.logger.addHandler(file_handler)
+        else:
+            file_handler = RotatingFileHandler('kattbo_vvo_flask.log', maxBytes=10240, backupCount=10)
+            file_handler.setFormatter(log_format)
+            file_handler.setLevel(logging.INFO)
+            app.logger.addHandler(file_handler)
+
+        app.logger.setLevel(logging.DEBUG if app.debug else logging.INFO)
