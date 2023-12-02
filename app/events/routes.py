@@ -79,18 +79,6 @@ def quick_register():
         db.session.commit()
 
 
-        form = RegisterEventDayForm()
-        form.event_days.choices = [(ed.id, ed.date) for ed in event.event_days]       
-
-        if form.validate_on_submit():
-            user_id = current_user.id
-            day_ids = form.event_days.data
-            success = handle_user_event_day_registration(user_id, day_ids)
-            if success:
-                flash('Din registreting har hanterats', 'success')
-            else:
-                flash('Det blev något fel när vi hanterade din registrering', 'error')
-
         # Redirect to a confirmation page or back to the homepage
         flash('You have successfully registered for the event!')
         return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics, form=form)

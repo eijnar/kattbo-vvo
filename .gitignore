@@ -170,3 +170,4 @@ cython_debug/
 .env
 app/test
 config.py
+.log.*
