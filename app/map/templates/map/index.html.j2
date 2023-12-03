@@ -1,6 +1,7 @@
 {% extends "layout.html.j2" %}
 {% block content %}
-<div class="embed-responsive embed-responsive-16by9">
+<div class="col d-flex vh-100">
+
 <iframe src="{{ url_for('map.mapview') }}" class="map-iframe"></iframe>
 </div>
 {% endblock %}

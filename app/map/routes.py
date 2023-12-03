@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 from app import db
-from folium import Map, Marker, Icon, LayerControl, FeatureGroup
+from folium import Map, Marker, Icon, LayerControl, FeatureGroup, Figure
 from geoalchemy2.shape import to_shape
 from folium.plugins import LocateControl, Fullscreen
 from app.hunting.models import Stand, Area
@@ -14,7 +14,8 @@ map = Blueprint('map', __name__, template_folder='templates')
 
 @map.route('/')
 def map_index():
-    return render_template('map/index.html.j2')
+    fullscreen=True
+    return render_template('map/index.html.j2', fullscreen=fullscreen)
 
 
 @map.route('/mapview')
@@ -23,7 +24,8 @@ def mapview():
     def create_map_new():
         # Initialize map
         m = Map(location=[60.833577, 14.197137], zoom_start=13)
-
+        f = Figure(height="100%", width="100%", ratio=None)
+        f.add_child(m)
         # Create a dictionary to hold FeatureGroups for each area
         area_groups = {}
 
@@ -84,29 +86,11 @@ def mapview():
             ).add_to(category_groups[poi.category])
 
         # Add LayerControl
-        LocateControl().add_to(m)
-        Fullscreen().add_to(m)
-        LayerControl(collapsed=False).add_to(m)
-
-        return m
-
-    def create_map():
-
-        m = Map(location=[60.833577, 14.197137], zoom_start=13)
-        points = db.session.query(Stand.number, func.ST_AsText(Stand.geopoint).label('coords'))
-        #stands = db.session.query(Stand.number, func.ST_AsText(Stand.geopoint).label('coords'))
-        for point in points:
-            try:
-                # Parse the point coordinates
-                coords = point.coords[6:-1].split()
-                Marker([float(coords[1]), float(coords[0])], popup=point.number).add_to(m)
-                print(point.number)
-            except Exception as e:
-                print(f"Error processing point {point.name}: {e}")
 
         LocateControl().add_to(m)
         Fullscreen().add_to(m)
         LayerControl(collapsed=False).add_to(m)
+
         return m
     
     folium_map = create_map_new()
