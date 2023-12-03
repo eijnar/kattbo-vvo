@@ -1,4 +1,4 @@
-import logging
+from app import db
 from flask import Blueprint, redirect, current_app, render_template, jsonify, current_app
 from flask_security import login_required, roles_accepted
 from app.utils.notification import send_sms
@@ -6,6 +6,13 @@ from app.utils.forms import NotificationForm
 from app.utils.models import NotificationTask
 from celery.result import AsyncResult
 from app import celery
+import gpxpy.gpx
+import gpxpy
+from geoalchemy2.shape import from_shape
+from shapely.geometry import Point
+from app.hunting.models import Stand
+from app.map.models import PointOfIntrest
+from sqlalchemy import and_
 
 utils = Blueprint('utils', '__name__', template_folder='templates')
 
@@ -28,6 +35,43 @@ def send_notification():
         send_sms('0702598032', form.message.data)
 
     return render_template('send_message.html.j2', form=form)
+
+
+@utils.route('/import_gpx')
+def import_gpx():
+    with open('test.gpx', 'r') as gpx_file:
+        gpx = gpxpy.parse(gpx_file)
+
+    for waypoint in gpx.waypoints:
+        point = Point(waypoint.longitude, waypoint.latitude)
+        geopoint = from_shape(point)
+
+        if ':' in waypoint.name and '&' not in waypoint.name:
+            area_id, number = waypoint.name.split(':')
+            if int(area_id) == 0 or Stand.query.filter_by(area_id=int(area_id), number=number).first():
+                unmatched_point = PointOfIntrest(name=waypoint.name, category='auto', geopoint=geopoint)
+                db.session.add(unmatched_point)
+            else:
+                stand = Stand(number=number, geopoint=geopoint, area_id=int(area_id))
+                db.session.add(stand)
+
+        elif '&' in waypoint.name and all(':' in part for part in waypoint.name.split(' & ')):
+            entries = waypoint.name.split(' & ')
+            for entry in entries:
+                area_id, number = entry.split(':')
+                if int(area_id) == 0 or Stand.query.filter_by(area_id=int(area_id), number=number).first():
+                    unmatched_point = PointOfIntrest(name=entry, category='auto', geopoint=geopoint)
+                    db.session.add(unmatched_point)
+                else:
+                    stand = Stand(number=number, geopoint=geopoint, area_id=int(area_id))
+                    db.session.add(stand)
+
+        else:
+            unmatched_point = PointOfIntrest(name=waypoint.name, category='auto', geopoint=geopoint)
+            db.session.add(unmatched_point)
+
+    db.session.commit()
+
 
 class TaskStateException(Exception):
     pass

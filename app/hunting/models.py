@@ -49,7 +49,7 @@ class Area(db.Model):
 
 class Stand(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    number = db.Column(db.Integer, nullable=False)
+    number = db.Column(db.String(255), nullable=False)
     geopoint = db.Column(Geometry('POINT'))
 
     # Relationships
