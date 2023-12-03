@@ -140,9 +140,10 @@ def create_event():
     event_category = EventCategory.query.filter_by(name=event_category_name).first()
     event_types = EventType.query.filter_by(event_category_id=event_category.id).all()
     event_form = EventForm()
-    gathering_places = PointOfIntrest.query.all()
+    gathering_places = PointOfIntrest.query.filter_by(category='gathering_place')
     default_hemmalaget_name = "Sågen"
     default_bortalaget_name = "Slaktladan"
+    default_joint_gathering_place_name = "Slaktladan"
 
     # Populate choices for gathering places
     event_form.event_type.choices = [(et.id, et.name) for et in event_types]
@@ -152,16 +153,19 @@ def create_event():
 
     default_hemmalaget_id = next((place.id for place in gathering_places if place.name == default_hemmalaget_name), None)
     default_bortalaget_id = next((place.id for place in gathering_places if place.name == default_bortalaget_name), None)
+    default_joint_gathering_place_id = next((place.id for place in gathering_places if place.name == default_joint_gathering_place_name), None)
 
     if default_hemmalaget_id is not None:
         event_form.hemmalaget_gathering_place.data = default_hemmalaget_id
     if default_bortalaget_id is not None:
         event_form.bortalaget_gathering_place.data = default_bortalaget_id
+    if default_joint_gathering_place_id is not None:
+        event_form.joint_gathering_place.data = default_joint_gathering_place_id
 
 
     if event_form.validate_on_submit():
         new_event = create_event_and_gatherings(event_form, current_user)
-        task = notify_users_about_event.apply_async(args=[new_event.id, event_form.event_type.data], countdown=60)
+        task = notify_users_about_event.apply_async(args=[new_event.id, event_form.event_type.data], countdown=20)
         notification_task = NotificationTask(
             celery_task_id=task.id,
             event_id=new_event.id,

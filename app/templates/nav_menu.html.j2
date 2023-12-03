@@ -42,13 +42,13 @@
           </ul>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle disabled" href="#" role="button" data-bs-toggle="dropdown"
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
             aria-expanded="false">
             Jakt
           </a>
           <ul class="dropdown-menu">
             <li><a class="nav-link disabled" aria-disabled="true">Information</a></li>
-            <li><a class="nav-link disabled" aria-disabled="true">Kartor</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('map.map_index')}}">Karta</a></li>
             <li><a class="nav-link disabled" aria-disabled="true">Fällt vilt</a></li>
             <li><a class="nav-link disabled" aria-disabled="true">Dokument</a></li>
           </ul>
