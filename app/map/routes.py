@@ -89,7 +89,7 @@ def mapview():
 
         LocateControl().add_to(m)
         Fullscreen().add_to(m)
-        LayerControl(collapsed=False).add_to(m)
+        LayerControl().add_to(m)
 
         return m
     
