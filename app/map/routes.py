@@ -84,6 +84,8 @@ def mapview():
             ).add_to(category_groups[poi.category])
 
         # Add LayerControl
+        LocateControl().add_to(m)
+        Fullscreen().add_to(m)
         LayerControl(collapsed=False).add_to(m)
 
         return m
