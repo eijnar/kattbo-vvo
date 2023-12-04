@@ -44,6 +44,13 @@ class Config(object):
         accept_content=['pickle', 'application/x-python-serialize', 'json'],
     )
 
+    # Elastic APM
+    ELASTIC_APM = {
+        'SERVICE_NAME': 'kattbo-vvo-web',
+        'SERVER_URL': 'http://riker.srv.kaffesump.se:8200',
+        'ENVIRONMENT': 'development',
+    }
+
 class Development(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_DEV')

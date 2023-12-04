@@ -11,6 +11,7 @@ from flask_babel import Babel, format_date, format_datetime
 from flask_migrate import Migrate
 from app.config import Development
 from app.utils.forms import ExtendedRegisterForm
+from elasticapm.contrib.flask import ElasticAPM
 
 
 db = SQLAlchemy()
@@ -19,6 +20,7 @@ babel = Babel()
 jwt = JWTManager()
 migrate = Migrate()
 celery = Celery()
+apm = ElasticAPM()
 
 
 def create_app() -> Flask:
@@ -33,6 +35,7 @@ def create_app() -> Flask:
     jwt.init_app(app)
     migrate.init_app(app, db)
     celery_init_app(app)
+    apm.init_app(app)
     
     # Setup logging
     setup_logging(app)
