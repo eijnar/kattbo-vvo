@@ -1,8 +1,13 @@
 html, body {
-    height: 100%;
+    height: calc(100vh-30px);
     margin: 0;
     padding: 0;
 }
+
+.full-height {
+    height: calc(100vh - 70px);
+}
+
 .background {
     position: absolute;
     height: 100%;

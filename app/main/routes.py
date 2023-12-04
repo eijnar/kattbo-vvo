@@ -7,15 +7,14 @@ from app.main.models import Post
 from app.hunting.models import AnimalQuota
 from time import sleep
 
-main = Blueprint('main', __name__, template_folder='templates')
 
+main = Blueprint('main', __name__, template_folder='templates')
 
 @main.route("/")
 def home():
     if current_user.is_authenticated:
         return redirect(url_for('main.news'))
     return redirect('/login')
-
 
 @main.route('/news')
 def news():

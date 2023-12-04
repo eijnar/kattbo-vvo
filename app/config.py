@@ -47,8 +47,10 @@ class Config(object):
     # Elastic APM
     ELASTIC_APM = {
         'SERVICE_NAME': 'kattbo-vvo-web',
-        'SERVER_URL': 'http://riker.srv.kaffesump.se:8200',
+        'SERVER_URL': 'http://riker.srv.kaffesump.se:8200/',
+        'SECRET_TOKEN': 'tYeW2uFgP6JfcbUzkkqU7xur9i5DKPHMnRzqE',
         'ENVIRONMENT': 'development',
+        'DEBUG': True,
     }
 
 class Development(Config):

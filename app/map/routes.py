@@ -21,82 +21,82 @@ def map_index():
 @map.route('/mapview')
 def mapview():
 
-    def create_map_new():
-        # Initialize map
-        m = Map(location=[60.833577, 14.197137], zoom_start=13)
-        f = Figure(height="100%", width="100%", ratio=None)
-        f.add_child(m)
-        # Create a dictionary to hold FeatureGroups for each area
-        area_groups = {}
+    m = Map(location=[60.833577, 14.197137], zoom_start=13)
+    f = Figure(height="100%", width="100%", ratio=None)
+    f.add_child(m)
+    # Create a dictionary to hold FeatureGroups for each area
+    area_groups = {}
 
-        # Query the database
-        stands = db.session.query(Stand, Area).join(Area).all()
+    # Query the database
+    stands = db.session.query(Stand, Area).join(Area).all()
 
-        for stand, area in stands:
-            point = to_shape(stand.geopoint)
-            lat, lon = point.y, point.x
+    for stand, area in stands:
+        point = to_shape(stand.geopoint)
+        lat, lon = point.y, point.x
 
-            # Check if this area's FeatureGroup already exists; if not, create it
-            if area.name not in area_groups:
-                area_groups[area.name] = FeatureGroup(name=area.name)
-                area_groups[area.name].add_to(m)
+        # Check if this area's FeatureGroup already exists; if not, create it
+        if area.name not in area_groups:
+            area_groups[area.name] = FeatureGroup(name=area.name)
+            area_groups[area.name].add_to(m)
 
-            # Create marker
-            marker = Marker([lat, lon], popup=f'Stand Number: {stand.number}')
+        # Create marker
+        marker = Marker([lat, lon], popup=f'Stand Number: {stand.number}')
 
-            # Add marker to the respective area's FeatureGroup
-            marker.add_to(area_groups[area.name])
+        # Add marker to the respective area's FeatureGroup
+        marker.add_to(area_groups[area.name])
 
-        icon_mapping = {
-            'landmark': 'info-sign',
-            'saltstone': 'cloud',
-            'gathering_place': 'info-sign',
-            # Add more mappings for each category
-        }
-        color_mapping = {
-            'landmark': 'lightred',
-            'saltstone': 'white',
-            'gathering_place': 'lightgreen',
-        }
+    icon_mapping = {
+        'landmark': 'info-sign',
+        'saltstone': 'cloud',
+        'gathering_place': 'info-sign',
+        # Add more mappings for each category
+    }
+    color_mapping = {
+        'landmark': 'lightred',
+        'saltstone': 'white',
+        'gathering_place': 'lightgreen',
+    }
 
-        # Create a dictionary for FeatureGroups for each category
-        category_groups = {}
+    # Create a dictionary for FeatureGroups for each category
+    category_groups = {}
 
-        # Query the PointOfInterest table
-        points_of_interest = PointOfIntrest.query.all()
+    # Query the PointOfInterest table
+    points_of_interest = PointOfIntrest.query.all()
 
-        for poi in points_of_interest:
-            point = to_shape(poi.geopoint)
-            lat, lon = point.y, point.x
+    for poi in points_of_interest:
+        point = to_shape(poi.geopoint)
+        lat, lon = point.y, point.x
 
-            # Determine the icon for the category
-            icon = icon_mapping.get(poi.category, 'question-sign')  # default icon if category not in mapping
-            color = color_mapping.get(poi.category, 'gray')
+        # Determine the icon for the category
+        icon = icon_mapping.get(poi.category, 'question-sign')  # default icon if category not in mapping
+        color = color_mapping.get(poi.category, 'gray')
 
-            # Check if this category's FeatureGroup already exists; if not, create it
-            if poi.category not in category_groups:
-                category_groups[poi.category] = FeatureGroup(name=poi.category)
-                category_groups[poi.category].add_to(m)
+        # Check if this category's FeatureGroup already exists; if not, create it
+        if poi.category not in category_groups:
+            category_groups[poi.category] = FeatureGroup(name=poi.category)
+            category_groups[poi.category].add_to(m)
 
-            # Create marker with the determined icon
-            Marker(
-                [lat, lon], 
-                popup=f'{poi.name}: {poi.description}', 
-                icon=Icon(color=color, icon=icon)
-            ).add_to(category_groups[poi.category])
+        # Create marker with the determined icon
+        Marker(
+            [lat, lon], 
+            popup=f'{poi.name}: {poi.description}', 
+            icon=Icon(color=color, icon=icon)
+        ).add_to(category_groups[poi.category])
 
-        # Add LayerControl
+    # Add LayerControl
 
-        LocateControl().add_to(m)
-        Fullscreen().add_to(m)
-        LayerControl().add_to(m)
+    LocateControl().add_to(m)
+    Fullscreen().add_to(m)
+    LayerControl().add_to(m)
 
-        return m
+    return m.get_root().render()
     
-    folium_map = create_map_new()
-    map_html = folium_map._repr_html_()
+    # folium_map = create_map_new()
+    # map_html = folium_map._repr_html_()
+    # map_html = folium_map[:1000] + '2' + folium_map[100:]
 
-    return map_html
+    # return map_html
+
 
 @map.route('/add_point', methods=['POST', 'GET'])
 def add_geopoint():

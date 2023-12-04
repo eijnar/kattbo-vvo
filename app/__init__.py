@@ -12,6 +12,7 @@ from flask_migrate import Migrate
 from app.config import Development
 from app.utils.forms import ExtendedRegisterForm
 from elasticapm.contrib.flask import ElasticAPM
+import elasticapm
 
 
 db = SQLAlchemy()
@@ -21,7 +22,6 @@ jwt = JWTManager()
 migrate = Migrate()
 celery = Celery()
 apm = ElasticAPM()
-
 
 def create_app() -> Flask:
     app = Flask(__name__)
@@ -36,7 +36,7 @@ def create_app() -> Flask:
     migrate.init_app(app, db)
     celery_init_app(app)
     apm.init_app(app)
-    
+
     # Setup logging
     setup_logging(app)
     app.logger.info('Webpage is starting up...')
@@ -91,6 +91,7 @@ def create_app() -> Flask:
         base_url='https://dev.kattbovvo.se',
         registration_route='/events/quick_registration'
     )
+
 
     # At last, create the database structure within the construct.
     with app.app_context():
