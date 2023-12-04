@@ -54,9 +54,9 @@ def mapview():
             # Add more mappings for each category
         }
         color_mapping = {
-            'landmark': 'red',
-            'saltstone': 'green',
-            'gathering_place': 'yellow',
+            'landmark': 'lightred',
+            'saltstone': 'white',
+            'gathering_place': 'lightgreen',
         }
 
         # Create a dictionary for FeatureGroups for each category

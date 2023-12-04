@@ -1,0 +1,9 @@
+{% extends "layout.html.j2" %}
+{% block content %}
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <label for="photo">Upload Photo:</label>
+        <input type="file" id="photo" name="photo" accept="image/*" capture="user">
+        <input type="submit" value="Upload">
+    </form>
+{% endblock content %}
+

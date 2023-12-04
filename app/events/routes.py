@@ -81,7 +81,7 @@ def quick_register():
 
         # Redirect to a confirmation page or back to the homepage
         flash('You have successfully registered for the event!')
-        return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics, form=form)
+        return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics)
     
     except Exception as e:
         return e

@@ -53,6 +53,9 @@ def statistics():
     return render_template('main/stats.html.j2', statistics=statistics)
 
 
+@main.route("/upload_photo")
+def upload_photo_test():
+    return render_template('main/upload.html.j2')
 
 @main.route("/celery")
 def celery():
