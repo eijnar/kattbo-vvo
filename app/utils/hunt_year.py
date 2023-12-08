@@ -1,7 +1,7 @@
 from typing import Optional
 from flask import current_app
 from sqlalchemy.exc import SQLAlchemyError
-from app.hunting.models import HuntYear
+from app.models.hunting import HuntYear
 from datetime import date
 
 

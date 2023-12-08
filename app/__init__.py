@@ -12,7 +12,6 @@ from flask_migrate import Migrate
 from app.config import Development
 from app.utils.forms import ExtendedRegisterForm
 from elasticapm.contrib.flask import ElasticAPM
-import elasticapm
 
 
 db = SQLAlchemy()
@@ -35,14 +34,14 @@ def create_app() -> Flask:
     jwt.init_app(app)
     migrate.init_app(app, db)
     celery_init_app(app)
-    apm.init_app(app)
+    #apm.init_app(app)
 
     # Setup logging
     setup_logging(app)
     app.logger.info('Webpage is starting up...')
     
     #fsqla.FsModels.set_db_info(db)
-    from app.users.models import User, Role  # noqa
+    from app.models.users import User, Role  # noqa
 
     # To get the functions to jinja2
     app.jinja_env.globals['format_date'] = format_date
@@ -54,28 +53,28 @@ def create_app() -> Flask:
     app.security = Security(app, user_datastore, register_blueprint=True,
                             confirm_register_form=ExtendedRegisterForm)
 
-    from app.tag.routes import tags
+    from app.blueprints.tag.routes import tags
     app.register_blueprint(tags, url_prefix='/tags')
 
-    from app.users.routes import users
+    from app.blueprints.users.routes import users
     app.register_blueprint(users, url_prefix='/user')
 
-    from app.events.routes import events
+    from app.blueprints.events.routes import events
     app.register_blueprint(events, url_prefix='/events')
 
-    from app.main.routes import main
-    app.register_blueprint(main)
+    from app.blueprints.news.routes import news
+    app.register_blueprint(news)
 
     from app.utils.routes import utils
     app.register_blueprint(utils)
 
-    from app.hunting.routes import hunting
+    from app.blueprints.hunting.routes import hunting
     app.register_blueprint(hunting, url_prefix='/jakt')
 
-    from app.admin.routes import admin
+    from app.blueprints.admin.routes import admin
     app.register_blueprint(admin, url_prefix='/admin')
 
-    from app.map.routes import map
+    from app.blueprints.maps.routes import map
     app.register_blueprint(map, url_prefix='/map')
 
     from app.errors.handlers import errors

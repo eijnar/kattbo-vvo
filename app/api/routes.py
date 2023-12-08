@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, session, request
 from app import db
-from app.events.models import EventType, EventDay, Event
-from app.users.models import UsersTags, User
-from app.hunting.models import StandAssignment, Stand
+from app.models.events import EventType, EventDay, Event
+from app.models.users import UsersTags, User
+from app.models.hunting import StandAssignment, Stand
 
 api = Blueprint('api', __name__, template_folder='templates')
 

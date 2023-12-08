@@ -3,15 +3,15 @@ import logging
 import requests
 from app import db, create_app
 from flask import render_template, current_app
-from app.utils.models import NotificationType, TagsNotifications
-from app.tag.models import Tag
-from app.events.models import EventType, EventTypeTags
-from app.users.models import RolesTags, Role, RolesUsers, User, UserNotificationPreference
+from app.models.utils import NotificationType, TagsNotifications
+from app.models.tag import Tag
+from app.models.events import EventType, EventTypeTags
+from app.models.users import RolesTags, Role, RolesUsers, User, UserNotificationPreference
 from phonenumbers import format_number, PhoneNumberFormat, parse
 from flask_mailman import EmailMessage
 from celery import shared_task
 from celery.contrib.abortable import AbortableTask
-from app.events.models import Event
+from app.models.events import Event
 
 
 class NotificationSender:

@@ -1,17 +1,17 @@
-from app import db
-from flask import Blueprint, redirect, current_app, render_template, jsonify, current_app
-from flask_security import login_required, roles_accepted
-from app.utils.notification import send_sms
-from app.utils.forms import NotificationForm
-from app.utils.models import NotificationTask
-from celery.result import AsyncResult
-from app import celery
 import gpxpy.gpx
 import gpxpy
+from app import db
+from flask import Blueprint, redirect, current_app, render_template, current_app, g
+from flask_security import login_required, roles_accepted
+from app.utils.notification import send_sms
+from app.utils.forms import NotificationForm, SearchForm
+from app.models.utils import NotificationTask
+from celery.result import AsyncResult
+from app import celery
 from geoalchemy2.shape import from_shape
 from shapely.geometry import Point
-from app.hunting.models import Stand
-from app.map.models import PointOfIntrest
+from app.models.hunting import Stand
+from app.models.maps import PointOfIntrest
 from sqlalchemy import and_
 
 utils = Blueprint('utils', '__name__', template_folder='templates')
@@ -36,6 +36,9 @@ def send_notification():
 
     return render_template('send_message.html.j2', form=form)
 
+@utils.before_request
+def before_request():
+    g.search_form = SearchForm()
 
 @utils.route('/import_gpx')
 def import_gpx():
