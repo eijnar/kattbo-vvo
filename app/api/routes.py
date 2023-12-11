@@ -22,11 +22,14 @@ def api_get_events():
             event_data = {
                 "id": event.id,
                 "title": event.event_type.name,
-                "start": day.date.isoformat(),
-                "end": day.date.isoformat()
+                "start_date": day.date.isoformat(),
+                "end_date": day.date.isoformat(),
+                "start_time": day.start_time.isoformat(),
+                "end_time": day.end_time.isoformat(),
+                "cancelled": day.cancelled,
             }
             if event.is_cancelled:
-                event_data["color"] = "red"  # or any color to indicate cancellation
+                event_data["color"] = "red" 
             else:
                 if event.event_type.name.lower() == 'älgjakt':
                     event_data["color"] = "blue"

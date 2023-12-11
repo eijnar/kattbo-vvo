@@ -349,7 +349,7 @@ def abort_task(event_id):
     return False
 
 
-@events.route("/calendar.ics")
+@events.route("/calendar")
 def ical_calendar():
     events_data = fetch_events_from_api()
     cal = Calendar()
@@ -357,21 +357,31 @@ def ical_calendar():
     cal.add('X-WR-CALNAME', 'Kättbo VVO')
 
     for event_data in events_data:
+        print(event_data)
+        date_str = event_data['start_date']
+        start_time_str = event_data['start_time']
+        end_time_str = event_data['end_time']
+        start_datetime_str = f'{date_str}T{start_time_str}'
+        end_datetime_str = f'{date_str}T{end_time_str}'
+
         event = ICalEvent()
         event.add('summary', event_data['title'])
-        event.add('dtstart', datetime.fromisoformat(event_data['start']))
-        event.add('dtend', datetime.fromisoformat(event_data['end']))
+        event.add('dtstart', datetime.fromisoformat(start_datetime_str))
+        event.add('dtend', datetime.fromisoformat(end_datetime_str))
         event.add('dtstamp', datetime.now(pytz.utc))
+        if event_data['cancelled'] == True:
+            event.add('sequence', 1)
+            event.add('status', 'CANCELLED')
         event['uid'] = str(event_data['id'])
 
         cal.add_component(event)
 
     response = Response(cal.to_ical())
     response.headers['Content-Type'] = 'text/calendar; charset=utf-8'
-    response.headers['Content-Disposition'] = 'attachment; filename="calendar.ics"'
+    response.headers['Content-Disposition'] = 'attachment; filename="kattbo_vvo.ics"'
     return response
 
 def fetch_events_from_api():
-    api_url = 'http://dev.kattbovvo.se/api/event/get_all_events'
+    api_url = 'http://127.0.0.1:5000/api/event/get_all_events'
     response = requests.get(api_url)
     return response.json()

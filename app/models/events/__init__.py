@@ -5,7 +5,6 @@ from app.utils.crud import CRUDMixin
 
 class Event(db.Model, TrackingMixin, CRUDMixin):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.Text, nullable=True)
 
     # ForeignKeys
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
