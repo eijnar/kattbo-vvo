@@ -2,7 +2,7 @@ import gpxpy.gpx
 import gpxpy
 from app import db
 from flask import Blueprint, redirect, current_app, render_template, current_app, g
-from flask_security import login_required, roles_accepted
+# from flask_security import login_required, roles_accepted
 from app.utils.notification import send_sms
 from app.utils.forms import NotificationForm, SearchForm
 from app.models.utils import NotificationTask

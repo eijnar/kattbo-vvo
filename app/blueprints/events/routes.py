@@ -1,5 +1,5 @@
 from flask_security import current_user, login_required, roles_accepted
-from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, make_response, current_app
+from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, make_response, current_app, jsonify, Response
 from app import db, celery
 from flask_jwt_extended import decode_token
 from app.blueprints.events.forms import EventForm, RegisterEventDayForm
@@ -16,7 +16,9 @@ from markdown import markdown
 from datetime import datetime
 from collections import defaultdict
 from celery.result import AsyncResult
-
+import requests
+import pytz
+from icalendar import Calendar, Event as ICalEvent
 
 events = Blueprint('events', __name__, template_folder='templates')
 
@@ -78,7 +80,6 @@ def quick_register():
 
         db.session.commit()
 
-
         # Redirect to a confirmation page or back to the homepage
         flash('You have successfully registered for the event!')
         return render_template('events/registration_confirmation.html.j2', pm=markdown(pm.document), event=event, event_type=event_type, statistics=statistics)
@@ -92,7 +93,6 @@ def register_with_sms():
     data = request.data
     print(data)
     return jsonify(data)
-
 
 #
 # Login required
@@ -347,3 +347,31 @@ def abort_task(event_id):
         current_app.logger.info(task_result)
         return True
     return False
+
+
+@events.route("/calendar.ics")
+def ical_calendar():
+    events_data = fetch_events_from_api()
+    cal = Calendar()
+
+    cal.add('X-WR-CALNAME', 'Kättbo VVO')
+
+    for event_data in events_data:
+        event = ICalEvent()
+        event.add('summary', event_data['title'])
+        event.add('dtstart', datetime.fromisoformat(event_data['start']))
+        event.add('dtend', datetime.fromisoformat(event_data['end']))
+        event.add('dtstamp', datetime.now(pytz.utc))
+        event['uid'] = str(event_data['id'])
+
+        cal.add_component(event)
+
+    response = Response(cal.to_ical())
+    response.headers['Content-Type'] = 'text/calendar; charset=utf-8'
+    response.headers['Content-Disposition'] = 'attachment; filename="calendar.ics"'
+    return response
+
+def fetch_events_from_api():
+    api_url = 'http://dev.kattbovvo.se/api/event/get_all_events'
+    response = requests.get(api_url)
+    return response.json()

@@ -81,6 +81,16 @@ def api_assign_stand(hunt_year_id, user_id, stand_number):
         db.session.rollback()
         print(e)
         return jsonify({"error": "An error occured"}), 500
+    
+@api.route('/news/new', methods=['POST'])
+def new_article():
+    if not current_user.is_authenticated:
+        abort(401)
+
+    data = request.json
+    title = data.get('title')
+    content = data.get('content')
+    
 
 # @api.route('/user/', methods=['POST'])
 # @api.route('/user/assign_team', methods=['POST'])
