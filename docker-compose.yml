@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports: 
+      - "5000:5000"
+    env_file:
+      - .env
+
+  celery:
+    build: .
+    command: celery -A make_celery worker --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - web

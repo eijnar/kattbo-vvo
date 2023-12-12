@@ -28,9 +28,11 @@
           </a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}">Alla händelser</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=hunting">Jakt</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=meeting">Möten</a>
+            <li>
+              <hr class="dropdown-divider">
             </li>
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=hunting">Jakt</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=meeting">Möten</a></li>
             <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=other">Övrigt</a></li>
             {% if 'hunter' in user_roles %}
             <li>

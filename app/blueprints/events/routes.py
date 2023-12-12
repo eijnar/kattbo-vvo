@@ -165,6 +165,7 @@ def create_event():
 
     if event_form.validate_on_submit():
         new_event = create_event_and_gatherings(event_form, current_user)
+        print(new_event.id)
         task = notify_users_about_event.apply_async(args=[new_event.id, event_form.event_type.data], countdown=20)
         notification_task = NotificationTask(
             celery_task_id=task.id,
@@ -357,7 +358,6 @@ def ical_calendar():
     cal.add('X-WR-CALNAME', 'Kättbo VVO')
 
     for event_data in events_data:
-        print(event_data)
         date_str = event_data['start_date']
         start_time_str = event_data['start_time']
         end_time_str = event_data['end_time']
@@ -382,6 +382,6 @@ def ical_calendar():
     return response
 
 def fetch_events_from_api():
-    api_url = 'http://127.0.0.1:5000/api/event/get_all_events'
+    api_url = f'{API_BASE}/api/event/get_all_events'
     response = requests.get(api_url)
     return response.json()

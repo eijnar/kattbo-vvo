@@ -37,7 +37,6 @@ def create_event_and_gatherings(form, current_user):
     try:
         event = Event(
             event_type_id=form.event_type.data,
-            description=form.description.data,
             creator_id=current_user.id,
         )
             

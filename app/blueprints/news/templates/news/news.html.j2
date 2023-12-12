@@ -2,15 +2,14 @@
 {% extends "layout.html.j2" %}
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/news.css') }}">
-<main class="container">
     <div class="row">
         <div class="col-3 bg-light d-none d-md-block" id="post-menu">
             <div class="row bg-white shadow-sm p-3"><B>Senaste nyheterna</B></div>
         </div>
-        <div class="col bg-white p-3">
+        <div class="col bg-white">
 
             {% for post in posts.items %}
-            <article class="blog-post bg-white p-4 m-4 pl-5 rounded">
+            <article class="blog-post bg-white m-4 rounded">
                 <div class="d-flex justify-content-between align-items-center">
                     <p class="news-post-title mb-0">
                         {{ post.title }}
@@ -30,5 +29,5 @@
 
         </div>
     </div>
-</main>
+
 {% endblock %}

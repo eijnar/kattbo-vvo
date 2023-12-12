@@ -34,6 +34,8 @@ class Config(object):
     JWT_SECRET_KEY = environ.get('JWT_SECRET_KEY')
     JWT_ALGORITHM = environ.get('JWT_ALGORITHM')
 
+    API_BASE = 'http://127.0.0.1:5000'
+
     # Celery 
     CELERY = dict(
         broker_url=environ.get('CELERY_BROKER_URL'),

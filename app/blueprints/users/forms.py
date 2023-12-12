@@ -25,7 +25,7 @@ def UserPreferenceFormFactory(notification_options, user_preferences):
             form_attrs[field_name] = BooleanField(notification_type.name, default=default_value)
 
     # Add a submit field to the form attributes
-    form_attrs['submit'] = SubmitField('Update Preferences')
+    form_attrs['submit'] = SubmitField('Spara')
 
     # Create the form class with a new type
     return type('UserPreferenceForm', (FlaskForm,), form_attrs)
