@@ -7,6 +7,9 @@ services:
       - "5000:5000"
     env_file:
       - .env
+    volumes:
+    - ./uploads:/usr/src/kattbo-vvo/uploads
+    
 
   celery:
     build: .
