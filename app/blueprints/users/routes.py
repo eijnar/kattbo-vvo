@@ -1,45 +1,25 @@
+import os
 from app import db
 from flask_security import login_required, current_user
-from flask import Blueprint, redirect, url_for, flash, request, render_template
+from flask import Blueprint, redirect, url_for, flash, request, render_template, send_from_directory, current_app
 from app.utils.notification import get_notification_options_for_user, get_distinct_notification_types_for_user
 from app.blueprints.users.forms import UpdateProfileForm, UserPreferenceFormFactory
 from app.models.users import User, UserNotificationPreference
 from app.models.tag import Tag
+from .utils import save_profile_picture_adv
 
 
 users = Blueprint('users', __name__, template_folder='templates')
 
-
-@users.route('/user/preferences', methods=['GET', 'POST'])
-@login_required
-def edit_preferences():
-    user = User.query.filter(user.id == current_user.id).first()
-    form = UserNotificationPreference(user=user)
-
-    if form.validate_on_submit():
-        for field in form:
-            if field.name.startswith('opt_in_'):
-                tag_id = int(field.name.split('_')[3])
-                tag = Tag.query.get(tag_id)
-                user.set_opt_in(tag, field.data)
-        db.session.commit()
-        flash('Your preferences have been updated.', 'success')
-        return redirect(url_for('edit_preferences'))
-
-    return render_template('users/edit_preferences.html', form=form)
-
-
 @users.route('/profile/update', methods=['GET', 'POST'])
 @login_required
 def update_profile():
-    user = current_user
-    notification_options = get_notification_options_for_user(user)
-    user_notification_types = get_distinct_notification_types_for_user(user)
-
+    notification_options = get_notification_options_for_user(current_user)
+    user_notification_types = get_distinct_notification_types_for_user(current_user)
 
     # Get the users opt_ins to display in form
     user_prefs_query = UserNotificationPreference.query.filter_by(
-        user_id=user.id)
+        user_id=current_user.id)
     user_preferences = {
         (pref.event_type_id, pref.notification_type_id): pref.opt_in
         for pref in user_prefs_query
@@ -58,9 +38,11 @@ def update_profile():
         current_user.phone_number = profile_form.phone_number.data
         current_user.first_name = profile_form.first_name.data
         current_user.last_name = profile_form.last_name.data
+        current_user.profile_picture = save_profile_picture_adv(profile_form.profile_picture.data)
         db.session.commit()
         flash('Din profil har blivit uppdaterad', category='success')
         return redirect(url_for('users.update_profile'))
+    
     elif opt_in_form.validate_on_submit():
         for event_type, notification_types in notification_options.items():
             for notification_type in notification_types:
@@ -68,7 +50,7 @@ def update_profile():
                 opt_in_value = getattr(opt_in_form, field_name).data
                 # Query the existing preference
                 preference = UserNotificationPreference.query.filter_by(
-                    user_id=user.id,
+                    user_id=current_user.id,
                     event_type_id=event_type.id,
                     notification_type_id=notification_type.id
                 ).first()
@@ -78,7 +60,7 @@ def update_profile():
                 else:
                     new_preference = UserNotificationPreference(
                         event_type_id=event_type.id,
-                        user_id=user.id,
+                        user_id=current_user.id,
                         notification_type_id=notification_type.id,
                         opt_in=opt_in_value
                     )
@@ -164,3 +146,8 @@ def test_user():
     test = get_opted_in_users_for_event_notification(1, 2)
     print(test)
     return "<html></html>"
+
+@users.route("/profile_picture/<filename>")
+def profile_picture(filename):
+    directory = os.path.join(current_app.config['UPLOAD_FOLDER'], 'profile_pictures')
+    return send_from_directory(directory, filename)

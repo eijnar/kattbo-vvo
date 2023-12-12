@@ -20,7 +20,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                <p class="news-post-meta"> {{ post.author.first_name }} {{ post.author.last_name }} {{
+                <p class="news-post-meta"> <img class="news-author-img shadow-lg" src="{{ url_for('users.profile_picture', filename=post.author.profile_picture) }}"> {{ post.author.first_name }} {{ post.author.last_name }} {{
                     format_date(post.created_at, format='dd MMMM YYYY') }} </p>
                 <hr class="news-blog-hr">
                 <div class="col news-post-body">{{ post.content|safe }}</div>

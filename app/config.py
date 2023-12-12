@@ -6,6 +6,8 @@ class Config(object):
     Set Flask configuration variables.
     """
 
+    UPLOAD_FOLDER = '/home/johan/python/kattbo-vvo-web/uploads'
+
     # Default mail configuration
     MAIL_USERNAME = environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = environ.get('MAIL_PASSWORD')

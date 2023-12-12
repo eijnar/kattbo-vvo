@@ -17,7 +17,7 @@
     <div data-bs-spy="scroll" data-bs-target="#navbar-profile" data-bs-smooth-scroll="true" class="scrollspy-example-2"
       tabindex="0">
       <div id="userinfo">
-        <p class="fw-bolder fs-1">Användarinformation</p>
+        <p class="fw-bolder fs-1 align-items-end"><img src="{{ url_for('users.profile_picture', filename=current_user.profile_picture) }}"> Användarinformation</p>
         {{ userinfo(profile_form) }}
         </p>
       </div>

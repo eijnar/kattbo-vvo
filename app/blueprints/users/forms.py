@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import InputRequired, Email, DataRequired
+from wtforms import StringField, SubmitField, BooleanField, FileField
+from wtforms.validators import InputRequired, Email
 
 
 class UpdateProfileForm(FlaskForm):
@@ -8,6 +8,7 @@ class UpdateProfileForm(FlaskForm):
     last_name = StringField('Efternamn')
     email = StringField('E-post', validators=[InputRequired(message="Du måste fylla i detta!"), Email()])
     phone_number = StringField('Mobilnummer')
+    profile_picture = FileField('Profilbild')
     submit = SubmitField('Uppdatera')
 
 def UserPreferenceFormFactory(notification_options, user_preferences):

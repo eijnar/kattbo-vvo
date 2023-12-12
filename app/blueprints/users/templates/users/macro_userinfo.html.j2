@@ -1,5 +1,5 @@
 {% macro userinfo(profile_form) %}
-<form action="" id="userinfoform" method="post" class="needs-validation" novalidate>
+<form action="" id="userinfoform" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
     {{ profile_form.hidden_tag() }}
     <div>
         <label for="validationFirstName" class="form-label"><b>{{ profile_form.first_name.label }}</b></label>
@@ -52,6 +52,10 @@
         <div class="invalid-feedback">
             Du måste fylla i detta
         </div>
+    </div>
+    <div>
+        <label for="updatePicture" class="form-label"><b> {{ profile_form.profile_picture.label }} </b></label>
+        {{ profile_form.profile_picture(class="form-control") }}<br>
     </div>
     <div>
         {{ profile_form.submit(class='form-control btn btn-primary', id="userinfoform") }}

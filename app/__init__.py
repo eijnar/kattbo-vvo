@@ -53,9 +53,6 @@ def create_app() -> Flask:
     app.security = Security(app, user_datastore, register_blueprint=True,
                             confirm_register_form=ExtendedRegisterForm)
 
-    from app.blueprints.tag.routes import tags
-    app.register_blueprint(tags, url_prefix='/tags')
-
     from app.blueprints.users.routes import users
     app.register_blueprint(users, url_prefix='/user')
 
