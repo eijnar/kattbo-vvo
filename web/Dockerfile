@@ -5,7 +5,7 @@ WORKDIR /usr/src/kattbo-vvo
 COPY ./web /usr/src/kattbo-vvo
 COPY ./common /tmp/common
 
-RUN pip install --no-cache-dir -r web/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install /tmp/common
 
 RUN addgroup --system appuser && adduser --system --group appuser
