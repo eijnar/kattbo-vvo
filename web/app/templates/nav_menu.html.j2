@@ -1,0 +1,120 @@
+{% set user_roles = [] %}
+{% for role in current_user.roles %}
+{% if role.name not in user_roles %}
+{% do user_roles.append(role.name) %}
+{% endif %}
+{% endfor %}
+
+<nav class="navbar navbar-expand-sm bg-dark shadow navbar-dark" aria-label="Third navbar example">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#"><img src="{{ url_for('static', filename='logo-2.png')}}" alt="Bootstrap" width="30"
+        height="30">Kättbo VVO</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarVVO"
+      aria-controls="navbarVVO" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarVVO">
+      <ul class="navbar-nav navbar-tabs me-auto mb-2 mb-sm-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{{ url_for('news.home') }}">Nyheter</a>
+        </li>
+        <li class="nav-item text-light">
+
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Kalender
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}">Alla händelser</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=hunting">Jakt</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=meeting">Möten</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.list_events') }}?event_category=other">Övrigt</a></li>
+            {% if 'hunter' in user_roles %}
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="{{ url_for('events.create_event')}}?event_category=hunting">Planera
+                småviltsjakt</a></li>
+            {% endif %}
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            Jakt
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="nav-link disabled" aria-disabled="true">Information</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('map.map_index')}}">Karta</a></li>
+            <li><a class="nav-link disabled" aria-disabled="true">Fällt vilt</a></li>
+            <li><a class="nav-link disabled" aria-disabled="true">Dokument</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle disabled" href="#" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            VVO
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="nav-link disabled" aria-disabled="true">Mötesprotokoll</a></li>
+            <li><a class="nav-link disabled" aria-disabled="true">Information</a></li>
+            <li><a class="nav-link disabled" aria-disabled="true">ÄSO</a></li>
+            <li><a class="nav-link disabled" aria-disabled="true">Övrigt</a></li>
+          </ul>
+        </li>
+        {% if 'hunt-leader' in user_roles or 'admin' in user_roles %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Admin
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=hunting">Lägg till
+                jakt</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=meeting">Lägg till
+                möte</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('events.create_event') }}?event_category=other">Lägg till
+                övrigt</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ url_for('admin.edit_hunt_teams', selected_hunt_year_id=1)}}">Hantera
+                jaktmedlemmar
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ url_for('hunting.register_moose') }}">
+              Registrera fällt vilt
+              </a>
+            </li>
+          </ul>
+
+        </li>
+        {% endif %}
+      </ul>
+      {% if current_user.is_authenticated %}
+        {% if g.search_form %}
+          <form clsas="navbar-form navbar-left" action="{{ url_for('utils.search') }}" method="GET">
+            <div class="form-group">
+              {{ g.search_form.q(size=20) }}
+            </div>
+          </form>
+        {% endif %}
+      <a href="{{ url_for('users.update_profile') }}" class="btn btn-outline-light me-2">Ändra profil</a>
+      <a href="{{ url_for('security.logout') }}" class="btn btn-danger">Logga ut</a>
+      {% else %}
+      <a href="{{ url_for('security.login') }}" class="btn btn-outline-dark me-2">Logga in</a>
+      <a href="{{ url_for('security.register') }}" class="btn btn-warning">Registrera</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+<script src="{{ url_for('static', filename='js/setHuntYear.js')}}"></script>

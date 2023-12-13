@@ -1,0 +1,68 @@
+{% extends 'layout.html.j2' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col bg-light p-4">
+        <div class="row">
+        <div class="col text-center py-2"><h1><b>Tack för att du registrerat dig!</b></h1></div>
+        </div>
+        <div class="row">
+            <div class="col">
+
+                <p> Du har nu automatiskt blivit anmäld till alla dagar, är det så att du
+                    inte kan komma någon av dagarna, vänligen klicka ur de dagar du inte kan vara med nedan så vi kan
+                    planera jakten enklare. Skulle det bli inställt någon av dagarna eller hela jakten så kommer du få
+                    ett sms om detta så snart detta görs.</p>
+            </div>
+            <div class="col-lg">
+                <h5>Kvarvarande älgar</h5>
+                <table class="table table-bordered shadow">
+                    <tr class="table-active">
+                        <th>Jaktlag</th>
+                        <th class="text-center">Oxar</th>
+                        <th class="text-center">Kor</th>
+                        <th class="text-center">Kalv</th>
+                    </tr>
+                    <tr>
+                        <th>Hemmalaget</th>
+                        <td class="text-center">2</td>
+                        <td class="text-center">0</td>
+                        <td class="text-center">2</td>
+                    </tr>
+                    <tr>
+                        <th>Bortalaget</th>
+                        <td class="text-center">0</td>
+                        <td class="text-center">0</td>
+                        <td class="text-center">11</td>
+                    </tr>
+                    <tr class="table-active">
+                        <th>Totalt</th>
+                        <th class="text-center">2</th>
+                        <th class="text-center">0</th>
+                        <th class="text-center">13</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="accordion shadow rounded" id="accordionPm">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Jaktdeltar PM
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionPm">
+                            <div class="accordion-body">
+                                {{ doc | safe }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

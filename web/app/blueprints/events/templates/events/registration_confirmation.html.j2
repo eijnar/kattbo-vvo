@@ -1,0 +1,67 @@
+
+{% extends 'layout.html.j2' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col bg-light p-4">
+        <div class="row">
+            <div class="col text-center py-2">
+                <h1><b>Tack för att du registrerat dig till {{ event_type.name|lower }}</b></h1>
+                <h4> {% set dates = event.event_days|map(attribute='date')|list|sort %}
+                    {{ dates[0] }} - {{ dates[-1] }}</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p>
+                </p>
+                <p> Du har nu automatiskt blivit anmäld till alla dagar, är det så att du
+                    inte kan komma någon av dagarna, vänligen klicka ur de dagar du inte kan vara med nedan så vi kan
+                    planera jakten enklare. Skulle det bli inställt någon av dagarna eller hela jakten så kommer du få
+                    ett sms om detta så snart detta görs.
+                </p>
+            </div>
+            <div class="col-lg py-4">
+                <table class="table table-bordered shadow">
+                    <tr class="table-active">
+                        <th>Kvarvarande älgar</th>
+                        <th class="text-center">Oxar</th>
+                        <th class="text-center">Kor</th>
+                        <th class="text-center">Kalv</th>
+                    </tr>
+
+                    <!-- Table body -->
+                    {% for team_name, quotas in statistics.items() %}
+
+                    <tr>
+                        <th>{{ team_name }}</th>
+                        <td class="text-center">{{ quotas.get('Oxe', 0) }}</td>
+                        <td class="text-center">{{ quotas.get('Ko', 0) }}</td>
+                        <td class="text-center">{{ quotas.get('Kalv', 0) }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="accordion shadow rounded" id="accordionPm">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Jaktdeltar PM
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionPm">
+                            <div class="accordion-body">
+                                {{ pm | safe }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,21 +1,38 @@
-version: '3'
+version: '3.8'
 
 services:
   web:
-    build: .
+    build:
+      context: ./web
+      dockerfile: Dockerfile.web
+      target: web
     ports: 
       - "5000:5000"
     env_file:
-      - .env
+      - ./web/.env
     volumes:
     - ./uploads:/usr/src/kattbo-vvo/uploads
-    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
-  celery:
-    build: .
+  web_celery_worker:
+    build:
+      context: ./web
+      dockerfile: Dockerfile.web
+      target: web_celery_worker
     command: celery -A make_celery worker --loglevel=info
     env_file:
-      - .env
+      - ./web/.env
     depends_on:
       - web
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A make_celery inspect ping"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
 

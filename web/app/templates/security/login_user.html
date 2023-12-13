@@ -1,0 +1,42 @@
+{% extends "layout.html.j2" %}
+
+{% block content %}
+
+<div class="container-fluid d-flex text-center align-items-center justify-content-center vh-100">
+  <div class="col-12 d-flex text-center rounded align-items-center justify-content-center">
+    <main class="form-signin col-12 col-md-6 col-xl-6">
+        <img src="{{ url_for('static', filename='logo-2.png')}}" height="150px">
+        <h1 class="display-1"><b>Kättbo VVO</b></h1>
+        
+          <div class="col-lg-12 p-2 text-black">
+
+          </div>
+          <form action="{{ url_for_security('login') }}" method="POST" name="login_user_form">
+            {{ login_user_form.hidden_tag() }}
+          <div class="form-floating my-2 shadow-sm">
+            {{ login_user_form.email(class="form-control", id="floatingInput", placeholder="E-post adress") }}
+            <label for="floatingInput">Epost adress</label>
+          </div>
+          <div class="form-floating my-2 shadow-sm">
+            {{ login_user_form.password(class="form-control", id="floatingPassword", placeholder="Lösenord") }}
+            <label for="floatingPassword">Lösenord</label>
+          </div>
+
+          <div class="form-check text-start my-3">
+              {{ login_user_form.remember }}
+            <label class="form-check-label" for="flexCheckDefault">
+              Kom ihåg mig
+            </label>
+          </div>
+          <button class="btn btn-primary py-2 shadow" type="submit">Logga in</button>
+          <p class="py-2">
+          {% include "security/_messages.html" %}
+          Inget konto? <a href="{{ url_for('security.register')}}">Registrera dig</a>
+          </p>
+        </form>
+      </main>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

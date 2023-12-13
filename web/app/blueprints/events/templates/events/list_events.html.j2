@@ -1,0 +1,105 @@
+{% extends "layout.html.j2" %}
+{% block content %}
+
+<div class="row">
+  <div class="col bg-white shadow-sm p-4 pt-5">
+    <div class="h3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-calendar2-check"
+        viewBox="0 0 16 16">
+        <path
+          d="M10.854 8.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708 0z" />
+        <path
+          d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2z" />
+        <path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V4z" />
+      </svg>
+      <b> Kommande händelser</b>
+    </div>
+  </div>
+</div>
+<div class="row bg-light">
+  <div class="col text-center pt-2"><div id="calendar"></div>
+  </div>
+
+</div>
+<div class="row bg-light">
+  <div class="col-sm-12 p-3">
+
+    <table class="table shadow table-striped table-hover">
+      <thead class="p-2">
+        <tr>
+          <th scope="col" class="col-2">Händelse</th>
+          <th>Datum</th>
+          <th scope="col" class="col-2 d-none d-lg-table-cell">Dagar</th>
+          <th scope="col" class="col-1 d-none d-lg-table-cell">Anmälda</th>
+          <th scope="col text-end">#</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in events %}
+        <tr class="bg-danger">
+          <td class="align-middle text-center {% if event.is_cancelled %}bg-danger{% endif %}">{{ event.event_type.name }} </td>
+          <td class="align-middle {% if event.is_cancelled %}bg-danger{% endif %}">
+            
+            {% set dates = event.event_days|map(attribute='date')|list|sort %}
+            {% if dates|length == 1 %}
+            {{ format_date(dates[0], format='dd MMMM YYYY') }} 
+            {% else %}
+            {{ format_date(dates[0], format='dd MMMM YYYY') }} - {{ format_date(dates[-1], format='dd MMMM YYYY') }}
+            {% endif %}
+          </td>
+          <td class="align-middle d-none d-lg-table-cell {% if event.is_cancelled %}bg-danger{% endif %}">
+            {% for event_date in dates %}
+            <b>{{ format_datetime(event_date, format='EEEE') }}</b>
+            {%endfor%}
+          </td>
+          <td class="align-middle d-none d-lg-table-cell {% if event.is_cancelled %}bg-danger{% endif %}">
+          </td>
+          <td class="text-end align-middle col-xs-2 {% if event.is_cancelled %}bg-danger{% endif %}">
+          {% if current_user.role == 'hunt-leader' %}
+            <div class="btn-group">
+              <form action="{{ url_for('events.delete_event', event_id=event.id)}}" method="POST">
+                <input class="btn btn-outline-danger" type="submit" value="Ställ in">
+              </form>
+            </div>
+          {% endif %}
+          {% if not event.is_cancelled %}
+            <div class="btn-group">
+              <a href="{{ url_for('events.register_event', event_id=event.id)}}" class="btn btn-outline-success"
+                type="button">
+                Anmäl dig
+              </a>
+              <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+
+                </li>
+                <li><a class="dropdown-item" href="{{ url_for('events.generate_event_pdf', event_id=event.id) }}"><b>Fullständig deltaraglista</b></a></li>
+                {% for team in teams %}
+                <li><a class="dropdown-item" href="{{ url_for('events.generate_event_pdf', event_id=event.id) }}?team_id={{ team.id }}">Deltagarlista: {{ team.name }}</a></li>
+                {% endfor %}
+                <li>
+                <hr class="dropdown-divider">
+                </li>
+                <li class="bg-danger">
+                <a class="dropdown-item href" href="{{ url_for('events.cancel_event', event_id=event.id) }}">Ställ in</a>
+                </li>
+              </ul>
+            </div>
+            {% endif %}
+            {% if current_user.id == event.creator_id %}
+  </div>
+  {% endif %}
+  </td>
+  </tr>
+  {% endfor%}
+  </tbody>
+  </table>
+</div>
+</div>
+
+<script src="{{ url_for('static', filename='js/calendar.js')}}"></script>
+
+{% endblock %}

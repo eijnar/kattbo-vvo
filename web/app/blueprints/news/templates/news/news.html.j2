@@ -1,0 +1,33 @@
+{% from "news/macro_render-tag-icon.j2" import render_tag_icon %}
+{% extends "layout.html.j2" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/news.css') }}">
+    <div class="row">
+        <div class="col-3 bg-light d-none d-md-block" id="post-menu">
+            <div class="row bg-white shadow-sm p-3"><B>Senaste nyheterna</B></div>
+        </div>
+        <div class="col bg-white">
+
+            {% for post in posts.items %}
+            <article class="blog-post bg-white m-4 rounded">
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="news-post-title mb-0">
+                        {{ post.title }}
+                    </p>
+                    <div class="div pr-2">
+                        {% for tag in post.tags %}
+                        {{ render_tag_icon(tag) }}
+                        {% endfor %}
+                    </div>
+                </div>
+                <p class="news-post-meta"> <img class="news-author-img shadow-lg" src="{{ url_for('users.profile_picture', filename=post.author.profile_picture) }}"> {{ post.author.first_name }} {{ post.author.last_name }} {{
+                    format_date(post.created_at, format='dd MMMM YYYY') }} </p>
+                <hr class="news-blog-hr">
+                <div class="col news-post-body">{{ post.content|safe }}</div>
+            </article>
+            {% endfor %}
+
+        </div>
+    </div>
+
+{% endblock %}

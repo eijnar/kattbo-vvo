@@ -1,0 +1,89 @@
+{% macro userinfo(profile_form) %}
+<form action="" id="userinfoform" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+    {{ profile_form.hidden_tag() }}
+    <div>
+        <label for="validationFirstName" class="form-label"><b>{{ profile_form.first_name.label }}</b></label>
+        {{ profile_form.first_name(class='form-control', id="validationFirstName") }}<br>
+        {% for error in profile_form.first_name.errors %}
+        <label for="validationFirstName">[{{ error }}]</label><br>
+        {% endfor %}
+        <div class="valid-feedback">
+            Ok
+        </div>
+        <div class="invalid-feedback">
+            Du måste fylla i detta
+        </div>
+    </div>
+    <div>
+        <label for="validationLastName" class="form-label"><b>{{ profile_form.last_name.label }}</b></label>
+        {{ profile_form.last_name(class='form-control', id='validationLastName')}}<br>
+        {% for error in profile_form.last_name.errors %}
+        <label for="validationLastName">[{{ error }}]</label><br>
+        {% endfor %}
+        <div class="valid-feedback">
+            Ok
+        </div>
+        <div class="invalid-feedback">
+            Du måste fylla i detta
+        </div>
+    </div>
+    <div>
+        <label for="validationEmail" class="form-label"><b>{{ profile_form.email.label }}</b></label>
+        {{ profile_form.email(class='form-control', id="validationEmail") }}<br>
+        {% for error in profile_form.email.errors %}
+        <label for="validationEmail">[{{ error }}]</label><br>
+        {% endfor %}
+        <div class="valid-feedback">
+            Ok
+        </div>
+        <div class="invalid-feedback">
+            Du måste fylla i detta
+        </div>
+    </div>
+    <div>
+        <label for="validationPhone" class="form-label"><b>{{ profile_form.phone_number.label }}</b></label>
+        {{ profile_form.phone_number(class='form-control', id="validationPhone") }}<br>
+        {% for error in profile_form.email.errors %}
+        <label for="validationPhone">[{{ error }}]</label><br>
+        {% endfor %}
+        <div class="valid-feedback">
+            Ok
+        </div>
+        <div class="invalid-feedback">
+            Du måste fylla i detta
+        </div>
+    </div>
+    <div>
+        <label for="updatePicture" class="form-label"><b> {{ profile_form.profile_picture.label }} </b></label>
+        {{ profile_form.profile_picture(class="form-control") }}<br>
+    </div>
+    <div>
+        {{ profile_form.submit(class='form-control btn btn-primary', id="userinfoform") }}
+    </div>
+</form>
+
+
+
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endmacro %}
