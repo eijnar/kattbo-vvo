@@ -3,8 +3,8 @@ version: '3.8'
 services:
   web:
     build:
-      context: web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./web/Dockerfile
       target: web
     ports: 
       - "5000:5000"
@@ -19,8 +19,8 @@ services:
 
   web_celery_worker:
     build:
-      context: web
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./web/Dockerfile
       target: web_celery_worker
     command: celery -A make_celery worker --loglevel=info
     depends_on:
