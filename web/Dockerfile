@@ -3,10 +3,10 @@ FROM python:3.12.1-slim as base
 WORKDIR /usr/src/kattbo-vvo
 
 COPY ./web /usr/src/kattbo-vvo
-COPY ./common /tmp/common
+COPY ./common/models /tmp/common/models
 
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install /tmp/common
+RUN pip install /tmp/common/models
 
 RUN addgroup --system appuser && adduser --system --group appuser
 RUN chown -R appuser:appuser /usr/src/kattbo-vvo
