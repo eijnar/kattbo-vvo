@@ -21,11 +21,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
-
-      - name: Build the container
-        run: |
-          docker-compose -f docker-compose.yml build web
-
+      
       - name: Create env file
         run: |
           echo "UPLOAD_FOLDER='/srv/kattbo-vvo/upload'" >> .env
@@ -49,6 +45,11 @@ jobs:
           echo "CELERY_BACKEND_URL=${{ secrets.CELERY_BACKEND_URL }}" >> .env
           echo "ELASTIC_SECRET_TOKEN=${{ secrets.ELASTIC_SECRET_TOKEN }}" >> .env
           echo "ELASTIC_SERVER_URL=${{ secrets.ELASTIC_SERVER_URL }}" >> .env
+
+      - name: Build the container
+        run: |
+          docker-compose -f docker-compose.yml build web
+
 
       - name: Deploy deploy the frontend and celery worker
         run: |
