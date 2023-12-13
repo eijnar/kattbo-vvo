@@ -1,4 +1,4 @@
-name: Kättbo VVO frontend & celery worker
+name: Frontend & celery worker CD/CI
 
 on: 
   push:
