@@ -26,6 +26,27 @@ jobs:
           docker-compose -f docker-compose.yml build web
   deploy:
     runs-on: self-hosted
+    env:
+      UPLOAD_FOLDER: '/srv/kattbo-vvo/upload'
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+      MAIL_PORT: 465
+      MAIL_USE_SSL: True
+      MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+      MAIL_DEFAULT_SENDER_DEV: 'development@kattbovvo.se'
+      MAIL_DEFAULT_SENDER_PROD: 'info@kattbovvo.se'
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      SECURITY_PASSWORD_SALT: ${{ secrets.SECURITY_PASSWORD_SALT }}
+      SECURITY_PASSWORD_HASH: ${{ secrets.SECURITY_PASSWORD_HASH }}
+      SECURITY_REGISTERABLE: True
+      SECURITY_CONFIRMABLE: True
+      SECURITY_TRACKABLE: True
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
+      SQLALCHEMY_DATABASE_URI_DEV: ${{ secrets.SQLALCHEMY_DATABASE_URI_DEV }}
+      CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
+      CELERY_BACKEND_URL: ${{ secrets.CELERY_BACKEND_URL }}
+
     needs: build
     if: github.ref == 'refs/heads/main'
     steps:

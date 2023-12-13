@@ -8,8 +8,6 @@ services:
       target: web
     ports: 
       - "5000:5000"
-    env_file:
-      - ./web/.env
     volumes:
     - ./uploads:/usr/src/kattbo-vvo/uploads
     healthcheck:
@@ -25,8 +23,6 @@ services:
       dockerfile: Dockerfile.web
       target: web_celery_worker
     command: celery -A make_celery worker --loglevel=info
-    env_file:
-      - ./web/.env
     depends_on:
       - web
     healthcheck:
