@@ -3,7 +3,7 @@ FROM python:3.12.1-slim as base
 WORKDIR /usr/src/kattbo-vvo
 
 COPY . /usr/src/kattbo-vvo
-COPY ../common /tmp/common
+COPY ./common /tmp/common
 
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install /tmp/common
