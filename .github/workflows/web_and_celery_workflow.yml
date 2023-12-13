@@ -39,6 +39,8 @@ jobs:
       SQLALCHEMY_DATABASE_URI_DEV: ${{ secrets.SQLALCHEMY_DATABASE_URI_DEV }}
       CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
       CELERY_BACKEND_URL: ${{ secrets.CELERY_BACKEND_URL }}
+      ELASTIC_SECRET_TOKEN: ${{ secrets.ELASTIC_SECRET_TOKEN }}
+      ELASTIC_SERVER_URL: ${{ secrets.ELASTIC_SERVER_URL }}
 
     if: github.ref == 'refs/heads/main'
     steps:
