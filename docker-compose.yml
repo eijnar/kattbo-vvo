@@ -4,7 +4,7 @@ services:
   web:
     build:
       context: web
-      dockerfile: Dockerfile.web
+      dockerfile: Dockerfile
       target: web
     ports: 
       - "5000:5000"
