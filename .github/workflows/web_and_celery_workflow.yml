@@ -1,0 +1,36 @@
+name: Kättbo VVO frontend & celery worker
+
+on: 
+  push:
+    branches:
+      - main
+    paths:
+      - 'web/**'
+      - 'common/**'
+      - 'Dockerfile.web'
+      - 'docker-compose.yml'
+  pull_request:
+    paths:
+      - 'web/**'
+      - 'common/**'
+      - 'Dockerfile.web'
+      - 'docker-compose.yml'
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up docker-compose for web 
+        run: |
+          docker-compose -f docker-compose.yml build web
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Deploy frontend and celery
+        run: |
+          docker-compose up web -d
+
