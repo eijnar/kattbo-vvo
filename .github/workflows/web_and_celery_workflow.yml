@@ -21,7 +21,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Create env file
         run: |
           echo "UPLOAD_FOLDER='/srv/kattbo-vvo/upload'" >> .env
@@ -40,7 +40,7 @@ jobs:
           echo "SECURITY_TRACKABLE=True" >> .env
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
           echo "JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}" >> .env
-          echo "SQLALCHEMY_DATABASE_URI=${{ secrets.SQLALCHEMY_DATABASE_URI_DEV }}" >> .env
+          echo "SQLALCHEMY_DATABASE_URI_DEV=${{ secrets.SQLALCHEMY_DATABASE_URI_DEV }}" >> .env
           echo "CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}" >> .env
           echo "CELERY_BACKEND_URL=${{ secrets.CELERY_BACKEND_URL }}" >> .env
           echo "ELASTIC_SECRET_TOKEN=${{ secrets.ELASTIC_SECRET_TOKEN }}" >> .env
