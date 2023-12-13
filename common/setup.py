@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='kattbo_models',
+    name='kattbo_common',
     version='0.5.1',
     author='Johan Andersson',
     author_email='johan@morbit.se',

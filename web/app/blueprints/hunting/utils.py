@@ -1,4 +1,4 @@
-from app.models.hunting import UserTeamYear, AnimalQuota
+from models.hunting import UserTeamYear, AnimalQuota
 
 def get_hunt_team_for_user_and_year(user_id, hunt_year_id):
     user_team_year = UserTeamYear.query.filter_by(

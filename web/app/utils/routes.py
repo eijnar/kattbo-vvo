@@ -5,13 +5,13 @@ from flask import Blueprint, redirect, current_app, render_template, current_app
 # from flask_security import login_required, roles_accepted
 from app.utils.notification import send_sms
 from app.utils.forms import NotificationForm, SearchForm
-from app.models.utils import NotificationTask
+from models.utils import NotificationTask
 from celery.result import AsyncResult
 from app import celery
 from geoalchemy2.shape import from_shape
 from shapely.geometry import Point
-from app.models.hunting import Stand
-from app.models.maps import PointOfIntrest
+from models.hunting import Stand
+from models.maps import PointOfIntrest
 from sqlalchemy import and_
 
 utils = Blueprint('utils', '__name__', template_folder='templates')

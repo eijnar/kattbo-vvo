@@ -4,8 +4,8 @@ from flask_security import login_required, current_user
 from flask import Blueprint, redirect, url_for, flash, request, render_template, send_from_directory, current_app
 from app.utils.notification import get_notification_options_for_user, get_distinct_notification_types_for_user
 from app.blueprints.users.forms import UpdateProfileForm, UserPreferenceFormFactory
-from app.models.users import User, UserNotificationPreference
-from app.models.tag import Tag
+from models.users import User, UserNotificationPreference
+from models.tag import Tag
 from .utils import FileUploadHandler
 
 
@@ -96,9 +96,9 @@ def update_profile():
 
 @users.route('test')
 def test_user():
-    from app.models.users import Role, RolesTags, RolesUsers
-    from app.models.events import EventType, EventTypeTags
-    from app.models.utils import TagsNotifications, NotificationType
+    from models.users import Role, RolesTags, RolesUsers
+    from models.events import EventType, EventTypeTags
+    from models.utils import TagsNotifications, NotificationType
     user = User.query.filter(User.id == current_user.id).first()
     if user:
         print("User found:", user)

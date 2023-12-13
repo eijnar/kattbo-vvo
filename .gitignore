@@ -131,10 +131,12 @@ celerybeat.pid
 .venv
 .vvo-venv
 env/
-venv/
+venv*/
 ENV/
 env.bak/
 venv.bak/
+*.venv*
+
 
 chatgpt_suggestions
 

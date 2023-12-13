@@ -1,9 +1,9 @@
 from flask import Blueprint, redirect, url_for, render_template, request
 from app import db
 from flask_security import current_user
-from app.models.utils import Document
+from models.utils import Document
 from markdown import markdown
-from app.models.news import Post
+from models.news import Post
 from app.blueprints.hunting.utils import get_quota_statistics
 from app.blueprints.news.forms import PostForm
 from markdown import markdown

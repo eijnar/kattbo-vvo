@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template_string, render_template
 from flask_security import login_required, roles_accepted
-from app.models.hunting import HuntTeam, AnimalType, AnimalShot, AnimalQuota, UserTeamYear
+from models.hunting import HuntTeam, AnimalType, AnimalShot, AnimalQuota, UserTeamYear
 from app.blueprints.hunting.forms import RegisterShotMoose
 from app.blueprints.hunting.utils import get_hunt_team_for_user_and_year, find_quota_id
-from app.models.users import User, UsersTags
-from app.models.tag import Tag
+from models.users import User, UsersTags
+from models.tag import Tag
 from app.utils.hunt_year import HuntYearFinder
 from app import db
 

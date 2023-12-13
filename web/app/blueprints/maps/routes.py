@@ -3,9 +3,9 @@ from app import db
 from folium import Map, Marker, Icon, LayerControl, FeatureGroup, Figure
 from geoalchemy2.shape import to_shape
 from folium.plugins import LocateControl, Fullscreen
-from app.models.hunting import Stand, Area
+from models.hunting import Stand, Area
 from app.blueprints.maps.forms import AddGeopointForm
-from app.models.maps import PointOfIntrest
+from models.maps import PointOfIntrest
 
 
 map = Blueprint('map', __name__, template_folder='templates')

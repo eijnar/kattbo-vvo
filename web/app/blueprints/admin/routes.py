@@ -1,9 +1,9 @@
 from app import db
 from flask_security import login_required, roles_accepted, login_required
 from flask import Blueprint, render_template, request, jsonify, session
-from app.models.users import User, UsersTags
-from app.models.tag import Tag, TagsCategories, TagCategory
-from app.models.hunting import UserTeamYear, HuntYear, HuntTeam, StandAssignment, Stand
+from models.users import User, UsersTags
+from models.tag import Tag, TagsCategories, TagCategory
+from models.hunting import UserTeamYear, HuntYear, HuntTeam, StandAssignment, Stand
 from collections import defaultdict
 from app.blueprints.admin.forms import EditUserForm
 

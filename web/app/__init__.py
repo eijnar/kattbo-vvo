@@ -41,7 +41,7 @@ def create_app() -> Flask:
     app.logger.info('Webpage is starting up...')
     
     #fsqla.FsModels.set_db_info(db)
-    from app.models.users import User, Role  # noqa
+    from models.users import User, Role  # noqa
 
     # To get the functions to jinja2
     app.jinja_env.globals['format_date'] = format_date

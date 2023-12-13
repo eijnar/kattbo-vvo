@@ -3,7 +3,7 @@ import string
 from datetime import datetime, timedelta
 from flask_jwt_extended import create_access_token
 from app import db
-from app.models.utils import ShortLink
+from models.utils import ShortLink
 
 class URLShortener:
     """

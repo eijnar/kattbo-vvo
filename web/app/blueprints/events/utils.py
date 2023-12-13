@@ -1,5 +1,5 @@
 from app import db
-from app.models.events import UsersEvents, Event, EventDayGathering, EventDay
+from models.events import UsersEvents, Event, EventDayGathering, EventDay
 from datetime import datetime
 
 

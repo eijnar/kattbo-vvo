@@ -4,12 +4,12 @@ from app import db, celery
 from flask_jwt_extended import decode_token
 from app.blueprints.events.forms import EventForm, RegisterEventDayForm
 from app.blueprints.events.utils import handle_user_event_day_registration, create_event_and_gatherings
-from app.models.events import Event, EventDay, UsersEvents, EventType, EventCategory
-from app.models.users import User, UsersTags
-from app.models.tag import Tag
-from app.models.hunting import UserTeamYear, HuntTeam, StandAssignment, Stand, AnimalQuota
-from app.models.utils import Document, NotificationTask
-from app.models.maps import PointOfIntrest
+from models.events import Event, EventDay, UsersEvents, EventType, EventCategory
+from models.users import User, UsersTags
+from models.tag import Tag
+from models.hunting import UserTeamYear, HuntTeam, StandAssignment, Stand, AnimalQuota
+from models.utils import Document, NotificationTask
+from models.maps import PointOfIntrest
 from app.utils.notification import notify_users_about_event
 from pdfkit import from_string
 from markdown import markdown
