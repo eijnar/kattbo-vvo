@@ -1,8 +1,0 @@
-{% for team_id, quotas in statistics.items() %}
-    <h3>{{ team_id }}</h3>
-    <ul>
-        {% for animal_type_id, remaining_quota in quotas.items() %}
-            <li>{{ animal_type_id }}: {{ remaining_quota }} </li>
-        {% endfor %}
-    </ul>
-{% endfor %}
