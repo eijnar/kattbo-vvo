@@ -36,7 +36,7 @@ class Config(object):
     JWT_SECRET_KEY = environ.get('JWT_SECRET_KEY')
     JWT_ALGORITHM = environ.get('JWT_ALGORITHM')
 
-    API_BASE = 'https://api.kattbovvo.se'
+    API_BASE = 'http://127.0.0.1:5000'
 
     # Celery 
     CELERY = dict(
@@ -54,6 +54,7 @@ class Config(object):
         'SERVER_URL': 'http://riker.srv.kaffesump.se:8200/',
         'SECRET_TOKEN': 'tYeW2uFgP6JfcbUzkkqU7xur9i5DKPHMnRzqE',
         'ENVIRONMENT': 'development',
+        'DEBUG': True,
     }
 
 class Development(Config):

@@ -17,28 +17,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: self-hosted
-    env:
-      UPLOAD_FOLDER: '/srv/kattbo-vvo/upload'
-      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-      MAIL_PORT: 465
-      MAIL_USE_SSL: True
-      MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
-      MAIL_DEFAULT_SENDER_DEV: 'development@kattbovvo.se'
-      MAIL_DEFAULT_SENDER_PROD: 'info@kattbovvo.se'
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      SECURITY_PASSWORD_SALT: ${{ secrets.SECURITY_PASSWORD_SALT }}
-      SECURITY_PASSWORD_HASH: ${{ secrets.SECURITY_PASSWORD_HASH }}
-      SECURITY_REGISTERABLE: True
-      SECURITY_CONFIRMABLE: True
-      SECURITY_TRACKABLE: True
-      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-      JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
-      SQLALCHEMY_DATABASE_URI: ${{ secrets.SQLALCHEMY_DATABASE_URI_DEV }}
-      CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
-      CELERY_BACKEND_URL: ${{ secrets.CELERY_BACKEND_URL }}
-      ELASTIC_SECRET_TOKEN: ${{ secrets.ELASTIC_SECRET_TOKEN }}
-      ELASTIC_SERVER_URL: ${{ secrets.ELASTIC_SERVER_URL }}
 
     if: github.ref == 'refs/heads/main'
     steps:
@@ -47,6 +25,30 @@ jobs:
       - name: Build the container
         run: |
           docker-compose -f docker-compose.yml build web
+
+      - name: Create env file
+        run: |
+          echo "UPLOAD_FOLDER='/srv/kattbo-vvo/upload'" >> .env
+          echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
+          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+          echo "MAIL_PORT=465" >> .env
+          echo "MAIL_USE_SSL=True" >> .env
+          echo "MAIL_SERVER=${{ secrets.MAIL_SERVER }}" >> .env
+          echo "MAIL_DEFAULT_SENDER_DEV='development@kattbovvo.se'" >> .env
+          echo "MAIL_DEFAULT_SENDER_PROD='info@kattbovvo.se'" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "SECURITY_PASSWORD_SALT=${{ secrets.SECURITY_PASSWORD_SALT }}" >> .env
+          echo "SECURITY_PASSWORD_HASH=${{ secrets.SECURITY_PASSWORD_HASH }}" >> .env
+          echo "SECURITY_REGISTERABLE=True" >> .env
+          echo "SECURITY_CONFIRMABLE=True" >> .env
+          echo "SECURITY_TRACKABLE=True" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}" >> .env
+          echo "SQLALCHEMY_DATABASE_URI=${{ secrets.SQLALCHEMY_DATABASE_URI_DEV }}" >> .env
+          echo "CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}" >> .env
+          echo "CELERY_BACKEND_URL=${{ secrets.CELERY_BACKEND_URL }}" >> .env
+          echo "ELASTIC_SECRET_TOKEN=${{ secrets.ELASTIC_SECRET_TOKEN }}" >> .env
+          echo "ELASTIC_SERVER_URL=${{ secrets.ELASTIC_SERVER_URL }}" >> .env
 
       - name: Deploy deploy the frontend and celery worker
         run: |

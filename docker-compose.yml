@@ -10,6 +10,8 @@ services:
       - "5000:5000"
     volumes:
     - ./uploads:/usr/src/kattbo-vvo/uploads
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/"]
       interval: 30s
@@ -22,6 +24,8 @@ services:
       context: .
       dockerfile: ./web/Dockerfile
       target: web_celery_worker
+    env_file:
+      - .env
     depends_on:
       - web
     healthcheck:
