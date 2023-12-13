@@ -19,11 +19,7 @@ on:
 jobs:
   build:
     runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up docker-compose for web 
-        run: |
-          docker-compose -f docker-compose.yml build web
+
   deploy:
     runs-on: self-hosted
     env:
@@ -47,12 +43,15 @@ jobs:
       CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
       CELERY_BACKEND_URL: ${{ secrets.CELERY_BACKEND_URL }}
 
-    needs: build
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
       
-      - name: Deploy frontend and celery
+      - name: Build the container
+        run: |
+          docker-compose -f docker-compose.yml build web
+
+      - name: Deploy deploy the frontend and celery worker
         run: |
           docker-compose up -d web
           docker-compose up -d web_celery_worker
