@@ -18,8 +18,6 @@ utils = Blueprint('utils', '__name__', template_folder='templates')
 @utils.route('/health')
 def health():
     try:
-        
-
         return jsonify({"status": "healthy"}), 200
     except Exception as e:
         return jsonify({"status": "unhealthy", "reason": str(e)}), 500
