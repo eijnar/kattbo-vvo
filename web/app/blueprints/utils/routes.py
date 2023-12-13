@@ -1,8 +1,7 @@
 import gpxpy.gpx
 import gpxpy
 from app import db
-from flask import Blueprint, redirect, current_app, render_template, current_app, g
-# from flask_security import login_required, roles_accepted
+from flask import Blueprint, redirect, current_app, render_template, current_app, g, jsonify
 from app.utils.notification import send_sms
 from app.utils.forms import NotificationForm, SearchForm
 from models.utils import NotificationTask
@@ -15,6 +14,15 @@ from models.maps import PointOfIntrest
 from sqlalchemy import and_
 
 utils = Blueprint('utils', '__name__', template_folder='templates')
+
+@utils.route('/health')
+def health():
+    try:
+        
+
+        return jsonify({"status": "healthy"}), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "reason": str(e)}), 500
 
 @utils.route('/<short_code>')
 def redirect_to_original_url(short_code):

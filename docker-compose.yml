@@ -9,11 +9,11 @@ services:
     ports: 
       - "5000:5000"
     volumes:
-    - ./uploads:/usr/src/kattbo-vvo/uploads
+    - /srv/kattbo-vvo/uploads:/usr/src/kattbo-vvo/uploads
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3

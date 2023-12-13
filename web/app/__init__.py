@@ -62,7 +62,7 @@ def create_app() -> Flask:
     from app.blueprints.news.routes import news
     app.register_blueprint(news)
 
-    from app.utils.routes import utils
+    from app.blueprints.utils.routes import utils
     app.register_blueprint(utils)
 
     from app.blueprints.hunting.routes import hunting
