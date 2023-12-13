@@ -7,13 +7,11 @@ on:
     paths:
       - 'web/**'
       - 'common/**'
-      - 'Dockerfile.web'
       - 'docker-compose.yml'
   pull_request:
     paths:
       - 'web/**'
       - 'common/**'
-      - 'Dockerfile.web'
       - 'docker-compose.yml'
   workflow_dispatch:
 jobs:
@@ -36,7 +34,7 @@ jobs:
       SECURITY_TRACKABLE: True
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
-      SQLALCHEMY_DATABASE_URI_DEV: ${{ secrets.SQLALCHEMY_DATABASE_URI_DEV }}
+      SQLALCHEMY_DATABASE_URI: ${{ secrets.SQLALCHEMY_DATABASE_URI_DEV }}
       CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
       CELERY_BACKEND_URL: ${{ secrets.CELERY_BACKEND_URL }}
       ELASTIC_SECRET_TOKEN: ${{ secrets.ELASTIC_SECRET_TOKEN }}
