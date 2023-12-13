@@ -49,6 +49,7 @@ jobs:
       - name: Build the container
         run: |
           docker-compose -f docker-compose.yml build web
+          docker-compose -f docker-compose.yml build web_celery_worker
 
 
       - name: Deploy deploy the frontend and celery worker
