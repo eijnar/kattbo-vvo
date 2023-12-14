@@ -1,7 +1,7 @@
 import os
 from app import db
 from flask_security import login_required, current_user
-from flask import Blueprint, redirect, url_for, flash, request, render_template, send_from_directory, current_app, secure_filename
+from flask import Blueprint, redirect, url_for, flash, request, render_template, send_from_directory, current_app
 from app.utils.notification import get_notification_options_for_user, get_distinct_notification_types_for_user
 from app.blueprints.users.forms import UpdateProfileForm, UserPreferenceFormFactory
 from models.users import User, UserNotificationPreference
@@ -155,6 +155,5 @@ def test_user():
 
 @users.route("/profile_picture/<path:filename>")
 def profile_picture(filename):
-    filename = secure_filename(filename)
-    public_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], 'public')
-    return send_from_directory(public_directory, filename)
+    public_directory = os.path.join(current_app.config['UPLOAD_FOLDER'], 'public', filename)
+    return send_from_directory(public_directory)
