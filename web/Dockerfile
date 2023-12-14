@@ -1,4 +1,6 @@
 FROM python:3.12.1-slim as base
+ARG USER_ID=1000
+ARG GROUP_ID=1000
 
 WORKDIR /usr/src/kattbo-vvo
 
@@ -12,7 +14,9 @@ COPY ./common/ /tmp/common/
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install /tmp/common/
 
-RUN addgroup --system appuser && adduser --system --group appuser
+RUN groupadd -g ${GROUP_ID} addgroup && \
+    useradd -m -u ${USER_ID} -g addgroup appuser
+    
 RUN chown -R appuser:appuser /usr/src/kattbo-vvo
 USER appuser
 
