@@ -24,7 +24,7 @@ jobs:
 
       - name: Create env file
         run: |
-          echo "UPLOAD_FOLDER='/srv/kattbo-vvo/upload'" >> .env
+          echo "UPLOAD_FOLDER='/usr/src/kattbo-vvo/upload'" >> .env
           echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
           echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
           echo "MAIL_PORT=465" >> .env
