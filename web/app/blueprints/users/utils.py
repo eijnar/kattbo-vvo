@@ -5,7 +5,6 @@ from flask import current_app
 import hashlib
 import os
 from PIL import Image
-
 from werkzeug.exceptions import BadRequest
 
 
