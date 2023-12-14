@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   web:
+    user: "1000:1000"
     build:
       context: .
       dockerfile: ./web/Dockerfile
@@ -19,6 +20,7 @@ services:
       retries: 3
 
   web_celery_worker:
+    user: "1000:1000"
     build:
       context: .
       dockerfile: ./web/Dockerfile
