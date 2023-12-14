@@ -2,6 +2,10 @@ FROM python:3.12.1-slim as base
 
 WORKDIR /usr/src/kattbo-vvo
 
+RUN apt-get update && \
+    apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY ./web /usr/src/kattbo-vvo
 COPY ./common/ /tmp/common/
 
