@@ -14,9 +14,9 @@ COPY ./common/ /tmp/common/
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install /tmp/common/
 
-RUN groupadd -g ${GROUP_ID} addgroup && \
-    useradd -m -u ${USER_ID} -g addgroup appuser
-    
+RUN groupadd -g ${GROUP_ID} appuser && \
+    useradd -m -u ${USER_ID} -g appuser appuser
+
 RUN chown -R appuser:appuser /usr/src/kattbo-vvo
 USER appuser
 
