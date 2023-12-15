@@ -51,10 +51,9 @@ class Config(object):
     # Elastic APM
     ELASTIC_APM = {
         'SERVICE_NAME': 'kattbo-vvo-web',
-        'SERVER_URL': 'http://riker.srv.kaffesump.se:8200/',
-        'SECRET_TOKEN': 'tYeW2uFgP6JfcbUzkkqU7xur9i5DKPHMnRzqE',
-        'ENVIRONMENT': 'development',
-        'DEBUG': True,
+        'SERVER_URL': environ.get('ELASTIC_URL'),
+        'SECRET_TOKEN': environ.get('ELASTIC_SECRET_TOKEN'),
+        'ENVIRONMENT': environ.get('FLASK_ENV'),
     }
 
 class Development(Config):
