@@ -26,7 +26,7 @@ jobs:
         run: |
           echo "FLASK_ENV='development'" >> .env
           echo "GUNICORN_PORT=5000" >> .env
-          echo "API_BASE='https://dev.kattbovvo.se'"
+          echo "API_BASE='https://dev.kattbovvo.se'" >> .env
           echo "UPLOAD_FOLDER='/usr/src/kattbo-vvo/uploads'" >> .env
           echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
           echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
