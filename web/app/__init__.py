@@ -40,7 +40,7 @@ def create_app() -> Flask:
     jwt.init_app(app)
     migrate.init_app(app, db)
     celery_init_app(app)
-    #apm.init_app(app)
+    apm.init_app(app)
 
     # Setup logging
     setup_logging(app)
