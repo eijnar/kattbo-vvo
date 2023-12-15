@@ -15,6 +15,7 @@ from app.utils.forms import ExtendedRegisterForm
 from elasticapm.contrib.flask import ElasticAPM
 
 
+
 db = SQLAlchemy()
 mail = Mail()
 babel = Babel()
