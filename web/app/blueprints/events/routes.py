@@ -20,6 +20,7 @@ from celery.result import AsyncResult
 import requests
 import pytz
 from icalendar import Calendar, Event as ICalEvent, vCalAddress, vText
+from sqlalchemy import desc
 
 events = Blueprint('events', __name__, template_folder='templates')
 
