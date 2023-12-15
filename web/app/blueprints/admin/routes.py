@@ -1,6 +1,6 @@
 from app import db
 from flask_security import login_required, roles_accepted, login_required
-from flask import Blueprint, render_template, request, jsonify, session
+from flask import Blueprint, render_template, request, jsonify
 from models.users import User, UsersTags
 from models.tag import Tag, TagsCategories, TagCategory
 from models.hunting import UserTeamYear, HuntYear, HuntTeam, StandAssignment, Stand
