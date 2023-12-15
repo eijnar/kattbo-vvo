@@ -1,3 +1,4 @@
+from os import environ
 from flask_security import current_user, login_required, roles_accepted
 from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, make_response, current_app, jsonify, Response
 from app import db, celery
@@ -382,6 +383,6 @@ def ical_calendar():
     return response
 
 def fetch_events_from_api():
-    api_url = f'{API_BASE}/api/event/get_all_events'
+    api_url = f'{environ.get['API_BASE']}/api/event/get_all_events'
     response = requests.get(api_url)
     return response.json()
