@@ -51,7 +51,7 @@ class Config(object):
     # Elastic APM
     ELASTIC_APM = {
         'SERVICE_NAME': 'kattbo-vvo-web',
-        'SERVER_URL': environ.get('ELASTIC_URL'),
+        'SERVER_URL': environ.get('ELASTIC_SERVER_URL'),
         'SECRET_TOKEN': environ.get('ELASTIC_SECRET_TOKEN'),
         'ENVIRONMENT': environ.get('FLASK_ENV'),
     }
