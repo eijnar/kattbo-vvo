@@ -25,6 +25,7 @@ jobs:
       - name: Production - Create env file
         run: |
           echo "FLASK_ENV='production'" >> .env
+          echo "GUNICORN_PORT=10000" >> .env
           echo "UPLOAD_FOLDER='/usr/src/kattbo-vvo/uploads'" >> .env
           echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
           echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
