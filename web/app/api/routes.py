@@ -15,6 +15,8 @@ def set_hunt_year():
 
 @api.route('/event/get_all_events')
 def api_get_events():
+    
+    include_attendees = request.args.get('include_attendees', 'false').lower() == 'true'
     events = Event.query.join(EventType).join(EventDay).all()
     events_data = []
     for event in events:
@@ -35,6 +37,12 @@ def api_get_events():
                     event_data["color"] = "blue"
                 elif event.event_type.name.lower() == 'årsmöte':
                     event_data["color"] = "green"
+
+            if include_attendees:
+                event_data['attendees'] = [
+                    {"name": f'{ue.user.first_name} {ue.user.last_name}', "email": ue.user.email}
+                    for ue in day.users_events
+                ]
 
             events_data.append(event_data)
             

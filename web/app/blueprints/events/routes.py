@@ -19,7 +19,7 @@ from collections import defaultdict
 from celery.result import AsyncResult
 import requests
 import pytz
-from icalendar import Calendar, Event as ICalEvent
+from icalendar import Calendar, Event as ICalEvent, vCalAddress, vText
 
 events = Blueprint('events', __name__, template_folder='templates')
 
@@ -375,6 +375,14 @@ def ical_calendar():
             event.add('status', 'CANCELLED')
         event['uid'] = str(event_data['id'])
 
+        for attendee in event_data.get('attendees', []):
+            attendee_email = attendee['email']
+            attendee_name = attendee.get('name', '')
+
+            attendee_ical = vCalAddress(f'MAILTO:{attendee_email}')
+            attendee_ical.params['cn'] = vText(attendee_name)
+            event.add('attendee', attendee_ical, encode=0)
+
         cal.add_component(event)
 
     response = Response(cal.to_ical())
@@ -383,6 +391,6 @@ def ical_calendar():
     return response
 
 def fetch_events_from_api():
-    api_url = f'{environ.get['API_BASE']}/api/event/get_all_events'
+    api_url = f'{environ.get("API_BASE")}/api/event/get_all_events'
     response = requests.get(api_url)
     return response.json()
