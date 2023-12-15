@@ -15,6 +15,9 @@ def handle_user_event_day_registration(user_id, event_id, days_ids):
         day_ids_to_add = submitted_day_ids - current_registered_day_ids
         day_ids_to_remove = current_registered_day_ids - submitted_day_ids
 
+        for event_day in relevant_event_days:
+            event_day.sequence += 1
+
         for day_id in day_ids_to_add:
             new_registration = UsersEvents(user_id=user_id, day_id=day_id)
             db.session.add(new_registration)

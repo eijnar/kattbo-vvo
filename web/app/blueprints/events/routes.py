@@ -328,6 +328,8 @@ def cancel_event(event_id):
         
         for event_day in event.event_days:
             event_day.cancelled = True
+            event_day.sequence += 1
+
         db.session.commit()
 
         if not abort_task(event_id):
@@ -370,9 +372,12 @@ def ical_calendar():
         event.add('dtstart', datetime.fromisoformat(start_datetime_str))
         event.add('dtend', datetime.fromisoformat(end_datetime_str))
         event.add('dtstamp', datetime.now(pytz.utc))
+
+        event.add('sequence', event_data['sequence'])
+
         if event_data['cancelled'] == True:
-            event.add('sequence', 1)
             event.add('status', 'CANCELLED')
+        
         event['uid'] = str(event_data['id'])
 
         for attendee in event_data.get('attendees', []):

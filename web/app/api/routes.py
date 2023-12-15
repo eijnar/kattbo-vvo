@@ -29,6 +29,7 @@ def api_get_events():
                 "start_time": day.start_time.isoformat(),
                 "end_time": day.end_time.isoformat(),
                 "cancelled": day.cancelled,
+                "sequence": day.sequence,
             }
             if event.is_cancelled:
                 event_data["color"] = "red" 
