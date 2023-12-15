@@ -208,7 +208,7 @@ def register_event(event_id):
     # Select all event days by default
     form.event_days.data = [choice[0] for choice in form.event_days.choices]
 
-    event_days = EventDay.query.filter_by(event_id=event_id).all()
+    event_days = EventDay.query.filter_by(event_id=event_id).order_by(desc(EventDay.date)).all()
 
     # Organize users and their subscribed days
     user_subscriptions = defaultdict(list)

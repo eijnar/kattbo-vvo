@@ -15,6 +15,10 @@ def handle_user_event_day_registration(user_id, event_id, days_ids):
         day_ids_to_add = submitted_day_ids - current_registered_day_ids
         day_ids_to_remove = current_registered_day_ids - submitted_day_ids
 
+        relevant_event_days = EventDay.query.filter(
+            EventDay.id.in_(day_ids_to_add.union(day_ids_to_remove))
+        ).all()
+
         for event_day in relevant_event_days:
             event_day.sequence += 1
 
