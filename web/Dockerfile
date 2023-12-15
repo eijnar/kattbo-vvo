@@ -9,13 +9,15 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY ./web /usr/src/kattbo-vvo
-COPY ./common/ /tmp/common/
-
 
 RUN groupadd -g ${GROUP_ID} appuser && \
     useradd -m -u ${USER_ID} -g appuser appuser
 
+COPY ./common/ /home/appuser/tmp
+
 RUN chown -R appuser:appuser /usr/src/kattbo-vvo
+RUN chown -R appuser:appuser /home/appuser/tmp
+
 USER appuser
 
 ENV PATH="/home/appuser/.local/bin:$PATH"
