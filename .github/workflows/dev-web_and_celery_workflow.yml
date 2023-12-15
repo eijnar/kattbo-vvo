@@ -14,7 +14,6 @@ on:
       - 'common/**'
       - 'docker-compose.yml'
 
-
 jobs:
   build-and-deploy:
     runs-on: self-hosted
