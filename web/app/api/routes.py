@@ -22,7 +22,7 @@ def api_get_events():
     for event in events:
         for day in event.event_days:
             event_data = {
-                "id": event.id,
+                "id": day.id,
                 "title": event.event_type.name,
                 "start_date": day.date.isoformat(),
                 "end_date": day.date.isoformat(),
