@@ -353,7 +353,7 @@ def abort_task(event_id):
 
 @events.route("/calendar")
 def ical_calendar():
-    events_data = fetch_events_from_api()
+    events_data = fetch_events_from_api(include_attendees=True)
     cal = Calendar()
 
     cal.add('X-WR-CALNAME', 'Kättbo VVO')
@@ -390,7 +390,7 @@ def ical_calendar():
     response.headers['Content-Disposition'] = 'attachment; filename="kattbo_vvo.ics"'
     return response
 
-def fetch_events_from_api():
+def fetch_events_from_api(include_attendees=False):
     api_url = f'{environ.get("API_BASE")}/api/event/get_all_events'
-    response = requests.get(api_url)
+    response = requests.get(api_url, params={'include_attendees': include_attendees})
     return response.json()
