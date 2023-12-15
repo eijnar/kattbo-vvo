@@ -30,6 +30,7 @@ class EventDay(db.Model, TrackingMixin):
     start_time = db.Column(db.Time, default='07:00:00', nullable=True)
     end_time = db.Column(db.Time, default='16:00:00', nullable=True)
     cancelled = db.Column(db.Boolean, default=False)
+    sequence = db.Column(db.Integer, default=1)
 
     # ForeignKeys
     event_id = db.Column(db.Integer, db.ForeignKey(
