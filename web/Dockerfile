@@ -25,4 +25,4 @@ EXPOSE 5000
 CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:create_app()"]
 
 FROM base as web_celery_worker
-CMD ["celery", "-A", "make_celery", "worker", "-E", "--loglevel=info"]
+CMD ["celery", "-A", "make_celery.celery", "worker", "-E", "--loglevel=info"]

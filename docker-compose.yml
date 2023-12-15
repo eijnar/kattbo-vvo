@@ -32,7 +32,7 @@ services:
     depends_on:
       - web
     healthcheck:
-      test: ["CMD-SHELL", "celery -A make_celery inspect ping"]
+      test: ["CMD-SHELL", "celery -A make_celery.celery inspect ping"]
       interval: 1m30s
       timeout: 30s
       retries: 5
