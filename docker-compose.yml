@@ -2,13 +2,14 @@ version: '3.8'
 
 services:
   web:
+    container_name: web-${FLASK_ENV}
     user: "1000:1000"
     build:
       context: .
       dockerfile: ./web/Dockerfile
       target: web
     ports: 
-      - "5000:5000"
+      - "${GUNICORN_PORT}:5000"
     volumes:
     - /srv/kattbo-vvo/uploads:/usr/src/kattbo-vvo/uploads
     env_file:
@@ -20,6 +21,7 @@ services:
       retries: 3
 
   web_celery_worker:
+    container_name: web_celery_worker-${FLASK_ENV}
     user: "1000:1000"
     build:
       context: .

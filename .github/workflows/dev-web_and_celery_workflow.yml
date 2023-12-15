@@ -1,0 +1,59 @@
+name: Production - frontend & celery worker CD/CI
+
+on: 
+  push:
+    branches:
+      - development
+    paths:
+      - 'web/**'
+      - 'common/**'
+      - 'docker-compose.yml'
+  pull_request:
+    paths:
+      - 'web/**'
+      - 'common/**'
+      - 'docker-compose.yml'
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Create env file
+        run: |
+          echo "FLASK_ENV='development'" >> .env
+          echo "UPLOAD_FOLDER='/usr/src/kattbo-vvo/uploads'" >> .env
+          echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
+          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+          echo "MAIL_PORT=465" >> .env
+          echo "MAIL_USE_SSL=True" >> .env
+          echo "MAIL_SERVER=${{ secrets.MAIL_SERVER }}" >> .env
+          echo "MAIL_DEFAULT_SENDER_DEV='development@kattbovvo.se'" >> .env
+          echo "MAIL_DEFAULT_SENDER_PROD='info@kattbovvo.se'" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "SECURITY_PASSWORD_SALT=${{ secrets.SECURITY_PASSWORD_SALT }}" >> .env
+          echo "SECURITY_PASSWORD_HASH=${{ secrets.SECURITY_PASSWORD_HASH }}" >> .env
+          echo "SECURITY_REGISTERABLE=True" >> .env
+          echo "SECURITY_CONFIRMABLE=True" >> .env
+          echo "SECURITY_TRACKABLE=True" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}" >> .env
+          echo "SQLALCHEMY_DATABASE_URI_DEV=${{ secrets.SQLALCHEMY_DATABASE_URI_DEV }}" >> .env
+          echo "CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}" >> .env
+          echo "CELERY_BACKEND_URL=${{ secrets.CELERY_BACKEND_URL }}" >> .env
+          echo "ELASTIC_SECRET_TOKEN=${{ secrets.ELASTIC_SECRET_TOKEN }}" >> .env
+          echo "ELASTIC_SERVER_URL=${{ secrets.ELASTIC_SERVER_URL }}" >> .env
+
+      - name: Production - build the containers
+        run: |
+          docker-compose -f docker-compose.yml build web
+          docker-compose -f docker-compose.yml build web_celery_worker
+
+      - name: Production - deploy the frontend and celery worker
+        run: |
+          docker-compose up -d web
+          docker-compose up -d web_celery_worker
+

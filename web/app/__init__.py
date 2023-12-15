@@ -1,3 +1,4 @@
+import os
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask
@@ -9,7 +10,7 @@ from flask_security.models import fsqla_v3 as fsqla
 from flask_mailman import Mail
 from flask_babel import Babel, format_date, format_datetime
 from flask_migrate import Migrate
-from app.config import Development
+from app.config import Production, Development
 from app.utils.forms import ExtendedRegisterForm
 from elasticapm.contrib.flask import ElasticAPM
 
@@ -25,7 +26,11 @@ apm = ElasticAPM()
 def create_app() -> Flask:
     app = Flask(__name__)
 
-    app.config.from_object(Development)
+    if os.environ.get('FLASK_ENV') == 'production':
+        app.config.from_object(Production)
+    else:
+        app.config.from_object(Development)
+
     app.config.from_prefixed_env()
 
     db.init_app(app)
