@@ -379,7 +379,6 @@ def ical_calendar():
         if event_data['cancelled'] == True:
             event.add('status', 'CANCELLED')
         
-        event['uid'] = str(event_data['id'])
 
         for attendee in event_data.get('attendees', []):
             attendee_email = attendee['email']
@@ -388,13 +387,15 @@ def ical_calendar():
             attendee_ical = vCalAddress(f'MAILTO:{attendee_email}')
             attendee_ical.params['cn'] = vText(attendee_name)
             event.add('attendee', attendee_ical, encode=0)
-            print(attendee_email)
+
+        event['uid'] = str(event_data['id'])
 
         cal.add_component(event)
 
     response = Response(cal.to_ical())
     response.headers['Content-Type'] = 'text/calendar; charset=utf-8'
     response.headers['Content-Disposition'] = 'attachment; filename="kattbo_vvo.ics"'
+    current_app.logger.info(response)
     return response
 
 def fetch_events_from_api(include_attendees=False):
