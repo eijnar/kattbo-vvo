@@ -400,4 +400,5 @@ def ical_calendar():
 def fetch_events_from_api(include_attendees=False):
     api_url = f'{environ.get("API_BASE")}/api/event/get_all_events'
     response = requests.get(api_url, params={'include_attendees': include_attendees})
+    current_app.logger.info(response.json())
     return response.json()
