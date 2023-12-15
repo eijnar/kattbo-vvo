@@ -198,12 +198,12 @@ def register_event(event_id):
     if form.validate_on_submit():
         user_id = current_user.id
         day_ids = form.event_days.data
-        success = handle_user_event_day_registration(user_id, day_ids)
+        success = handle_user_event_day_registration(user_id, event.id, day_ids)
         if success:
             flash('Din registreting har hanterats', 'success')
         else:
             flash('Det blev något fel när vi hanterade din registrering', 'error')
-        return redirect(url_for('events.list_events', event_id=event_id))
+        return redirect(url_for('events.list_events'))
 
     # Select all event days by default
     form.event_days.data = [choice[0] for choice in form.event_days.choices]
@@ -382,6 +382,7 @@ def ical_calendar():
             attendee_ical = vCalAddress(f'MAILTO:{attendee_email}')
             attendee_ical.params['cn'] = vText(attendee_name)
             event.add('attendee', attendee_ical, encode=0)
+            print(attendee_email)
 
         cal.add_component(event)
 

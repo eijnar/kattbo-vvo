@@ -30,7 +30,6 @@ def redirect_to_original_url(short_code):
     if original_url is not None:
         return redirect(original_url)
     else:
-        print("hejsan")
         return 'URL not found', 404
     
 @utils.route('/notification', methods=['GET', 'POST'])
