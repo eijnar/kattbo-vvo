@@ -27,6 +27,7 @@ apm = ElasticAPM()
 def create_app() -> Flask:
     app = Flask(__name__)
 
+    # Setting up the different environments.
     if os.environ.get('FLASK_ENV') == 'production':
         app.config.from_object(Production)
     else:
