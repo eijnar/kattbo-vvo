@@ -15,10 +15,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 success: function(data) {
                     var events = [];
                     data.forEach(function(event) {
+                        var startDateTime = event.start_date + 'T' + event.start_time
+                        var endDateTime = event.end_date + 'T' + event.end_date
                         events.push({
                             title: event.title,
-                            start: event.start,
-                            end: event.end,
+                            start: startDateTime,
+                            end: endDateTime,
                             color: event.color
                             // Add other event properties as needed
                         });
