@@ -13,7 +13,7 @@ COPY ./web /usr/src/kattbo-vvo
 RUN groupadd -g ${GROUP_ID} appuser && \
     useradd -m -u ${USER_ID} -g appuser appuser
 
-COPY ./common/ /home/appuser/tmp
+COPY ./common/ /home/appuser/tmp/common
 
 RUN chown -R appuser:appuser /usr/src/kattbo-vvo
 RUN chown -R appuser:appuser /home/appuser/tmp
@@ -23,7 +23,7 @@ USER appuser
 ENV PATH="/home/appuser/.local/bin:$PATH"
 
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install /tmp/common/
+RUN pip install /home/appuser/tmp/common/
 
 FROM base as web
 EXPOSE 5000
