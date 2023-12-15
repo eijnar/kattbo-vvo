@@ -1,4 +1,4 @@
-name: Production - frontend & celery worker CD/CI
+name: Development - frontend & celery worker CD/CI
 
 on: 
   push:
@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Create env file
+      - name: Development - Create env file
         run: |
           echo "FLASK_ENV='development'" >> .env
           echo "UPLOAD_FOLDER='/usr/src/kattbo-vvo/uploads'" >> .env
@@ -47,12 +47,12 @@ jobs:
           echo "ELASTIC_SECRET_TOKEN=${{ secrets.ELASTIC_SECRET_TOKEN }}" >> .env
           echo "ELASTIC_SERVER_URL=${{ secrets.ELASTIC_SERVER_URL }}" >> .env
 
-      - name: Production - build the containers
+      - name: Development - build the containers
         run: |
           docker-compose -f docker-compose.yml build web
           docker-compose -f docker-compose.yml build web_celery_worker
 
-      - name: Production - deploy the frontend and celery worker
+      - name: Development - deploy the frontend and celery worker
         run: |
           docker-compose up -d web
           docker-compose up -d web_celery_worker

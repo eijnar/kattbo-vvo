@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Create env file
+      - name: Production - Create env file
         run: |
           echo "FLASK_ENV='production'" >> .env
           echo "UPLOAD_FOLDER='/usr/src/kattbo-vvo/uploads'" >> .env
