@@ -21,8 +21,6 @@ def api_get_events():
     events_data = []
     for event in events:
         for day in event.event_days:
-            poi_data = [{"poi_name": gathering.place.name, "team_name": gathering.team.name if gathering.team else None}
-                    for gathering in day.gatherings if gathering.place is not None]
             event_data = {
                 "event_id": event.id,
                 "creator": f'{event.creator.first_name} {event.creator.last_name}',
@@ -32,7 +30,7 @@ def api_get_events():
                 "end_date": day.date.isoformat(),
                 "start_time": day.start_time.isoformat(),
                 "end_time": day.end_time.isoformat(),
-                "gathering_places": poi_data,
+                "gathering_places": 'Kommer snart...',
                 "cancelled": day.cancelled,
                 "sequence": day.sequence,
             }
