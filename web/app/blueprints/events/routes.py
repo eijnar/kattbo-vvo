@@ -369,11 +369,12 @@ def ical_calendar():
         end_datetime_str = f'{date_str}T{end_time_str}'
 
         event = ICalEvent()
+        event['uid'] = str(event_data['day_id'])
 
         organizer = vCalAddress('MAILTO:johan@morbit.se')
-        organizer.params['cn'] = vText('Johan')
+        organizer.params['cn'] = vText(event_data['creator'])
         event['organizer'] = organizer
-        event['location'] = vText('Kättbo, Sågen')
+        event['location'] = vText(event_data['gathering_places'])
 
         event.add('summary', event_data['title'])
         event.add('dtstart', datetime.fromisoformat(start_datetime_str))
@@ -384,7 +385,6 @@ def ical_calendar():
         if event_data['cancelled'] == True:
             event.add('status', 'CANCELLED')
         
-
         for attendee in event_data.get('attendees', []):
             attendee_email = attendee['email']
             attendee_name = attendee['name']
@@ -394,17 +394,6 @@ def ical_calendar():
             attendee_ical.params['ROLE'] = vText('REQ-PARTICIPANT')
 
             event.add('attendee', attendee_ical, encode=0)
-
-        event['uid'] = str(event_data['id'])
-
-        attendee = vCalAddress('MAILTO:maxm@example.com')
-
-        attendee.params['cn'] = vText('Max Rasmussen')
-
-        attendee.params['ROLE'] = vText('REQ-PARTICIPANT')
-
-        event.add('attendee', attendee, encode=0)
-
 
         cal.add_component(event)
 
@@ -416,5 +405,5 @@ def ical_calendar():
 def fetch_events_from_api(include_attendees=False):
     api_url = f'{environ.get("API_BASE")}/api/event/get_all_events'
     response = requests.get(api_url, params={'include_attendees': include_attendees})
-    current_app.logger.debug(response.json())
+    current_app.logger.debug(f'fetch_events_from_api returned: {response.json()}')
     return response.json()

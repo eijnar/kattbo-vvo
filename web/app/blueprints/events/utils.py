@@ -42,8 +42,6 @@ def handle_user_event_day_registration(user_id, event_id, days_ids):
         db.session.rollback()
         return False
 
-
-
 def create_event_and_gatherings(form, current_user):
     try:
         event = Event(
