@@ -19,7 +19,7 @@ from collections import defaultdict
 from celery.result import AsyncResult
 import requests
 import pytz
-from icalendar import Calendar, Event as ICalEvent, vCalAddress, vText
+from icalendar import Calendar, Event as ICalEvent, vCalAddress, vText, vGeo
 from sqlalchemy import desc
 
 events = Blueprint('events', __name__, template_folder='templates')
@@ -367,19 +367,30 @@ def ical_calendar():
         end_time_str = event_data['end_time']
         start_datetime_str = f'{date_str}T{start_time_str}'
         end_datetime_str = f'{date_str}T{end_time_str}'
-
+        event_latitude = -33.868900
+        event_longitude = 151.207000
         event = ICalEvent()
 
         organizer = vCalAddress('MAILTO:johan@morbit.se')
         organizer.params['cn'] = vText(event_data['creator'])
         event['organizer'] = organizer
         event['location'] = vText(event_data['gathering_places'])
-
+        event.add('geo', vGeo((event_longitude, event_latitude)))
         event.add('summary', event_data['title'])
         event.add('dtstart', datetime.fromisoformat(start_datetime_str))
         event.add('dtend', datetime.fromisoformat(end_datetime_str))
         event.add('dtstamp', datetime.now(pytz.utc))
         event.add('sequence', event_data['sequence'])
+        event.add(
+            "X-APPLE-STRUCTURED-LOCATION",
+            f"geo:{vGeo((event_longitude, event_latitude))}",
+            parameters={
+                "VALUE": "URI",
+                "X-ADDRESS": "367 George Street Sydney CBD NSW 2000",
+                "X-APPLE-RADIUS": "72",
+                "X-TITLE": "367 George Street"
+            }
+        )
 
         if event_data['cancelled'] == True:
             event.add('status', 'CANCELLED')
@@ -391,6 +402,7 @@ def ical_calendar():
             attendee_ical = vCalAddress(f'MAILTO:{attendee_email}')
             attendee_ical.params['cn'] = vText(attendee_name)
             attendee_ical.params['ROLE'] = vText('REQ-PARTICIPANT')
+            attendee_ical.params['RSVP'] = vText(f'{True}')
 
             event.add('attendee', attendee_ical, encode=0)
 
@@ -405,5 +417,5 @@ def ical_calendar():
 def fetch_events_from_api(include_attendees=False):
     api_url = f'{environ.get("API_BASE")}/api/event/get_all_events'
     response = requests.get(api_url, params={'include_attendees': include_attendees})
-    current_app.logger.debug(f'fetch_events_from_api returned: {response.json()}')
+    # current_app.logger.trace(f'fetch_events_from_api returned: {response.json()}')
     return response.json()
