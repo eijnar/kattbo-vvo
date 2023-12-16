@@ -369,7 +369,6 @@ def ical_calendar():
         end_datetime_str = f'{date_str}T{end_time_str}'
 
         event = ICalEvent()
-        event['uid'] = str(event_data['day_id'])
 
         organizer = vCalAddress('MAILTO:johan@morbit.se')
         organizer.params['cn'] = vText(event_data['creator'])
@@ -395,6 +394,7 @@ def ical_calendar():
 
             event.add('attendee', attendee_ical, encode=0)
 
+        event['uid'] = str(event_data['day_id'])
         cal.add_component(event)
 
     response = Response(cal.to_ical())
