@@ -367,7 +367,7 @@ def ical_calendar():
         end_time_str = event_data['end_time']
         start_datetime_str = f'{date_str}T{start_time_str}'
         end_datetime_str = f'{date_str}T{end_time_str}'
-        event_latitude = -33.868900
+        event_latitude = 
         event_longitude = 151.207000
         event = ICalEvent()
 
@@ -383,7 +383,7 @@ def ical_calendar():
         event.add('sequence', event_data['sequence'])
         event.add(
             "X-APPLE-STRUCTURED-LOCATION",
-            f"geo:{vGeo((event_longitude, event_latitude))}",
+            f"geo:{event_longitude}, {event_latitude}",
             parameters={
                 "VALUE": "URI",
                 "X-ADDRESS": "367 George Street Sydney CBD NSW 2000",
