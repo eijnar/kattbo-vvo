@@ -367,8 +367,8 @@ def ical_calendar():
         end_time_str = event_data['end_time']
         start_datetime_str = f'{date_str}T{start_time_str}'
         end_datetime_str = f'{date_str}T{end_time_str}'
-        event_latitude = 
-        event_longitude = 151.207000
+        event_latitude = 60.82634403370321
+        event_longitude = 14.196060011163354
         event = ICalEvent()
 
         organizer = vCalAddress('MAILTO:johan@morbit.se')
