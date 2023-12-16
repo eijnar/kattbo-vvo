@@ -368,12 +368,19 @@ def ical_calendar():
         start_datetime_str = f'{date_str}T{start_time_str}'
         end_datetime_str = f'{date_str}T{end_time_str}'
 
+        if len(event_data['poi_data']) > 1:
+            location_str = ", ".join([f"{poi['team_name']}: {poi['poi_name']}" for poi in event_data['poi_data'] if poi['team_name']])
+        elif event_data['poi_data']:
+            location_str = event_data['poi_data'][0]['poi_name']
+        else:
+            location_str = ""
+
         event = ICalEvent()
 
         organizer = vCalAddress('MAILTO:johan@morbit.se')
         organizer.params['cn'] = vText(event_data['creator'])
         event['organizer'] = organizer
-        event['location'] = vText(event_data['gathering_places'])
+        event['location'] = vText(location_str)
 
         event.add('summary', event_data['title'])
         event.add('dtstart', datetime.fromisoformat(start_datetime_str))
