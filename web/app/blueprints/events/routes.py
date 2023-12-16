@@ -374,23 +374,19 @@ def ical_calendar():
         organizer = vCalAddress('MAILTO:johan@morbit.se')
         organizer.params['cn'] = vText(event_data['creator'])
         event['organizer'] = organizer
-        event['location'] = vText(event_data['gathering_places'])
+        #event['location'] = vText(event_data['gathering_places'])
         event.add('geo', vGeo((event_longitude, event_latitude)))
         event.add('summary', event_data['title'])
         event.add('dtstart', datetime.fromisoformat(start_datetime_str))
         event.add('dtend', datetime.fromisoformat(end_datetime_str))
         event.add('dtstamp', datetime.now(pytz.utc))
         event.add('sequence', event_data['sequence'])
-        event.add(
-            "X-APPLE-STRUCTURED-LOCATION",
-            f"geo:{event_longitude}, {event_latitude}",
-            parameters={
-                "VALUE": "URI",
-                "X-ADDRESS": "367 George Street Sydney CBD NSW 2000",
-                "X-APPLE-RADIUS": "72",
-                "X-TITLE": "367 George Street"
-            }
-        )
+        location = "Apple Store, George Street, Sydney"
+        geo_uri = "geo:-33.868900,151.207000"  # Latitude and Longitude
+        event.add('location', vText(location))
+        apple_structured_location = f"{geo_uri};X-ADDRESS={location};X-APPLE-RADIUS=49;X-TITLE={location}"
+
+        event.add('X-APPLE-STRUCTURED-LOCATION', vText(apple_structured_location), parameters={"VALUE": "URI"})
 
         if event_data['cancelled'] == True:
             event.add('status', 'CANCELLED')
@@ -402,7 +398,7 @@ def ical_calendar():
             attendee_ical = vCalAddress(f'MAILTO:{attendee_email}')
             attendee_ical.params['cn'] = vText(attendee_name)
             attendee_ical.params['ROLE'] = vText('REQ-PARTICIPANT')
-            attendee_ical.params['RSVP'] = vText(f'{True}')
+            attendee_ical.params['PARTSTAT'] = vText("ACCEPTED")
 
             event.add('attendee', attendee_ical, encode=0)
 
