@@ -369,11 +369,16 @@ def ical_calendar():
         end_datetime_str = f'{date_str}T{end_time_str}'
 
         event = ICalEvent()
+
+        organizer = vCalAddress('MAILTO:johan@morbit.se')
+        organizer.params['cn'] = vText('Johan')
+        event['organizer'] = organizer
+        event['location'] = vText('Kättbo, Sågen')
+
         event.add('summary', event_data['title'])
         event.add('dtstart', datetime.fromisoformat(start_datetime_str))
         event.add('dtend', datetime.fromisoformat(end_datetime_str))
         event.add('dtstamp', datetime.now(pytz.utc))
-
         event.add('sequence', event_data['sequence'])
 
         if event_data['cancelled'] == True:
@@ -382,24 +387,34 @@ def ical_calendar():
 
         for attendee in event_data.get('attendees', []):
             attendee_email = attendee['email']
-            attendee_name = attendee.get('name', '')
+            attendee_name = attendee['name']
 
             attendee_ical = vCalAddress(f'MAILTO:{attendee_email}')
             attendee_ical.params['cn'] = vText(attendee_name)
+            attendee_ical.params['ROLE'] = vText('REQ-PARTICIPANT')
+
             event.add('attendee', attendee_ical, encode=0)
 
         event['uid'] = str(event_data['id'])
+
+        attendee = vCalAddress('MAILTO:maxm@example.com')
+
+        attendee.params['cn'] = vText('Max Rasmussen')
+
+        attendee.params['ROLE'] = vText('REQ-PARTICIPANT')
+
+        event.add('attendee', attendee, encode=0)
+
 
         cal.add_component(event)
 
     response = Response(cal.to_ical())
     response.headers['Content-Type'] = 'text/calendar; charset=utf-8'
     response.headers['Content-Disposition'] = 'attachment; filename="kattbo_vvo.ics"'
-    current_app.logger.info(response)
     return response
 
 def fetch_events_from_api(include_attendees=False):
     api_url = f'{environ.get("API_BASE")}/api/event/get_all_events'
     response = requests.get(api_url, params={'include_attendees': include_attendees})
-    current_app.logger.info(response.json())
+    current_app.logger.debug(response.json())
     return response.json()
