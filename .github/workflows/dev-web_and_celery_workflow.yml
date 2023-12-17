@@ -52,7 +52,7 @@ jobs:
           echo "ELASTIC_SERVER_URL=${{ secrets.ELASTIC_SERVER_URL }}" >> .env
           echo "LOG_FILE_PATH=/usr/src/kattbo-vvo/logs/kattbo-vvo-web.log" >> .env
 
-      - name: Building the containers
+      - name: Building containers
         run: |
           docker-compose -f docker-compose.yml pull
           docker-compose -f docker-compose.yml build
