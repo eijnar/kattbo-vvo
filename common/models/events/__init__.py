@@ -1,5 +1,5 @@
 from app import db
-from app.utils.mixins import TrackingMixin
+from models.utils.tracking_mixin import TrackingMixin
 from app.utils.crud import CRUDMixin
 
 

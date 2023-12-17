@@ -15,14 +15,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 success: function(data) {
                     var events = [];
                     data.forEach(function(event) {
-                        var startDateTime = event.start_date + 'T' + event.start_time
-                        var endDateTime = event.end_date + 'T' + event.end_date
+                        var startDateTime = event.datetime.start_date + 'T' + event.datetime.start_time
+                        var endDateTime = event.datetime.end_date + 'T' + event.datetime.end_date
                         events.push({
                             title: event.title,
                             start: startDateTime,
                             end: endDateTime,
-                            color: event.color
-                            // Add other event properties as needed
+                            color: event.metadata.color
                         });
                     });
                     successCallback(events);

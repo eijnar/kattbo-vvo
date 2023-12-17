@@ -1,45 +1,5 @@
-from app import db
-from app.utils.mixins import TrackingMixin
-
-# Notification models
-
-
-class TagsNotifications(db.Model):
-    __table_args__ = {'extend_existing': True}
-    tag_id = db.Column('tag_id', db.Integer,
-                       db.ForeignKey('tag.id'), primary_key=True)
-    notification_type_id = db.Column('notification_type_id', db.Integer, db.ForeignKey(
-        'notification_type.id'), primary_key=True)
-
-
-class NotificationType(db.Model, TrackingMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-
-    # Relationships
-    tags = db.relationship('Tag', secondary='tags_notifications',
-                           back_populates='allowed_notification_types')
-
-# Shortlink models
-
-
-class ShortLink(db.Model, TrackingMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    original_url = db.Column(db.String(2048), nullable=False)
-    short_code = db.Column(db.String(10), unique=True, nullable=False)
-    expires_at = db.Column(db.DateTime, nullable=True)
-
-# Documents model
-
-
-class Document(db.Model, TrackingMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    short_name = db.Column(db.String(50), nullable=False, unique=True)
-    document = db.Column(db.Text)
-
-
-class NotificationTask(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    celery_task_id = db.Column(db.String, nullable=False)
-    event_type = db.Column(db.Integer, db.ForeignKey('event_type.id', ondelete='CASCADE'), nullable=False)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id', ondelete='CASCADE'), nullable=False)
+from .document import Document
+from .notification_task import NotificationTask
+from .notification_type import NotificationType
+from .shortlink import ShortLink
+from .tags_notification import TagsNotifications

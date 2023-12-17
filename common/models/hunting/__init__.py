@@ -1,5 +1,5 @@
 from app import db
-from app.utils.mixins import TrackingMixin
+from models.utils.tracking_mixin import TrackingMixin
 from geoalchemy2 import Geometry
 from datetime import datetime
 

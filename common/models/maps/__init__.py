@@ -1,6 +1,6 @@
 from app import db
 from geoalchemy2 import Geometry
-from app.utils.mixins import TrackingMixin
+from models.utils.tracking_mixin import TrackingMixin
 
 class PointOfIntrest(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)

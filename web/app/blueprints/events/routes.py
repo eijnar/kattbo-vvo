@@ -366,26 +366,33 @@ def ical_calendar():
     cal.add('X-WR-CALNAME', 'Kättbo VVO')
 
     for event_data in events_data:
-        date_str = event_data['start_date']
-        start_time_str = event_data['start_time']
-        end_time_str = event_data['end_time']
-        start_datetime_str = f'{date_str}T{start_time_str}'
-        end_datetime_str = f'{date_str}T{end_time_str}'
-        location_info = get_user_event_location(event_data, user_team)
+        print(event_data)
+        datetime_info = event_data.get('datetime', {})
+        creator_info = event_data.get('creator', {})
+        print(f'datetime: {datetime_info}\n creator: {creator_info}')
+        creator_email_str = creator_info.get('email', '')
+        creator_phone_number_str = creator_info.get('phone_number', '')
+        creator_name_str = creator_info.get('name', '')
+
+        start_datetime_str = f'{datetime_info.get("start_date","")}T{datetime_info.get("start_time", "")}'
+        end_datetime_str = f'{datetime_info.get("start_date","")}T{datetime_info.get("end_time", "")}'
+
         event = ICalEvent()
 
+        location_info = get_user_event_location(event_data, user_team)
         if location_info:
-            event.add('location', vText(location_info['location_name']))
+            event.add('location', vText(location_info["location_name"]))
             event.add('X-APPLE-STRUCTURED-LOCATION',f'geo:{location_info["latitude"]},{location_info["longitude"]}', parameters={'VALUE': 'URI', 'X-APPLE-MAPKIT-HANDLE': '','X-APPLE-RADIUS':'80','X-TITLE':location_info['location_name']})
 
-        organizer = vCalAddress('MAILTO:info@kattbovvo.se')
-        organizer.params['cn'] = vText(event_data['creator'])
+        organizer = vCalAddress(f'MAILTO:{creator_email_str}')
+        organizer.params['cn'] = vText(creator_name_str)
+        organizer.params['phone'] = vText(creator_phone_number_str)
         event['organizer'] = organizer
         event.add('summary', event_data['title'])
         event.add('dtstart', datetime.fromisoformat(start_datetime_str))
         event.add('dtend', datetime.fromisoformat(end_datetime_str))
         event.add('dtstamp', datetime.now(pytz.utc))
-        event.add('sequence', event_data['sequence'])
+        event.add('sequence', event_data["sequence"])
 
         if event_data['cancelled'] == True:
             event.add('status', 'CANCELLED')

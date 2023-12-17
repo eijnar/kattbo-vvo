@@ -1,1 +1,1 @@
-from .geo_handler import extract_lat_long
+from .geo_utils import extract_lat_long

@@ -1,7 +1,7 @@
 from app import db
 from flask_security import UserMixin, RoleMixin
 from flask_security.models import fsqla_v3 as fsqla 
-from app.utils.mixins import TrackingMixin
+from models.utils.tracking_mixin import TrackingMixin
 from app.utils.crud import CRUDMixin
 
 class RolesUsers(db.Model):
