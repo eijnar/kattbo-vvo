@@ -4,7 +4,9 @@ from flask import Blueprint, render_template, flash, redirect, url_for, request,
 from app import db, celery
 from flask_jwt_extended import decode_token
 from app.blueprints.events.forms import EventForm, RegisterEventDayForm
-from app.blueprints.events.utils import handle_user_event_day_registration, create_event_and_gatherings
+from app.blueprints.events.utils import handle_user_event_day_registration, create_event_and_gatherings, get_user_event_location
+from app.blueprints.hunting.utils import get_hunt_team_for_user_and_year
+from app.utils.hunt_year import HuntYearFinder
 from models.events import Event, EventDay, UsersEvents, EventType, EventCategory
 from models.users import User, UsersTags
 from models.tag import Tag
@@ -352,12 +354,14 @@ def abort_task(event_id):
         return True
     return False
 
-@events.route("/calendar")
+@events.route("/ical")
 @auth_required('basic')
 def ical_calendar():
-    current_app.logger.info(f"Request from {request.remote_addr}, Headers: {request.headers}, Method: {request.method}")
-    current_app.logger.debug(f'{current_user.first_name}')
+
     events_data = fetch_events_from_api(include_attendees=True)
+    hunt_year = HuntYearFinder()
+    user_team = get_hunt_team_for_user_and_year(current_user.id, hunt_year.current.id)
+    location_info = get_user_event_location(event_data, user_team)
     cal = Calendar()
 
     cal.add('X-WR-CALNAME', 'Kättbo VVO')
@@ -370,12 +374,11 @@ def ical_calendar():
         end_datetime_str = f'{date_str}T{end_time_str}'
         event = ICalEvent()
 
-        # Location tests
-        event.add('location', vText('aaa'))
-        event.add('X-APPLE-STRUCTURED-LOCATION','geo:19.19810,114.514', parameters={'VALUE': 'URI', 'X-APPLE-MAPKIT-HANDLE': '','X-APPLE-RADIUS':'80','X-TITLE':'aaa'})
+        if location_info:
+            event.add('location', vText(location_info['location_name']))
+            event.add('X-APPLE-STRUCTURED-LOCATION',f'geo:{location_info["latitude"]},{location_info["longitude"]}', parameters={'VALUE': 'URI', 'X-APPLE-MAPKIT-HANDLE': '','X-APPLE-RADIUS':'80','X-TITLE':location_info['location_name']})
 
-
-        organizer = vCalAddress('MAILTO:johan@morbit.se')
+        organizer = vCalAddress('MAILTO:info@kattbovvo.se')
         organizer.params['cn'] = vText(event_data['creator'])
         event['organizer'] = organizer
         event.add('summary', event_data['title'])

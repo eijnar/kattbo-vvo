@@ -3,6 +3,7 @@ from app import db
 from models.events import EventType, EventDay, Event
 from models.users import UsersTags, User
 from models.hunting import StandAssignment, Stand
+from app.utils.geo_handler import extract_lat_long
 
 api = Blueprint('api', __name__, template_folder='templates')
 
@@ -21,6 +22,15 @@ def api_get_events():
     events_data = []
     for event in events:
         for day in event.event_days:
+            location_data = [
+                {
+                    "team_id": gathering.team_id,
+                    "poi_name": gathering.place.name,
+                    "latitude": extract_lat_long(gathering.place.geopoint, db.session)[0],
+                    "longitude": extract_lat_long(gathering.place.geopoint, db.session)[1]
+                }
+                for gathering in day.gatherings if gathering.place is not None
+            ]
             event_data = {
                 "event_id": event.id,
                 "creator": f'{event.creator.first_name} {event.creator.last_name}',
@@ -30,7 +40,7 @@ def api_get_events():
                 "end_date": day.date.isoformat(),
                 "start_time": day.start_time.isoformat(),
                 "end_time": day.end_time.isoformat(),
-                "gathering_places": 'Kommer snart...',
+                "location": location_data,
                 "cancelled": day.cancelled,
                 "sequence": day.sequence,
             }

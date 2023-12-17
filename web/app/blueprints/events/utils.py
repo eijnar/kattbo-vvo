@@ -93,3 +93,24 @@ def create_event_day_gatherings(event, place_id, team_id):
         print(e)
         db.session.rollback()
         return False  
+
+def get_user_event_location(event_data, user_team_id):
+    locations = event_data.get['location', []]
+
+    if len(locations) == 1 and locations[0]['team_id'] is None:
+        selected_location = locations[0]
+
+    else:
+        selected_location = next((loc for loc in locations if loc['team_id'] == user_team_id), None)
+
+        if not selected_location:
+            selected_location = locations[0] if locations else None
+
+    if selected_location:
+        return {
+            "location_name": selected_location['poi_name'],
+            "latitude": selected_location['latitude'],
+            "longitude": selected_location['longitude'],
+        }
+    else: 
+        None
