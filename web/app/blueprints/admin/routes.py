@@ -39,7 +39,6 @@ def edit_hunt_teams(selected_hunt_year_id):
     users = User.query.all()
     teams = HuntTeam.query.all()
     year = HuntYear.query.filter_by(id=selected_hunt_year_id).first()
-    print(f'År: {selected_hunt_year_id}')
     # Query for the specific TagCategory
     tag_category_name = 'hunter'
 
