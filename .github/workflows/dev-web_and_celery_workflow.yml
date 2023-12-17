@@ -1,4 +1,4 @@
-name: Production - frontend & celery worker CD/CI
+name: Web CD/CI
 
 on: 
   push:
@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Production - Create env file
+      - name: Creating .env file
         run: |
           echo "FLASK_ENV='development'" >> .env
           echo "API_BASE='https://dev.kattbovvo.se'" >> .env
@@ -52,12 +52,12 @@ jobs:
           echo "ELASTIC_SERVER_URL=${{ secrets.ELASTIC_SERVER_URL }}" >> .env
           echo "LOG_FILE_PATH=/usr/src/kattbo-vvo/logs/kattbo-vvo-web.log" >> .env
 
-      - name: Production - build the containers
+      - name: Building the containers
         run: |
           docker-compose -f docker-compose.yml pull
           docker-compose -f docker-compose.yml build
 
-      - name: Production - deploy the frontend and celery worker
+      - name: Deploying application
         run: |
           docker-compose down --remove-orphans
           docker-compose up -d
