@@ -361,7 +361,6 @@ def ical_calendar():
     events_data = fetch_events_from_api(include_attendees=True)
     hunt_year = HuntYearFinder()
     user_team = get_hunt_team_for_user_and_year(current_user.id, hunt_year.current.id)
-    location_info = get_user_event_location(event_data, user_team)
     cal = Calendar()
 
     cal.add('X-WR-CALNAME', 'Kättbo VVO')
@@ -372,6 +371,7 @@ def ical_calendar():
         end_time_str = event_data['end_time']
         start_datetime_str = f'{date_str}T{start_time_str}'
         end_datetime_str = f'{date_str}T{end_time_str}'
+        location_info = get_user_event_location(event_data, user_team)
         event = ICalEvent()
 
         if location_info:
