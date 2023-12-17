@@ -19,7 +19,7 @@ jobs:
   build-and-deploy:
     runs-on: self-hosted
     environment: 
-      name: ${{ github.ref == 'refs/heads/main' ? 'production' : 'development' }}
+      name: ${{ github.ref == 'refs/heads/main' ? production : development }}
 
     steps:
       - uses: actions/checkout@v2
