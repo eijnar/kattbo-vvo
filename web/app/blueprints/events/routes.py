@@ -1,5 +1,5 @@
 from os import environ
-from flask_security import current_user, login_required, roles_accepted
+from flask_security import current_user, login_required, roles_accepted, auth_required
 from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, make_response, current_app, jsonify, Response
 from app import db, celery
 from flask_jwt_extended import decode_token
@@ -353,9 +353,10 @@ def abort_task(event_id):
         return True
     return False
 
-
 @events.route("/calendar")
+@auth_required('basic')
 def ical_calendar():
+    current_app.logger.info(f"Request from {request.remote_addr}, Headers: {request.headers}, Method: {request.method}")
     events_data = fetch_events_from_api(include_attendees=True)
     cal = Calendar()
 
