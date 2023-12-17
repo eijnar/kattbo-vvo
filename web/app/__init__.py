@@ -123,7 +123,6 @@ def setup_logging(app):
 
     DEFAULT_LOG_LEVEL = logging.INFO
     try:
-        # Remove old RotatingFileHandler if present
         for handler in app.logger.handlers:
             if isinstance(handler, RotatingFileHandler):
                 app.logger.handlers.remove(handler)
