@@ -369,6 +369,11 @@ def ical_calendar():
         end_datetime_str = f'{date_str}T{end_time_str}'
         event = ICalEvent()
 
+        # Location tests
+        event.add('location', vText('aaa'))
+        event.add('X-APPLE-STRUCTURED-LOCATION','geo:19.19810,114.514', parameters={'VALUE': 'URI', 'X-APPLE-MAPKIT-HANDLE': '','X-APPLE-RADIUS':'80','X-TITLE':'aaa'})
+
+
         organizer = vCalAddress('MAILTO:johan@morbit.se')
         organizer.params['cn'] = vText(event_data['creator'])
         event['organizer'] = organizer
