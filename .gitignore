@@ -5,6 +5,8 @@ __pycache__/
 migrations
 .vscode
 
+logs
+
 # C extensions
 *.so
 

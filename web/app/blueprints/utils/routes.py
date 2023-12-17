@@ -11,7 +11,7 @@ from geoalchemy2.shape import from_shape
 from shapely.geometry import Point
 from models.hunting import Stand
 from models.maps import PointOfIntrest
-from sqlalchemy import and_
+from flask_security import auth_required
 
 utils = Blueprint('utils', '__name__', template_folder='templates')
 
@@ -21,6 +21,11 @@ def health():
         return jsonify({"status": "healthy"}), 200
     except Exception as e:
         return jsonify({"status": "unhealthy", "reason": str(e)}), 500
+
+@utils.route('/basic_auth')
+@auth_required('basic')
+def test_basic_auth():
+    return {"status": "successa" }, 200
 
 @utils.route('/<short_code>')
 def redirect_to_original_url(short_code):

@@ -24,12 +24,14 @@ migrate = Migrate()
 celery = Celery()
 apm = ElasticAPM()
 
-def create_app() -> Flask:
+def create_app(config_object=None) -> Flask:
     app = Flask(__name__)
 
     
     # Setting up the different environments.
-    if os.environ.get('FLASK_ENV') == 'production':
+    if config_object:
+        app.config.from_object(config_object)
+    elif os.environ.get('FLASK_ENV') == 'production':
         app.config.from_object(Production)
     else:
         app.config.from_object(Development)
@@ -46,7 +48,9 @@ def create_app() -> Flask:
     jwt.init_app(app)
     migrate.init_app(app, db)
     celery_init_app(app)
-    apm.init_app(app)
+
+    if app.config.get('INCLUDE_ELASTIC_APM', False):
+        apm.init_app(app)
 
     
     #fsqla.FsModels.set_db_info(db)

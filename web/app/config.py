@@ -38,7 +38,6 @@ class Config(object):
     # Flask-Security-Too registration settings
     SECURITY_REGISTERABLE = environ.get('SECURITY_REGISTERABLE')
     SECURITY_CONFIRMABLE = environ.get('SECURITY_CONFIRMABLE')
-    SECURITY_AUTO_LOGIN_AFTER_CONFIRM = True
     JWT_SECRET_KEY = environ.get('JWT_SECRET_KEY')
     JWT_ALGORITHM = environ.get('JWT_ALGORITHM')
 
@@ -66,6 +65,7 @@ class Config(object):
 class Development(Config):
     DEBUG = True
     LOG_LEVEL = 'DEBUG'
+    INCLUDE_ELASTIC_APM = True
     SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_DEV')
 
     # Flask-Security-Too settings
@@ -78,4 +78,10 @@ class Development(Config):
 class Production(Config):
     DEBUG = False
     LOG_LEVEL = 'INFO'
+    INCLUDE_ELASTIC_APM = True
     SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_PROD')
+
+class Testing(Config):
+    DEBUG = False
+    LOG_LEVEL = 'CRITICAL'
+    SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_DEV')

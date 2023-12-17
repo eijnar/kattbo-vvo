@@ -353,8 +353,10 @@ def abort_task(event_id):
     return False
 
 @events.route("/calendar")
+@auth_required('basic')
 def ical_calendar():
     current_app.logger.info(f"Request from {request.remote_addr}, Headers: {request.headers}, Method: {request.method}")
+    current_app.logger.debug(f'{current_user.first_name}')
     events_data = fetch_events_from_api(include_attendees=True)
     cal = Calendar()
 
@@ -408,5 +410,4 @@ def ical_calendar():
 def fetch_events_from_api(include_attendees=False):
     api_url = f'{environ.get("API_BASE")}/api/event/get_all_events'
     response = requests.get(api_url, params={'include_attendees': include_attendees})
-    # current_app.logger.trace(f'fetch_events_from_api returned: {response.json()}')
     return response.json()
