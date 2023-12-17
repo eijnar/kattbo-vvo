@@ -364,6 +364,8 @@ def ical_calendar():
     cal = Calendar()
 
     cal.add('X-WR-CALNAME', 'Kättbo VVO')
+    cal.add('PRODID', vText('KattboVVO/web/SE'))
+    cal.add('VERSION', vText('0.5'))
 
     for event_data in events_data:
         datetime_info = event_data.get('datetime', {})
