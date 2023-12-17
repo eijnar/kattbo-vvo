@@ -28,6 +28,8 @@ services:
       context: .
       dockerfile: ./web/Dockerfile
       target: web_celery_worker
+    volumes:
+      - /srv/kattbo-vvo/logs:/usr/src/kattbo-vvo/logs
     env_file:
       - .env
     depends_on:
