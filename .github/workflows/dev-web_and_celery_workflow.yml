@@ -3,7 +3,7 @@ name: Production - frontend & celery worker CD/CI
 on: 
   push:
     branches:
-      - main
+      - development
     paths:
       - 'web/**'
       - 'common/**'

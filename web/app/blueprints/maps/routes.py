@@ -109,6 +109,5 @@ def add_geopoint():
         )
         db.session.add(new_point_of_intrest)
         db.session.commit()
-        print(new_point_of_intrest)
 
     return render_template('map/new_point.html.j2', form=form)

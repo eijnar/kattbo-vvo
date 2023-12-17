@@ -167,7 +167,6 @@ def create_event():
 
     if event_form.validate_on_submit():
         new_event = create_event_and_gatherings(event_form, current_user)
-        print(new_event.id)
         task = notify_users_about_event.apply_async(args=[new_event.id, event_form.event_type.data], countdown=20)
         notification_task = NotificationTask(
             celery_task_id=task.id,
