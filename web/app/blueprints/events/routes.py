@@ -355,12 +355,12 @@ def abort_task(event_id):
     return False
 
 @events.route("/ical")
-@auth_required('basic')
+#@auth_required('basic')
 def ical_calendar():
 
     events_data = fetch_events_from_api(include_attendees=True)
     hunt_year = HuntYearFinder()
-    user_team = get_hunt_team_for_user_and_year(current_user.id, hunt_year.current.id)
+    user_team = get_hunt_team_for_user_and_year(1, hunt_year.current.id)
     cal = Calendar()
 
     cal.add('X-WR-CALNAME', 'Kättbo VVO')
