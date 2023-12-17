@@ -385,7 +385,7 @@ def ical_calendar():
             event.add('geo', vGeo((location_info["latitude"], location_info["longitude"])))
             event.add('X-APPLE-STRUCTURED-LOCATION',f'geo:{location_info["latitude"]},{location_info["longitude"]}', parameters={'VALUE': 'URI', 'X-APPLE-MAPKIT-HANDLE': '','X-APPLE-RADIUS':'80','X-TITLE':location_info['location_name']})
 
-        organizer = vCalAddress(f'MAILTO:info@kaffesump.se')
+        organizer = vCalAddress(f'MAILTO:{creator_email_str}')
         organizer.params['cn'] = vText(creator_name_str)
         event['organizer'] = organizer
         event.add('contact', vText(f'{creator_name_str}, {creator_phone_number_str}'))
