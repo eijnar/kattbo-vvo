@@ -37,6 +37,7 @@ def api_get_events():
                 "sequence": day.sequence,
                 "cancelled": day.cancelled,
                 "title": event.event_type.name,
+                "category": event.event_type.event_category.name,
                 "day_id": day.id,
                 "creator": {
                     "name": f'{event.creator.first_name} {event.creator.last_name}',

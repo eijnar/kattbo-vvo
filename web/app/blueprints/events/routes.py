@@ -366,10 +366,8 @@ def ical_calendar():
     cal.add('X-WR-CALNAME', 'Kättbo VVO')
 
     for event_data in events_data:
-        print(event_data)
         datetime_info = event_data.get('datetime', {})
         creator_info = event_data.get('creator', {})
-        print(f'datetime: {datetime_info}\n creator: {creator_info}')
         creator_email_str = creator_info.get('email', '')
         creator_phone_number_str = creator_info.get('phone_number', '')
         creator_name_str = creator_info.get('name', '')
@@ -382,17 +380,20 @@ def ical_calendar():
         location_info = get_user_event_location(event_data, user_team)
         if location_info:
             event.add('location', vText(location_info["location_name"]))
+            event.add('geo', vGeo((location_info["latitude"], location_info["longitude"])))
             event.add('X-APPLE-STRUCTURED-LOCATION',f'geo:{location_info["latitude"]},{location_info["longitude"]}', parameters={'VALUE': 'URI', 'X-APPLE-MAPKIT-HANDLE': '','X-APPLE-RADIUS':'80','X-TITLE':location_info['location_name']})
 
         organizer = vCalAddress(f'MAILTO:{creator_email_str}')
         organizer.params['cn'] = vText(creator_name_str)
-        organizer.params['phone'] = vText(creator_phone_number_str)
+        event['contact'] = vText(f'{creator_name_str}, {creator_phone_number_str}')
         event['organizer'] = organizer
+        event.add('categories', event_data['category'].upper())
         event.add('summary', event_data['title'])
         event.add('dtstart', datetime.fromisoformat(start_datetime_str))
         event.add('dtend', datetime.fromisoformat(end_datetime_str))
         event.add('dtstamp', datetime.now(pytz.utc))
         event.add('sequence', event_data["sequence"])
+       
 
         if event_data['cancelled'] == True:
             event.add('status', 'CANCELLED')
