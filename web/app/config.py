@@ -8,6 +8,12 @@ class Config(object):
 
     UPLOAD_FOLDER = environ.get('UPLOAD_FOLDER')
 
+    # Logging defaults
+    LOG_FORMAT = "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
+    LOG_FILE_PATH = environ.get('LOG_FILE_PATH')
+    LOG_FILE_MAX_SIZE = 10240
+    LOG_FILE_BACKUP_COUNT = 5
+
     # Default mail configuration
     MAIL_USERNAME = environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = environ.get('MAIL_PASSWORD')
@@ -59,6 +65,7 @@ class Config(object):
 
 class Development(Config):
     DEBUG = True
+    LOG_LEVEL = 'DEBUG'
     SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_DEV')
 
     # Flask-Security-Too settings
@@ -70,4 +77,5 @@ class Development(Config):
 
 class Production(Config):
     DEBUG = False
+    LOG_LEVEL = 'INFO'
     SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_PROD')

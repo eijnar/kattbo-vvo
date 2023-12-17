@@ -1,8 +1,9 @@
-name: Development - frontend & celery worker CD/CI
+name: Frontend & celery worker CD/CI
 
 on: 
   push:
     branches:
+      - main
       - development
     paths:
       - 'web/**'
@@ -17,16 +18,18 @@ on:
 jobs:
   build-and-deploy:
     runs-on: self-hosted
-    if: github.ref == 'refs/heads/development'
+    environment: 
+      name: ${{ github.ref == 'refs/heads/main' ? 'production' : 'development' }}
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Development - Create env file
+
+      - name: Creating the .env file
         run: |
-          echo "FLASK_ENV='development'" >> .env
-          echo "GUNICORN_PORT=5000" >> .env
-          echo "API_BASE='https://dev.kattbovvo.se'" >> .env
+          echo "FLASK_ENV='${{ env.FLASK_ENV }}'" >> .env
+          echo "GUNICORN_PORT=${{ env.GUNICORN_PORT}}" >> .env
+          echo "API_BASE='${{ env.API_BASE }}'" >> .env
           echo "UPLOAD_FOLDER='/usr/src/kattbo-vvo/uploads'" >> .env
           echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
           echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
@@ -48,14 +51,15 @@ jobs:
           echo "CELERY_BACKEND_URL=${{ secrets.CELERY_BACKEND_URL }}" >> .env
           echo "ELASTIC_SECRET_TOKEN=${{ secrets.ELASTIC_SECRET_TOKEN }}" >> .env
           echo "ELASTIC_SERVER_URL=${{ secrets.ELASTIC_SERVER_URL }}" >> .env
+          echo "LOG_FILE_PATH='/usr/srv/kattbo-vvo/logs" >> .env
 
-      - name: Development - build the containers
+      - name: Building the containers
         run: |
-          docker-compose -f docker-compose.yml build web
-          docker-compose -f docker-compose.yml build web_celery_worker
+          docker-compose -f docker-compose.yml pull
+          docker-compose -f docker-compose.yml build
 
-      - name: Development - deploy the frontend and celery worker
+      - name: Deploying the frontend and celery worker
         run: |
-          docker-compose up -d web
-          docker-compose up -d web_celery_worker
+          docker-compose down --remove-orphans
+          docker-compose up -d
 
