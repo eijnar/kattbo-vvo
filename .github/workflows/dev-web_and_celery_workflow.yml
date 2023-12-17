@@ -1,10 +1,9 @@
-name: Frontend & celery worker CD/CI
+name: Production - frontend & celery worker CD/CI
 
 on: 
   push:
     branches:
       - main
-      - development
     paths:
       - 'web/**'
       - 'common/**'
@@ -18,18 +17,16 @@ on:
 jobs:
   build-and-deploy:
     runs-on: self-hosted
-    environment: 
-      name: ${{ github.ref == 'refs/heads/main' ? production : development }}
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v2
 
-
-      - name: Creating the .env file
+      - name: Production - Create env file
         run: |
-          echo "FLASK_ENV='${{ env.FLASK_ENV }}'" >> .env
-          echo "GUNICORN_PORT=${{ env.GUNICORN_PORT}}" >> .env
-          echo "API_BASE='${{ env.API_BASE }}'" >> .env
+          echo "FLASK_ENV='production'" >> .env
+          echo "API_BASE='https://dev.kattbovvo.se'" >> .env
+          echo "GUNICORN_PORT=5000" >> .env
           echo "UPLOAD_FOLDER='/usr/src/kattbo-vvo/uploads'" >> .env
           echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
           echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
@@ -46,19 +43,19 @@ jobs:
           echo "SECURITY_TRACKABLE=True" >> .env
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
           echo "JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}" >> .env
-          echo "SQLALCHEMY_DATABASE_URI_DEV=${{ secrets.SQLALCHEMY_DATABASE_URI_DEV }}" >> .env
+          echo "SQLALCHEMY_DATABASE_URI_PROD=${{ secrets.SQLALCHEMY_DATABASE_URI_PROD }}" >> .env
           echo "CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }}" >> .env
           echo "CELERY_BACKEND_URL=${{ secrets.CELERY_BACKEND_URL }}" >> .env
           echo "ELASTIC_SECRET_TOKEN=${{ secrets.ELASTIC_SECRET_TOKEN }}" >> .env
           echo "ELASTIC_SERVER_URL=${{ secrets.ELASTIC_SERVER_URL }}" >> .env
-          echo "LOG_FILE_PATH='/usr/srv/kattbo-vvo/logs" >> .env
+          echo "LOG_FILE_PATH=/usr/src/kattbo-vvo/uploads" >> .env
 
-      - name: Building the containers
+      - name: Production - build the containers
         run: |
           docker-compose -f docker-compose.yml pull
           docker-compose -f docker-compose.yml build
 
-      - name: Deploying the frontend and celery worker
+      - name: Production - deploy the frontend and celery worker
         run: |
           docker-compose down --remove-orphans
           docker-compose up -d
