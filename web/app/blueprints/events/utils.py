@@ -95,7 +95,7 @@ def create_event_day_gatherings(event, place_id, team_id):
         return False  
 
 def get_user_event_location(event_data, user_team_id):
-    locations = event_data.get['location', []]
+    locations = event_data.get('location', [])
 
     if len(locations) == 1 and locations[0]['team_id'] is None:
         selected_location = locations[0]
