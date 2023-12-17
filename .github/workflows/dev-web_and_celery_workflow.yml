@@ -5,11 +5,13 @@ on:
     branches:
       - development
     paths:
+      - .github/workflows/*.yml
       - 'web/**'
       - 'common/**'
       - 'docker-compose.yml'
   pull_request:
     paths:
+      - .github/workflows/*.yml
       - 'web/**'
       - 'common/**'
       - 'docker-compose.yml'
@@ -48,7 +50,7 @@ jobs:
           echo "CELERY_BACKEND_URL=${{ secrets.CELERY_BACKEND_URL }}" >> .env
           echo "ELASTIC_SECRET_TOKEN=${{ secrets.ELASTIC_SECRET_TOKEN }}" >> .env
           echo "ELASTIC_SERVER_URL=${{ secrets.ELASTIC_SERVER_URL }}" >> .env
-          echo "LOG_FILE_PATH=/usr/src/kattbo-vvo/uploads" >> .env
+          echo "LOG_FILE_PATH=/usr/src/kattbo-vvo/logs/kattbo-vvo-web.log" >> .env
 
       - name: Production - build the containers
         run: |
