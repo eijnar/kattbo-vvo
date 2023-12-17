@@ -353,7 +353,6 @@ def abort_task(event_id):
     return False
 
 @events.route("/calendar")
-@auth_required('basic')
 def ical_calendar():
     current_app.logger.info(f"Request from {request.remote_addr}, Headers: {request.headers}, Method: {request.method}")
     events_data = fetch_events_from_api(include_attendees=True)
