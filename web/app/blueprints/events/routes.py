@@ -385,8 +385,8 @@ def ical_calendar():
 
         organizer = vCalAddress(f'MAILTO:{creator_email_str}')
         organizer.params['cn'] = vText(creator_name_str)
-        event['contact'] = vText(f'{creator_name_str}, {creator_phone_number_str}')
         event['organizer'] = organizer
+        event.add('contact', vText(f'{creator_name_str}, {creator_phone_number_str}'))
         event.add('categories', event_data['category'].upper())
         event.add('summary', event_data['title'])
         event.add('dtstart', datetime.fromisoformat(start_datetime_str))
@@ -415,7 +415,7 @@ def ical_calendar():
 
     response = Response(cal.to_ical())
     response.headers['Content-Type'] = 'text/calendar; charset=utf-8'
-    response.headers['Content-Disposition'] = 'attachment; filename="kattbo_vvo.ics"'
+    # response.headers['Content-Disposition'] = 'attachment; filename="kattbo_vvo.ics"'
     return response
 
 def fetch_events_from_api(include_attendees=False):
