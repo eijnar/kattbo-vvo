@@ -355,7 +355,7 @@ def abort_task(event_id):
     return False
 
 @events.route("/ical")
-#@auth_required('basic')
+@auth_required('basic')
 def ical_calendar():
 
     events_data = fetch_events_from_api(include_attendees=True)
