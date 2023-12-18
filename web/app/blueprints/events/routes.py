@@ -406,6 +406,7 @@ def ical_calendar():
 
             attendee_ical = vCalAddress(f'MAILTO:{attendee_email}')
             attendee_ical.params['cn'] = vText(attendee_name)
+            attendee_ical.params['CUTYPE'] = vText('INDIVIDUAL')
             attendee_ical.params['ROLE'] = vText('REQ-PARTICIPANT')
             attendee_ical.params['PARTSTAT'] = vText("ACCEPTED")
             attendee_ical.params['RSVP'] = vText(f"{True}")

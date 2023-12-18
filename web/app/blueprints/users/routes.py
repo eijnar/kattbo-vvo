@@ -44,7 +44,8 @@ def update_profile():
         current_user.phone_number = profile_form.phone_number.data
         current_user.first_name = profile_form.first_name.data
         current_user.last_name = profile_form.last_name.data
-        current_user.profile_picture = upload_handler.save_file(profile_form.profile_picture.data, is_public=True)
+        if profile_form.profile_picture.data:
+            current_user.profile_picture = upload_handler.save_file(profile_form.profile_picture.data, is_public=True)
         db.session.commit()
         flash('Din profil har blivit uppdaterad', category='success')
         return redirect(url_for('users.update_profile'))

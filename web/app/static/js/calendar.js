@@ -4,12 +4,19 @@ document.addEventListener('DOMContentLoaded', function() {
     var calendar = new FullCalendar.Calendar(calendarEl, {
         plugins: [ 'interaction', 'dayGrid' ],
         defaultView: 'dayGridMonth',
-        height: 500,
+        height: 600,
         firstDay: 1,
         displayEventTime: true,
+
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+            meridiem: false
+        },
         events: function(fetchInfo, successCallback, failureCallback) {
             $.ajax({
-                url: '/api/event/get_all_events', // Flask route to fetch events
+                url: '/api/event/get_all_events',
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
