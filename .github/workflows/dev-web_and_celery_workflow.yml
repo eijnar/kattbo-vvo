@@ -35,8 +35,8 @@ jobs:
           echo "MAIL_PORT=465" >> .env
           echo "MAIL_USE_SSL=True" >> .env
           echo "MAIL_SERVER=${{ secrets.MAIL_SERVER }}" >> .env
-          echo "MAIL_DEFAULT_SENDER_DEV='development@kattbovvo.se'" >> .env
-          echo "MAIL_DEFAULT_SENDER_PROD='info@kattbovvo.se'" >> .env
+          echo "MAIL_DEFAULT_SENDER_DEV=development@kattbovvo.se" >> .env
+          echo "MAIL_DEFAULT_SENDER_PROD=info@kattbovvo.se" >> .env
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
           echo "SECURITY_PASSWORD_SALT=${{ secrets.SECURITY_PASSWORD_SALT }}" >> .env
           echo "SECURITY_PASSWORD_HASH=${{ secrets.SECURITY_PASSWORD_HASH }}" >> .env
