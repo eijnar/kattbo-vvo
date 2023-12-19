@@ -226,12 +226,11 @@ def register_event(event_id):
 @roles_accepted('admin', 'hunt-leader')
 def generate_event_pdf(event_id):
     current_app.logger.info(f'{current_user.email} is creating a PDF')
-    event_days = EventDay.query.filter_by(event_id=event_id).all()
-
     users_by_team_and_day = {}
     specific_tags = ['doghandler', 'shooter', 'hunt-leader']
     team_id = request.args.get('team_id')
 
+    event_days = EventDay.query.filter_by(event_id=event_id).all()
     if team_id is not None:
         teams = [team_id]
     else:

@@ -19,16 +19,14 @@ def edit_user(user_id):
                     .join(TagCategory, TagCategory.id == TagsCategories.tag_category_id) \
                     .filter(TagCategory.name == 'hunter') \
                     .all()
-    stand_query = db.session.query(Stand.number) \
+    stands = [stand_tuple[0] for stand_tuple in db.session.query(Stand.number) \
         .join(StandAssignment, Stand.id == StandAssignment.stand_id) \
         .filter(StandAssignment.user_id == user_id) \
         .filter(StandAssignment.hunt_year_id == 1) \
         .group_by(Stand.number) \
-        .all()
-    for stand_tuple in stand_query:
-        stand = stand_tuple[0]
-
-    return render_template('admin/edit_user.html.j2', user=user, tags=tags, stand=stand)
+        .all()]
+    print(stands)
+    return render_template('admin/edit_user.html.j2', user=user, tags=tags, stands=stands)
 
 
 @admin.route("/edit/<int:selected_hunt_year_id>")
