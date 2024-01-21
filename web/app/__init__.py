@@ -49,8 +49,8 @@ def create_app(config_object=None) -> Flask:
     migrate.init_app(app, db)
     celery_init_app(app)
 
-    if app.config.get('INCLUDE_ELASTIC_APM', False):
-        apm.init_app(app)
+    # if app.config.get('INCLUDE_ELASTIC_APM', False):
+    #     apm.init_app(app)
 
     
     #fsqla.FsModels.set_db_info(db)
