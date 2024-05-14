@@ -1,15 +1,13 @@
-from typing import Annotated
+from fastapi import FastAPI
 
-from fastapi import Depends, FastAPI
-from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from elasticapm.contrib.starlette import ElasticAPM
 
-from core.security import oauth2_scheme
 from core.config import settings
-from core.database import engine, Base
-from core.logger import logger, apm_client
-from routes.users.router import users
+from core.database import create_tables
+from core.logger import apm_client
+from routes.users.endpoints import users
+from core.security.endpoints import security
 
 app = FastAPI(title=settings.APP_NAME)
 
@@ -25,11 +23,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.on_event("startup")
 async def startup_event():
-    logger.info('Application is starting')
-    async with engine.begin() as conn:
-        # Create database tables if they do not exist
-        await conn.run_sync(Base.metadata.create_all)
-        
+    # Create database tables
+    await create_tables()
+
+
 app.include_router(users, prefix="/v1")
+app.include_router(security, prefix="/v1")
+
+
