@@ -28,66 +28,58 @@ Källkoden finns på [Github](https://www.github.com/eijnar/kattbo-vvo-web)
 
 ### Övergripande beskrivning
 
-Projektet startade som ett simpelt flask projekt (python). Under tiden migrerade vi till en början från MariaDB till PostgreSQL, då det sistnämnda har bättre stöd för geometrisk data. Senare introducerades Celery för att sköta bakgrunds funktioner för att avlasta front-end såsom utskick av sms och e-post. Framöver så är tanken att vi kommer sära på API delen till ett FastAPI projekt och migrera mer mot microservices
-#### Dependencies
+Osmakliga omstruktureringar, en helt ny värld. Jag gjorde om allt från början helt enkelt.
 
-- Python 3.9+
-- PostgreSQL
-- RabbitMQ
-## Versioner
+### filebeat.yml
 
-För att se närmare teknisk beskrivning av versionerna kolla in [[Changelog|Changelog]]. 
-En planering för version 0.2 som kommer vara den första officiella versionen finns. [[Version 0.2|Version 0.2]]
-
-## Installation
-
-För närvarande går detta att köra genom att starta det med python `python run.py` men också via docker-compose lokalt.
-
-### docker-compose.yml
-
-Vill man installera detta och testa lokalt behöver man sätta upp PostgreSQL och RabbitMQ. Detta då dessa inte finns med i `docker-compose.yml`. Det kan vara så att dessa tillkommer senare som alternativ. 
-
-Efter detta måste man också skapa en .env och placera den i root katalogen. Denna skall ha följande inställningar:
-
-``` bash
-# General settings
-UPLOAD_FOLDER=
-
-# Mail settings
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_PORT=
-MAIL_USE_SSL=
-MAIL_SERVER=
-MAIL_DEFAULT_SENDER_DEV=
-MAIL_DEFAULT_SENDER_PROD=
-
-# Flask WTF secret key
-SECRET_KEY=
-
-# Flask Security Too settings
-SECURITY_PASSWORD_SALT=
-SECURITY_PASSWORD_HASH=
-SECURITY_REGISTERABLE=
-SECURITY_CONFIRMABLE=
-SECURITY_TRACKABLE=
-
-# JWT Token settings
-JWT_SECRET_KEY=
-JWT_ALGORITHM=
-
-# Database settings
-SQLALCHEMY_DATABASE_URI_DEV=
-SQLALCHEMY_DATABASE_URI_PROD=
-
-# Celery settings
-CELERY_BROKER_URL=
-CELERY_BACKEND_URL=
 ```
+filebeat.inputs:
+- type: filestream
+  enabled: true
+  paths:
+    - /home/eijnar/projects/kattbo-vvo-web/api/logs/*.log*
+  fields:
+    log_type: api_log
+  json.keys_under_root: true
+  json.add_error_key: true
+  json.overwrite_keys: true
 
-### CD/CI
+processors:
+  - decode_json_fields:
+      fields: ["message"]
+      target: ""
+      overwrite_keys: true
+  - timestamp:
+      field: "timestamp"
+      layouts:
+        - '2006-01-02T15:04:05.000000Z'
+        - '2006-01-02T15:04:05.000Z'
+        - '2006-01-02T15:04:05Z'
+        - '2006-01-02T15:04:05.000+0200'
+        - '2006-01-02T15:04:05+0200'
+        - '2006-01-02T15:04:05.000000-07:00'
 
-För att underlätta deployment av projektet så sköts detta via CD/CI och Github Actions. För att komma igång med denna behöver man sätta ovanstående parametrar i Github. `Settings -> Secrets and Variables -> Actions`
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
 
-En runner körs lokalt och dokumentation för hur man sätter upp denna finns [[vvo.srv.kaffesump.se|här]]
+output.elasticsearch:
+  hosts: [""]
+  protocol: "https"
+  ssl.certificate_authorities: [""]
+  #api_key: "sample_api_key"
+  username: ""
+  password: ""
 
+logging.level: debug
+logging.selectors: ["*"]
+
+# Optionally, specify output for logs if you want to save them to a file
+logging.to_files: true
+logging.files:
+  path: /home/eijnar/projects/kattbo-vvo-web/filebeat/log/
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644
+
+```

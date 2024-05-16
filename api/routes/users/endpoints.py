@@ -1,42 +1,73 @@
+import logging
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Security
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+
+from fastapi import APIRouter, Depends, HTTPException, status, Security, Query
 from sqlalchemy.exc import IntegrityError
 
-from core.logger import logger
-from core.database import get_db
-from core.security import get_password_hash, get_current_active_user, UserBaseSchema
+from core.security import get_password_hash, get_current_active_user
 from core.security.token_manager import TokenManager, get_token_manager
-from models.user import UserModel
-from .crud import fetch_user_by_email
+from core.database.repositories import UserRepository
+from core.database.schemas import UserBaseSchema
+from core.database.dependencies import get_user_repository
+from core.database.models import UserModel
+from core.config import settings
+
+logger = logging.getLogger(__name__)
 
 users = APIRouter(prefix="/users")
 
-@users.post("/password-reset-request")
+
+@users.post("/password-reset-request", status_code=202)
 async def request_password_reset(
     email: str,
-    db: AsyncSession = Depends(get_db),
+    user_repository: UserRepository = Depends(get_user_repository),
     token_manager: TokenManager = Depends(get_token_manager)
 ):
-    user = await fetch_user_by_email(db, email)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    current_version = await token_manager._get_user_version(user.id)
-    
-    reset_token = await token_manager.create_password_reset_token(user.id, current_version)
-    logger.debug(f"Sending reset email to {user.id}. Current version {current_version}. Reset token: {reset_token}")
+    user = await user_repository.get_user_by_email(email)
+    if user:
+        token_type="password_reset"
+        password_reset_token_lifetime = settings.PASSWORD_RESET_TOKEN_LIFESPAN_MINUTES
+        reset_token = await token_manager.create_token(user.id, token_type, expires_delta=password_reset_token_lifetime)
+        # Schedule sending the email in the background
+        # fdsbackground_tasks.add_task(send_password_reset_email, user.email, reset_token)
+        logger.info(f"Password reset requested for user {user.id}. Email queued.{reset_token}")
+
+    # Return a generic message regardless of the email's existence in the DB
+    return {"message": "If your email is registered with us, you will receive a password reset link shortly."}
+
+
+@users.post("/password-reset")
+async def reset_password(
+    token: str,
+    new_password: str,
+    user_repository: UserRepository = Depends(get_user_repository),
+    token_manager: TokenManager = Depends(get_token_manager)
+):
+
+    try:
+        payload = await token_manager.validate_token(token)
+        if "reset_password" not in payload.get("scope", []):
+            raise HTTPException(status_code=403, detail="Invalid token")
+
+        user_id = payload['sub']
+        await user_repository.update_user_password(int(user_id), new_password)
+        await token_manager.invalidate_user_tokens(int(user_id))
+
+        return {"message": "Password successfully reset"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 @users.get("/", response_model=List[UserBaseSchema])
-async def get_users(db: AsyncSession = Depends(get_db)):
+async def get_users(
+    page: int = Query(1, gt=0),
+    page_size: int = Query(20, gt=0, le=100),
+    user_repository: UserRepository = Depends(get_user_repository)
+):
+    logger.info("Grabbing the userstack")
     try:
-        async with db:
-
-            query = select(UserModel)
-            result = await db.execute(query)
-            users = result.scalars().all()
-            return users
+        users = await user_repository.get_all_users(page=page, page_size=page_size)
+        return users
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"failed... {e}")
 
@@ -58,7 +89,7 @@ async def create_user(
     phone_number: str,
     current_user: UserModel = Security(
         get_current_active_user, scopes=["users:post"]),
-    db: AsyncSession = Depends(get_db)
+    user_repository: UserRepository = Depends(get_user_repository)
 ):
     hashed_password = get_password_hash(password)
     new_user = UserModel(

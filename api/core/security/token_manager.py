@@ -1,13 +1,15 @@
+import logging
 from uuid import uuid4
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
-from jose import jwt, JWTError
+from jose import jwt
 
 from core.config import settings
-from core.logger import logger
 from .redis_client import get_redis_client
 
+
+logger = logging.getLogger(__name__)
 
 class TokenManager:
     def __init__(self, redis):
@@ -42,55 +44,45 @@ class TokenManager:
         )
         return encoded_jwt
 
-    async def create_access_token(self, user_id, scopes, expires_delta=timedelta(minutes=15)):
+    async def create_token(self, user_id, token_type, scopes=None, expires_delta=1):
         version = await self._get_user_version(user_id)
-        data = {"sub": str(user_id), "scopes": scopes, "ver": version}
-        access_token = self._create_token(
-            data, expires_delta, version, token_type="access")
-        token_key = f"access_token:{user_id}:{uuid4()}"
-        await self.redis.setex(token_key, int(expires_delta.total_seconds()), access_token)
-        return access_token
+        data = {"sub": str(user_id), }
+        if scopes:
+            data["scopes"] = scopes
 
-    async def create_refresh_token(self, user_id, expires_delta=timedelta(days=7)):
-        version = await self._get_user_version(user_id)
-        data = {"sub": str(user_id)}
-        refresh_token = self._create_token(
-            data, expires_delta, version, token_type="refresh")
-        token_key = f"refresh_token:{user_id}:{uuid4()}"
-        await self.redis.setex(token_key, int(expires_delta.total_seconds()), refresh_token)
-        return refresh_token
-
-    async def create_password_reset_token(self, user_id, version):
-        """
-        Generate a password reset token for a given user.
-
-        Parameters:
-        user_id (int): The user ID for whom to generate the token.
-        version (int): The current version number for token invalidation.
-
-        Returns:
-        str: A JWT token specifically for password reset.
-        """
-        data = {
-            "sub": str(user_id),
-            "scope": ["reset_token"]
-        }
-
-        expires_delta = timedelta(minutes=settings.RESET_TOKEN_LIFESPAN_MINUTE)
-        token_type = "reset"
-
-        return self._create_token(data, expires_delta, version, token_type)
+        token_key = f"{token_type}_token:{user_id}:{uuid4()}"
+        token = self._create_token(
+            token_key, expires_delta, version, token_type)
+        await self.redis.setex(token_key, int(expires_delta.total_seconds()), token)
+        return token
 
     async def validate_token_version(self, user_id, token_version):
-        if self.redis is None:
-            logger.error(
-                "Error: Attempting to use Redis client before it is initialized.")
+        """
+        Validate the token version for a user.
+        Parameters:
+            user_id: The ID of the user.
+            token_version: The version of the token to validate.
+        Returns:
+            bool: True if the token version is valid, False otherwise.
+        """
         current_version = await self.redis.get(f"user_version:{user_id}")
         if not current_version or int(current_version) != int(token_version):
             return False
         return True
 
     async def validate_token(self, token):
+        """
+        Validates a JWT token by decoding it and checking the stored version against the payload version.
+
+        Parameters:
+            token (str): The JWT token to validate.
+
+        Returns:
+            dict: The decoded payload of the token if valid.
+
+        Raises:
+            HTTPException: If the token version mismatches or the token is invalid.
+        """
         try:
             payload = jwt.decode(token, settings.SECRET_KEY,
                                  algorithms=[settings.ALGORITHM])
@@ -107,7 +99,7 @@ class TokenManager:
         except jwt.JWTError as e:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f"Invalid token due to {str(e)}",
+                detail=f"Invalid token: {str(e)}",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -123,15 +115,16 @@ class TokenManager:
         version_key = f"user_version:{str(user_id)}"
         await self.redis.incr(version_key)
 
-    async def invalidate_access_tokens(self, user_id):
-        keys = await self.redis.keys(f"access_token:*{user_id}:*")
+    async def invalidate_tokens(self, user_id, token_type="access"):
+        keys = await self.redis.keys(f"{token_type}_token:{user_id}:*")
         for key in keys:
             await self.redis.delete(key)
 
-    async def invalidate_refresh_tokens(self, user_id):
-        keys = await self.redis.keys(f"refresh_token:{user_id}:*")
-        for key in keys:
-            await self.redis.delete(key)
+    async def invalidate_all_tokens_for_user(self, user_id):
+        logger.info(f"Invalidating all tokens for user ID {user_id}.")
+        await self.invalidate_tokens(user_id, token_type="access")
+        await self.invalidate_tokens(user_id, token_type="refresh")
+        await self.invalidate_tokens(user_id, token_type="password_reset")
 
     @classmethod
     async def create(cls):

@@ -1,48 +1,72 @@
-from typing import Annotated
+from typing import Annotated, Union
 
-from sqlalchemy.future import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 
 from .scopes import scopes
-from .schemas import TokenDataSchema, UserBaseSchema
+from .schemas import TokenDataSchema
 from .passwords import verify_password
-from .crud import get_user
 from .token_manager import TokenManager, get_token_manager
-from core.logger import logger
-from core.database import get_db
-from models.user import UserModel
+from ..database.models import UserModel 
+from ..database.repositories import UserRepository
+from ..database.dependencies import get_user_repository
+from ..database.schemas import UserBaseSchema
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/token", scopes=scopes)
 
 
-async def authenticate_user(email: str, password: str, db: AsyncSession = Depends(get_db)):
-    logger.debug(f"DB Type: {type(db)} | DB: {db}")
-    statement = select(UserModel).where(UserModel.email == email)
-    result = await db.execute(statement)
-    user = result.scalars().first()
+async def authenticate_user(
+    email: str, 
+    password: str, 
+    user_repository: UserRepository = Depends(get_user_repository)
+):
+    """
+    Authenticate user by email and password.
+
+    Args:
+        email (str): The user's email.
+        password (str): The user's password.
+        user_repository (UserRepository): The user repository to retrieve user information.
+
+    Returns:
+        Union[UserModel, None]: The authenticated user or None if authentication fails.
+    """
+    user = await user_repository.get_user_by_email(email)
 
     if not user:
-        return False
+        return None
 
     if not verify_password(password, user.hashed_password):
-        return False
+        return None
 
     return user
 
 
 async def get_current_user(
     security_scopes: SecurityScopes,
-    db: AsyncSession = Depends(get_db),
+    user_repository: UserRepository = Depends(get_user_repository),
     token_manager: TokenManager = Depends(get_token_manager),
     token: str = Depends(oauth2_scheme)
 ) -> UserModel:
-    
+    """
+    Get the current user from the token.
+
+    Args:
+        security_scopes (SecurityScopes): The security scopes.
+        user_repository (UserRepository): The user repository.
+        token_manager (TokenManager): The token manager.
+        token (str): The token.
+
+    Returns:
+        UserModel: The current user.
+
+    Raises:
+        HTTPException: If the token is invalid or the user is not found.
+    """
+    authenticate_value = "Bearer"
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
-    else:
-        authenticate_value = "Bearer"
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -52,22 +76,19 @@ async def get_current_user(
 
     try:
         payload = await token_manager.validate_token(token)
-        logger.debug("Getting e-mail")
         user_id: str = payload.get("sub")
         if user_id is None:
-            logger.debug("email is none")
             raise credentials_exception
         token_scopes = payload.get("scopes", [])
         token_data = TokenDataSchema(scopes=token_scopes, user_id=user_id)
     except HTTPException as e:
-        logger.error(f"Token validatioin error: {str(e)}")
         raise HTTPException(
             status_code=e.status_code,
             detail=e.detail,
             headers=e.headers
         ) from e
 
-    user = await get_user(db, user_id=token_data.user_id)
+    user = await user_repository.get_user_by_id(int(user_id))
     if user is None:
         raise credentials_exception
     for scope in security_scopes.scopes:
@@ -80,9 +101,22 @@ async def get_current_user(
     return user
 
 
+
 async def get_current_active_user(
     current_user: Annotated[UserBaseSchema, Depends(get_current_user)]
 ) -> UserBaseSchema:
+    """
+    Get the current active user.
+
+    Args:
+        current_user (UserBaseSchema): The current user.
+
+    Returns:
+        UserBaseSchema: The current active user.
+
+    Raises:
+        HTTPException: If the user is disabled.
+    """
     if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     return current_user

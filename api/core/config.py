@@ -28,9 +28,9 @@ class Settings(BaseSettings):
     REDIS_SSL: bool = False
     
     # Access token expiration settings
-    ACCESS_TOKEN_EXPIRES_MINUTES: int = 15
-    REFRESH_TOKEN_EXPIRES_DAYS: int = 7
-    RESET_TOKEN_LIFESPAN_MINUTE: int = 30
+    ACCESS_TOKEN_LIFESPAN_MINUTES: int = 15
+    PASSWORD_RESET_TOKEN_LIFESPAN_MINUTES: int = 30
+    REFRESH_TOKEN_LIFESPAN_DAYS: int = 7
     
     class Config:
         env_file = ".env"

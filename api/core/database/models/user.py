@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table, Boolean, Date
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
-from core.database import Base
-from models.dependencies import TrackingMixin, CRUDMixin
+from ...database.base import Base
+from .dependencies import TrackingMixin, CRUDMixin
 
 roles_users = Table('roles_users', Base.metadata,
                     Column('user_id', Integer, ForeignKey(
