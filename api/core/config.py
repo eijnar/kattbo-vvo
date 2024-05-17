@@ -7,18 +7,20 @@ class Settings(BaseSettings):
     
     # Database settings
     SQL_DEBUG_MODE: bool = False
-    DATABASE_URL: str
+    SQL_DATABASE_URL: str
     
     # Eleasticsearch APM client settings
-    APM_SERVICE_NAME: str
-    APM_ENVIRONMENT: str
+    APM_SERVICE_NAME: str = "vvo-api"
+    APM_ENVIRONMENT: str = "dev"
     APM_SERVER_URL: str
     APM_SECRET_TOKEN: str
     
     # JWT settings
     SECRET_KEY: str
     ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    ACCESS_TOKEN_LIFESPAN_MINUTES: int = 15
+    PASSWORD_RESET_TOKEN_LIFESPAN_MINUTES: int = 30
+    REFRESH_TOKEN_LIFESPAN_DAYS: int = 7
     
     # Redis settings
     REDIS_HOST: str = 'localhost'
@@ -26,11 +28,6 @@ class Settings(BaseSettings):
     REDIS_DB: int = 0
     REDIS_PASSWORD: str = ''
     REDIS_SSL: bool = False
-    
-    # Access token expiration settings
-    ACCESS_TOKEN_LIFESPAN_MINUTES: int = 15
-    PASSWORD_RESET_TOKEN_LIFESPAN_MINUTES: int = 30
-    REFRESH_TOKEN_LIFESPAN_DAYS: int = 7
     
     class Config:
         env_file = ".env"

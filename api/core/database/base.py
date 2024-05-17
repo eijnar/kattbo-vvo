@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from ..config import settings
 
-DATABASE_URL = settings.DATABASE_URL
+DATABASE_URL = settings.SQL_DATABASE_URL
 
 engine = create_async_engine(
     DATABASE_URL,
