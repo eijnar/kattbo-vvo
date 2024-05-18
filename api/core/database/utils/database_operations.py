@@ -3,7 +3,7 @@ import logging
 from functools import wraps
 from sqlalchemy.exc import SQLAlchemyError
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("database")
 
 
 class DatabaseOperationException(Exception):
@@ -20,7 +20,7 @@ def sqlalchemy_error_handler(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
-            logger.debug(f"Successful database operation from {func}")
+            #logger.debug(f"Successful database operation from {func}")
             return await func(*args, **kwargs)
         except SQLAlchemyError as e:
             logger.error("SQLAlchemy error occurred",

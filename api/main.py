@@ -1,7 +1,8 @@
-import uvicorn
+import elasticapm.instrumentation
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from elasticapm.contrib.starlette import ElasticAPM
+import elasticapm
 
 from core.config import settings
 from core.database.base import create_tables
@@ -26,20 +27,23 @@ def create_app() -> FastAPI:
         ElasticAPM,
         client=apm_client
     )
-
+    
+    # 
+    
     app.include_router(users, prefix="/v1")
     app.include_router(security, prefix="/v1")
 
-    @app.on_event("startup")
-    async def startup_event():
-        # Create database tables
-        await create_tables()
+    # @app.on_event("startup")
+    # async def startup_event():
+    #     # Create database tables
+    #     await create_tables()
         
     return app
 
 def main():
     app = create_app()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import uvicorn
+    uvicorn.run("main:create_app", host="0.0.0.0", port=8000, reload=True)
     
 if __name__ == "__main__":
     main()

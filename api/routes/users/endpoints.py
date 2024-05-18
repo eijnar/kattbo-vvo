@@ -12,7 +12,7 @@ from core.database.dependencies import get_user_repository
 from core.database.models import UserModel
 from core.config import settings
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('endpoints')
 
 users = APIRouter(prefix="/users")
 

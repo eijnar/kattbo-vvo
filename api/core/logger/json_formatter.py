@@ -34,9 +34,12 @@ class MyJSONFormatter(logging.Formatter):
         self,
         *,
         fmt_keys: dict[str, str] | None = None,
+        exclude_keys: list[str] | None = None,
     ):
         super().__init__()
         self.fmt_keys = fmt_keys if fmt_keys is not None else {}
+        self.exclude_keys = set(
+            exclude_keys) if exclude_keys is not None else set()
 
     def format(self, record: logging.LogRecord) -> str:
         message = self._prepare_log_dict(record)
@@ -45,15 +48,16 @@ class MyJSONFormatter(logging.Formatter):
     def _prepare_log_dict(self, record: logging.LogRecord):
         always_fields = {
             "message": record.getMessage(),
-            "timestamp": dt.datetime.fromtimestamp(
+            "@timestamp": dt.datetime.fromtimestamp(
                 record.created, tz=dt.timezone.utc
             ).isoformat(),
         }
         if record.exc_info is not None:
-            always_fields["exc_info"] = self.formatException(record.exc_info)
+            always_fields["error"] = self.formatException(record.exc_info)
 
         if record.stack_info is not None:
-            always_fields["stack_info"] = self.formatStack(record.stack_info)
+            always_fields["log.origin.stack"] = self.formatStack(
+                record.stack_info)
 
         message = {
             key: msg_val
@@ -61,10 +65,21 @@ class MyJSONFormatter(logging.Formatter):
             else getattr(record, val)
             for key, val in self.fmt_keys.items()
         }
-        message.update(always_fields)
+        message.update(
+            {key: val for key, val in always_fields.items()}
+        )
+
+        # Remove keys specified in exclude_keys
+        for key in self.exclude_keys:
+            message.pop(key, None)
+
+        # Use list() to avoid modifying the dict during iteration
+        for key in list(message.keys()):
+            if key in self.exclude_keys:
+                del message[key]
 
         for key, val in record.__dict__.items():
-            if key not in LOG_RECORD_BUILTIN_ATTRS:
+            if key not in LOG_RECORD_BUILTIN_ATTRS and key not in self.exclude_keys:
                 message[key] = val
 
         return message

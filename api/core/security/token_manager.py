@@ -30,7 +30,7 @@ class TokenManager:
         str: A JWT token as a string.
         """
 
-        assert 'sub' in data, "Subject (sub) must be provided in the token data."
+        # assert 'sub' in data, "Subject (sub) must be provided in the token data."
 
         to_encode = data.copy()
         expire = datetime.now(timezone.utc) + expires_delta

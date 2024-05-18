@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from ..config import settings
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('database')
 
 DATABASE_URL = settings.SQL_DATABASE_URL
 
@@ -36,7 +36,7 @@ async def get_db():
     try:
         async with AsyncSessionLocal() as session:
             yield session
-            logger.info("Database session created successfully.")
+            #logger.info("Database session created successfully.")
     except SQLAlchemyError as e:
         logger.error(f"Error during database session creation: {e}")
         raise
@@ -50,7 +50,7 @@ async def create_tables():
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-            logger.info("Database tables created successfully.")
+            #logger.info("Database tables created successfully.")
     except SQLAlchemyError as e:
         logger.error(f"Error creating tables: {e}")
         raise

@@ -6,6 +6,7 @@ import queue
 import atexit
 from logging import config as logging_config
 
+import ecs_logging
 from elasticapm.contrib.starlette import make_apm_client
 
 from core.config import settings
@@ -28,26 +29,15 @@ def setup_logging():
         raise ValueError("Failed to parse logging configuration file") from e
 
     logging.config.dictConfig(config)
-    stderr_handler_config = config['handlers']['stderr']
     file_json_handler_config = config['handlers']['file_json']
     
-    print(stderr_handler_config)
-
-    # stderr_handler = logging.StreamHandler()
-    # stderr_handler.setLevel(stderr_handler_config['level'])
-    # stderr_formatter = logging.Formatter(
-    #     config['formatters'][stderr_handler_config['formatter']]['format'],
-    #     datefmt=config['formatters'][stderr_handler_config['formatter']]['datefmt']
-    # )
-    # stderr_handler.setFormatter(stderr_formatter)
-
     file_json_handler = logging.handlers.RotatingFileHandler(
         filename=file_json_handler_config['filename'],
         maxBytes=file_json_handler_config['maxBytes'],
         backupCount=file_json_handler_config['backupCount']
     )
     file_json_handler.setLevel(file_json_handler_config['level'])
-    file_json_formatter = MyJSONFormatter(fmt_keys=config['formatters']['json']['fmt_keys'])
+    file_json_formatter = ecs_logging.StdlibFormatter(exclude_fields=["log.original"], stack_trace_limit=0)
     file_json_handler.setFormatter(file_json_formatter)
 
     # Start QueueListener with these handlers
@@ -82,5 +72,5 @@ apm_client = make_apm_client({
     'ENVIRONMENT': settings.APM_ENVIRONMENT,
     'SERVER_URL': settings.APM_SERVER_URL,
     'SECRET_TOKEN': settings.APM_SECRET_TOKEN,
-    'LOG_LEVEL': 'warning'
+    'LOG_LEVEL': 'off'
 })
