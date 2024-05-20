@@ -1,21 +1,14 @@
-from json import dumps as jsondump
-from uuid import uuid4
-from datetime import timedelta
 from typing import Optional
 
-import elasticapm
 from pydantic import EmailStr
-from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from core.config import settings
-from core.security.token_manager import TokenManager, get_token_manager_for_unconfirmed_users
 from core.database.utils.database_operations import sqlalchemy_error_handler
 from core.security.passwords import get_password_hash, verify_password
-from core.messaging.tasks import send_notification_task
 from core.database.models import UserModel, ScopeModel, RoleModel
-from schemas.user import UserCreateSchema
+
 
 
 class UserRepository:
@@ -24,6 +17,19 @@ class UserRepository:
 
     @sqlalchemy_error_handler
     async def get_all_users(self, page: int = 1, page_size: int = 20):
+        """
+        Retrieves all users from the database.
+
+        Args:
+            page (int, optional): The page number of the results. Defaults to 1.
+            page_size (int, optional): The number of users per page. Defaults to 20.
+
+        Returns:
+            List[UserModel]: A list of UserModel objects representing the users.
+
+        Raises:
+            SQLAlchemyError: If there is an error executing the query.
+        """
         async with self.db_session as session:
             result = await session.execute(
                 select(UserModel).offset(
@@ -64,9 +70,11 @@ class UserRepository:
             )
             return result.scalars().first()
 
+    @sqlalchemy_error_handler
     async def update_user_password(
         self,
-        user_data: UserCreateSchema
+        user_id: int,
+        new_password: str
     ) -> bool:
         """
         Updates the password of a user.
@@ -83,13 +91,25 @@ class UserRepository:
             user = await session.get(UserModel, user_id)
             if user:
                 user.hashed_password = get_password_hash(new_password)
-                self.db_session.add(user)
-                await self.db_session.commit()
+                session.add(user)
+                await session.commit()
                 return True
             return False
 
 
     async def create_user(self, user_data):
+        """
+        Creates a new user in the database with the provided user data.
+
+        Args:
+            user_data (dict): A dictionary containing the user's data.
+
+        Returns:
+            UserModel: The newly created user object.
+
+        Raises:
+            SQLAlchemyError: If there is an error executing the query.
+        """
         async with self.db_session as session:
             user = UserModel(**user_data)
             session.add(user)
@@ -118,6 +138,18 @@ class UserRepository:
 
     @sqlalchemy_error_handler
     async def get_user_scopes(self, user_id):
+        """
+        Retrieves the scopes associated with a user.
+
+        Args:
+            user_id (int): The ID of the user.
+
+        Returns:
+            List[str]: A list of scopes associated with the user.
+
+        Raises:
+            SQLAlchemyError: If there is an error executing the query.
+        """
         async with self.db_session as session:
             query = select(ScopeModel.scope).join(ScopeModel.roles).join(
                 RoleModel.users).where(UserModel.id == user_id)

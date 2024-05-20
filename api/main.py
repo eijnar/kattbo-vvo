@@ -12,9 +12,9 @@ from core.config import settings
 from core.database.base import create_tables
 from core.logger.setup import setup_logging, apm_client
 from core.security.endpoints import security
-from routers.users.endpoints import users
-from routers.notification.endpoints import notification
-from routers.limiter import limiter
+from routers.users.base import users
+from routers.notification.base import notification
+from utils.rate_limiter import limiter
 from core.security.redis_client import init_redis_pools
 
 
@@ -38,6 +38,10 @@ def create_app() -> FastAPI:
         ElasticAPM,
         client=apm_client
     )
+
+    @app.get("/")
+    def read_root():
+        return {"message": "The API is running..."}
 
     # Routers
     app.include_router(users, prefix="/v1")

@@ -1,12 +1,14 @@
 import json
 from datetime import timedelta
+
 from fastapi import HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from core.security.token_manager import TokenManager
 from core.config import settings
 from core.security.passwords import get_password_hash
 from core.messaging.tasks import send_notification_task
 from repositories.user_repository import UserRepository
-from sqlalchemy.ext.asyncio import AsyncSession
 
 class RegistrationService:
     def __init__(self, db_session: AsyncSession, token_manager: TokenManager, redis_client):
