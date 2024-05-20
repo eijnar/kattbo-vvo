@@ -3,7 +3,7 @@ import logging
 from functools import wraps
 from sqlalchemy.exc import SQLAlchemyError
 
-logger = logging.getLogger("database")
+logger = logging.getLogger("__name__")
 
 
 class DatabaseOperationException(Exception):

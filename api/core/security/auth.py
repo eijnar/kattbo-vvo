@@ -3,14 +3,14 @@ from typing import Annotated, Union
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 
-from .scopes import scopes
-from .schemas import TokenDataSchema
-from .passwords import verify_password
-from .token_manager import TokenManager, get_token_manager
-from ..database.models import UserModel 
-from ..database.repositories import UserRepository
-from ..database.dependencies import get_user_repository
-from ..database.schemas import UserBaseSchema
+from core.security.scopes import scopes
+from core.security.schemas import TokenDataSchema
+from core.security.passwords import verify_password
+from core.security.token_manager import TokenManager, get_token_manager
+from core.database.models import UserModel 
+from repositories.user_repository import UserRepository
+from core.database.dependencies import get_user_repository
+from schemas.user import UserBaseSchema
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/token", scopes=scopes)

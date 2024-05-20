@@ -5,16 +5,17 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.exc import SQLAlchemyError
 
-from ..config import settings
+from core.config import settings
 
-logger = logging.getLogger('database')
+logger = logging.getLogger('__name__')
 
 DATABASE_URL = settings.SQL_DATABASE_URL
 
 try:
     engine = create_async_engine(
         DATABASE_URL,
-        echo=settings.SQL_DEBUG_MODE
+        echo=settings.SQL_DEBUG_MODE,
+        pool_pre_ping=True
     )
     logger.info("Async engine created successfully.")
 except SQLAlchemyError as e:
@@ -31,12 +32,12 @@ AsyncSessionLocal = sessionmaker(
 Base: DeclarativeMeta = declarative_base()
 
 
-async def get_db():
+async def get_db_session():
     logger.info("Creating a new database session.")
     try:
         async with AsyncSessionLocal() as session:
             yield session
-            #logger.info("Database session created successfully.")
+            logger.debug("Database session created successfully.")
     except SQLAlchemyError as e:
         logger.error(f"Error during database session creation: {e}")
         raise

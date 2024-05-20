@@ -12,7 +12,7 @@ class UserBaseSchema(BaseModel):
         from_attributes = True
 
 
-class NewUserSchema(BaseModel):
+class UserCreateSchema(BaseModel):
     email: EmailStr
     password: str
     first_name: str

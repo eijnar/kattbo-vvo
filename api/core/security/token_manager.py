@@ -2,11 +2,13 @@ import logging
 from uuid import uuid4
 from datetime import datetime, timezone
 
+from fastapi import Depends
+from redis import Redis
 from fastapi import HTTPException, status
 from jose import jwt
 
 from core.config import settings
-from .redis_client import get_redis_client
+from core.security.redis_client import get_redis_client_for_tokens, get_redis_client_for_unconfirmed_users
 
 
 logger = logging.getLogger(__name__)
@@ -14,6 +16,10 @@ logger = logging.getLogger(__name__)
 class TokenManager:
     def __init__(self, redis):
         self.redis = redis
+
+    @classmethod
+    async def create(cls, redis):
+        return cls(redis)
 
     @staticmethod
     def _create_token(data, expires_delta, version, token_type):
@@ -44,15 +50,15 @@ class TokenManager:
         )
         return encoded_jwt
 
-    async def create_token(self, user_id, token_type, scopes=None, expires_delta=1):
-        version = await self._get_user_version(user_id)
+    async def create_token(self, user_id, token_type, scopes=None, expires_delta=1, version_ttl=None ):
+        version = await self._get_user_version(user_id, version_ttl)
         data = {"sub": str(user_id), }
         if scopes:
             data["scopes"] = scopes
 
         token_key = f"{token_type}_token:{user_id}:{uuid4()}"
         token = self._create_token(
-            token_key, expires_delta, version, token_type)
+            data, expires_delta, version, token_type)
         await self.redis.setex(token_key, int(expires_delta.total_seconds()), token)
         return token
 
@@ -88,8 +94,6 @@ class TokenManager:
                                  algorithms=[settings.ALGORITHM])
             stored_version = await self._get_user_version(payload['sub'])
             if payload['ver'] != stored_version:
-                print(
-                    f"Version mismatch: token version {payload['ver']} vs stored version {stored_version}")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Token version mismatch",
@@ -103,11 +107,13 @@ class TokenManager:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-    async def _get_user_version(self, user_id):
+    async def _get_user_version(self, user_id, version_ttl=None):
         version_key = f"user_version:{str(user_id)}"
         version = await self.redis.get(version_key)
         if version is None:
             await self.redis.set(version_key, 1)
+            if version_ttl:
+                await self.redis.expire(version_key, int(version_ttl.total_seconds()))
             return 1
         return int(version)
 
@@ -126,11 +132,8 @@ class TokenManager:
         await self.invalidate_tokens(user_id, token_type="refresh")
         await self.invalidate_tokens(user_id, token_type="password_reset")
 
-    @classmethod
-    async def create(cls):
-        redis = await get_redis_client()
-        return cls(redis)
+async def get_token_manager(redis: Redis = Depends(get_redis_client_for_tokens)) -> TokenManager:
+    return await TokenManager.create(redis)
 
-
-async def get_token_manager() -> TokenManager:
-    return await TokenManager.create()
+async def get_token_manager_for_unconfirmed_users(redis: Redis = Depends(get_redis_client_for_unconfirmed_users)) -> TokenManager:
+    return await TokenManager.create(redis)

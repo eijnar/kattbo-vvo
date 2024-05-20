@@ -1,12 +1,21 @@
+from json import dumps as jsondump
+from uuid import uuid4
+from datetime import timedelta
 from typing import Optional
-from pydantic import EmailStr
 
+import elasticapm
+from pydantic import EmailStr
+from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from ..utils.database_operations import sqlalchemy_error_handler
-from ..models import UserModel, ScopeModel, RoleModel
-from ...security.passwords import get_password_hash, verify_password
+from core.config import settings
+from core.security.token_manager import TokenManager, get_token_manager_for_unconfirmed_users
+from core.database.utils.database_operations import sqlalchemy_error_handler
+from core.security.passwords import get_password_hash, verify_password
+from core.messaging.tasks import send_notification_task
+from core.database.models import UserModel, ScopeModel, RoleModel
+from schemas.user import UserCreateSchema
 
 
 class UserRepository:
@@ -17,11 +26,11 @@ class UserRepository:
     async def get_all_users(self, page: int = 1, page_size: int = 20):
         async with self.db_session as session:
             result = await session.execute(
-                select(UserModel).offset((page - 1) * page_size).limit(page_size)
+                select(UserModel).offset(
+                    (page - 1) * page_size).limit(page_size)
             )
             users = result.scalars().all()
             return users
-           
 
     @sqlalchemy_error_handler
     async def get_user_by_id(self, user_id: int) -> Optional[UserModel]:
@@ -57,8 +66,7 @@ class UserRepository:
 
     async def update_user_password(
         self,
-        user_id: int,
-        new_password: str
+        user_data: UserCreateSchema
     ) -> bool:
         """
         Updates the password of a user.
@@ -70,7 +78,7 @@ class UserRepository:
         Returns:
             bool: True if the password was successfully updated, False otherwise.
         """
-        
+
         async with self.db_session as session:
             user = await session.get(UserModel, user_id)
             if user:
@@ -80,6 +88,14 @@ class UserRepository:
                 return True
             return False
 
+
+    async def create_user(self, user_data):
+        async with self.db_session as session:
+            user = UserModel(**user_data)
+            session.add(user)
+            await session.commit()
+            await session.refresh(user)
+            return user
 
     @sqlalchemy_error_handler
     async def verify_user_password(
@@ -103,8 +119,8 @@ class UserRepository:
     @sqlalchemy_error_handler
     async def get_user_scopes(self, user_id):
         async with self.db_session as session:
-            query = select(ScopeModel.scope).join(ScopeModel.roles).join(RoleModel.users).where(UserModel.id == user_id)
+            query = select(ScopeModel.scope).join(ScopeModel.roles).join(
+                RoleModel.users).where(UserModel.id == user_id)
             result = await session.execute(query)
             scopes = result.scalars().all()
             return scopes
-            

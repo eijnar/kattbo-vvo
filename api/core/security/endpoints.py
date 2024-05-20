@@ -3,18 +3,18 @@ from datetime import timedelta
 
 from fastapi import Depends, status, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
-
 from elasticapm import set_transaction_outcome
+
 from core.logger.setup import apm_client
-from .schemas import TokenSchema
-from .auth import authenticate_user
-from ..database.dependencies import get_user_repository
-from ..database.repositories import UserRepository
-from .token_manager import TokenManager
+from core.security.schemas import TokenSchema
+from core.security.auth import authenticate_user
+from core.security.token_manager import TokenManager, get_token_manager
+from core.database.dependencies import get_user_repository
+from repositories.user_repository import UserRepository
 from core.config import settings
 
 
-security = APIRouter()
+security = APIRouter(tags=["Security"])
 logger = logging.getLogger(__name__)
 
 
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 async def login_for_access_token(
     user_repository: UserRepository = Depends(get_user_repository),
     form_data: OAuth2PasswordRequestForm = Depends(),
-    token_manager: TokenManager = Depends(TokenManager.create)
+    token_manager: TokenManager = Depends(get_token_manager)
 ):
 
     user = await authenticate_user(
