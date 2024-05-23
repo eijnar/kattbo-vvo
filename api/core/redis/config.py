@@ -11,7 +11,7 @@ REDIS_SETTINGS = {
 }
 
 REDIS_DBS = {
-    'tokens': settings.REDIS_TOKEN_DB,
-    'authorize': settings.REDIS_AUTH_DB,
-    'unconfirmed_users': settings.REDIS_UNCONFIRMED_USER_DB,
+    'tokens': 2,
+    'authorize': 3,
+    'unconfirmed_users': 4
 }

@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     
     SESSION_SECRET_KEY: str
     
+    AUTH0_DOMAIN: str
+    API_AUDIENCE: str
+    ALGORITHMS: list = ["RS256"]
+    
     APP_NAME: str = 'Kättbo VVO API'
     DEBUG_MODE: bool = False
     
@@ -19,13 +23,6 @@ class Settings(BaseSettings):
     APM_ENVIRONMENT: str = 'dev'
     APM_SERVER_URL: str
     APM_SECRET_TOKEN: str
-    
-    # JWT settings
-    SECRET_KEY: str
-    ALGORITHM: str
-    ACCESS_TOKEN_LIFESPAN_MINUTES: int = 15
-    PASSWORD_RESET_TOKEN_LIFESPAN_MINUTES: int = 30
-    REFRESH_TOKEN_LIFESPAN_DAYS: int = 7
     
     # Messaging settings
     SMTP_SERVER: str
@@ -46,10 +43,7 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ''
     REDIS_SSL: bool = False
-    REDIS_TOKEN_DB: int = 0
-    REDIS_AUTH_DB: int = 1
-    REDIS_UNCONFIRMED_USER_DB: int = 2
-    REDIS_CELERY_DB: int = 10
+    REDIS_CELERY_DB: int = 0
     
     class Config:
         env_file = '.env'

@@ -1,5 +1,5 @@
-from pydantic import BaseModel, EmailStr
-from typing import List
+from pydantic import BaseModel
+
 
 class UserBaseSchema(BaseModel):
     id: int
@@ -13,8 +13,11 @@ class UserBaseSchema(BaseModel):
 
 
 class UserCreateSchema(BaseModel):
-    email: EmailStr
-    password: str
-    first_name: str
-    last_name: str
-    phone_number: str
+    sub: str
+    nickname: str
+    name: str
+    picture: str
+    updated_at: str
+
+    class Config:
+        orm_mode: True

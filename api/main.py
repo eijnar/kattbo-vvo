@@ -22,13 +22,14 @@ def create_app() -> FastAPI:
     setup_logging()
 
     app = FastAPI(title=settings.APP_NAME)
-    
+
     allowed_origins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173"
     ]
 
-    app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_SECRET_KEY)
+    app.add_middleware(SessionMiddleware,
+                       secret_key=settings.SESSION_SECRET_KEY)
 
     app.add_middleware(
         CORSMiddleware,
@@ -41,15 +42,11 @@ def create_app() -> FastAPI:
     app.add_middleware(
         ElasticAPM,
         client=apm_client
-    )    
+    )
 
     @app.get("/")
     def read_root():
         return {"message": "The API is running..."}
-
-    # Routers
-    from core.security.router import router as security_router
-    app.include_router(security_router)
 
     from routers import router as app_router
     app.include_router(app_router, prefix="/v1")
@@ -64,8 +61,8 @@ def create_app() -> FastAPI:
     async def startup_event():
         # Create database tables
         await create_tables()
-        await init_redis_pools() 
-        
+        await init_redis_pools()
+
     return app
 
 

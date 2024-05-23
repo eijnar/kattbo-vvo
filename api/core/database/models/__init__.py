@@ -1,2 +1,2 @@
-from .user import UserModel, RoleModel, ScopeModel
+from .user import UserModel, GroupModel
 from .template import Template

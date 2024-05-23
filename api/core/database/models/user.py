@@ -4,15 +4,14 @@ from sqlalchemy.orm import relationship
 
 from core.database.base import Base
 from core.database.models.mixins import TrackingMixin, CRUDMixin
-from core.database.models.relationships.role_users import role_users
-from core.database.models.relationships.role_scopes import role_scopes
+from core.database.models.relationships.group_users import group_users
 
 
 class UserModel(Base, CRUDMixin, TrackingMixin):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    email = Column(String(255), unique=True)
-    hashed_password = Column(String(420))
+    id = Column(Integer, primary_key=True, index=True)
+    auth0_id = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
     first_name = Column(String(255))
     last_name = Column(String(255))
     phone_number = Column(String(255))
@@ -25,38 +24,18 @@ class UserModel(Base, CRUDMixin, TrackingMixin):
     login_count = Column(Integer)
 
     # Relationships
-    roles = relationship('RoleModel', secondary=role_users,
+    groups = relationship('GroupModel', secondary=group_users,
                          back_populates='users')
 
 
-class RoleModel(Base, CRUDMixin, TrackingMixin):
-    __tablename__ = 'roles'
+class GroupModel(Base, CRUDMixin, TrackingMixin):
+    __tablename__ = 'groups'
     id = Column(Integer, primary_key=True)
     role = Column(String(50))
     description = Column(String(255))
 
     users = relationship(
         'UserModel', 
-        secondary=role_users,
-        back_populates='roles'
-    )
-
-    scopes = relationship(
-        "ScopeModel", 
-        secondary='role_scopes', 
-        back_populates="roles"
-    )
-
-
-class ScopeModel(Base, CRUDMixin, TrackingMixin):
-    __tablename__ = 'scopes'
-    id = Column(Integer, primary_key=True)
-    scope = Column(String(20), unique=True)
-    description = Column(String(255))
-
-    # Relationships
-    roles = relationship(
-        "RoleModel", 
-        secondary=role_scopes, 
-        back_populates="scopes"
+        secondary=group_users,
+        back_populates='groups'
     )
