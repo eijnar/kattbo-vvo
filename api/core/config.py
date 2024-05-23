@@ -5,6 +5,8 @@ class Settings(BaseSettings):
     SITE_URL: str = 'localhost:8000' # Without any http:// or https://
     HTTP_PROTOCOL: str = 'http'
     
+    SESSION_SECRET_KEY: str
+    
     APP_NAME: str = 'Kättbo VVO API'
     DEBUG_MODE: bool = False
     
@@ -42,11 +44,12 @@ class Settings(BaseSettings):
     # Redis settings
     REDIS_HOSTNAME: str = 'localhost'
     REDIS_PORT: int = 6379
-    REDIS_TOKEN_DB: int = 0
-    REDIS_UNCONFIRMED_USER_DB: int = 1
-    REDIS_CELERY_DB: int = 5
     REDIS_PASSWORD: str = ''
     REDIS_SSL: bool = False
+    REDIS_TOKEN_DB: int = 0
+    REDIS_AUTH_DB: int = 1
+    REDIS_UNCONFIRMED_USER_DB: int = 2
+    REDIS_CELERY_DB: int = 10
     
     class Config:
         env_file = '.env'

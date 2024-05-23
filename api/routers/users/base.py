@@ -7,16 +7,16 @@ from schemas import UserBaseSchema
 from core.security import get_current_active_user
 from core.database.models import UserModel
 from services.user_service import UserService
-from dependencies.user import get_user_service
+from core.dependencies.user_service import get_user_service
 from utils.rate_limiter import limiter
 
 
 logger = logging.getLogger(__name__)
 
-users = APIRouter(prefix="/users", tags=["User"])
+router = APIRouter(tags=["user"])
 
 
-@users.get("/", response_model=List[UserBaseSchema])
+@router.get("/", response_model=List[UserBaseSchema])
 @limiter.limit("10/second")
 async def get_users(
     request: Request,
@@ -27,7 +27,7 @@ async def get_users(
     return await user_service.get_all_users(page, page_size)
 
 
-@users.get("/current", response_model=UserBaseSchema)
+@router.get("/current", response_model=UserBaseSchema)
 async def read_users_me(
     current_user: UserModel = Security(
         get_current_active_user, scopes=["users:read"])

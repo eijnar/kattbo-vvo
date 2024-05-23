@@ -26,14 +26,14 @@ AsyncSessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine,
-    class_=AsyncSession
+    class_=AsyncSession,
+    expire_on_commit=False
 )
 
 Base: DeclarativeMeta = declarative_base()
 
 
 async def get_db_session():
-    logger.info("Creating a new database session.")
     try:
         async with AsyncSessionLocal() as session:
             yield session
@@ -42,7 +42,7 @@ async def get_db_session():
         logger.error(f"Error during database session creation: {e}")
         raise
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Unexpected error ajusted: {e}")
         raise
 
 
@@ -51,7 +51,7 @@ async def create_tables():
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-            #logger.info("Database tables created successfully.")
+            logger.info("Database tables created successfully.")
     except SQLAlchemyError as e:
         logger.error(f"Error creating tables: {e}")
         raise

@@ -23,9 +23,10 @@ def make_celery(app_name=__name__):
         result_expires=3600,
         task_acks_late=True,
         worker_prefetch_multiplier=1,
+        imports=['core.tasks']
     )
 
-    celery_app.autodiscover_tasks(['core.messaging'])
+    celery_app.autodiscover_tasks(['core.tasks.notification_task'])
     
     return celery_app
 

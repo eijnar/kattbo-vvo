@@ -8,7 +8,7 @@ from fastapi import HTTPException, status
 from jose import jwt
 
 from core.config import settings
-from core.security.redis_client import get_redis_client_for_tokens, get_redis_client_for_unconfirmed_users
+from core.redis.client import get_redis_client_for_tokens, get_redis_client_for_unconfirmed_users
 
 
 logger = logging.getLogger(__name__)

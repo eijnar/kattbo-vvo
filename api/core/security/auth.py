@@ -1,7 +1,8 @@
 from typing import Annotated, Union
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
+
 
 from core.security.scopes import scopes
 from core.security.schemas import TokenDataSchema
@@ -9,11 +10,12 @@ from core.security.passwords import verify_password
 from core.security.token_manager import TokenManager, get_token_manager
 from core.database.models import UserModel 
 from repositories.user_repository import UserRepository
-from core.database.dependencies import get_user_repository
+from core.dependencies.user_repository import get_user_repository
 from schemas.user import UserBaseSchema
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/token", scopes=scopes)
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/token", scopes=scopes)
+
 
 
 async def authenticate_user(
@@ -44,10 +46,10 @@ async def authenticate_user(
 
 
 async def get_current_user(
+    request: Request,
     security_scopes: SecurityScopes,
     user_repository: UserRepository = Depends(get_user_repository),
     token_manager: TokenManager = Depends(get_token_manager),
-    token: str = Depends(oauth2_scheme)
 ) -> UserModel:
     """
     Get the current user from the token.
@@ -64,40 +66,42 @@ async def get_current_user(
     Raises:
         HTTPException: If the token is invalid or the user is not found.
     """
-    authenticate_value = "Bearer"
-    if security_scopes.scopes:
-        authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
-
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Unauthorized",
-        headers={"WWW-Authenticate": authenticate_value}
-    )
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": f"Bearer"}
+        )
 
     try:
         payload = await token_manager.validate_token(token)
         user_id: str = payload.get("sub")
         if user_id is None:
-            raise credentials_exception
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
+
         token_scopes = payload.get("scopes", [])
         token_data = TokenDataSchema(scopes=token_scopes, user_id=user_id)
-    except HTTPException as e:
+    except Exception as e:  # Assuming JWTError is the error class used in your token manager
         raise HTTPException(
-            status_code=e.status_code,
-            detail=e.detail,
-            headers=e.headers
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"}
         ) from e
 
     user = await user_repository.get_user_by_id(int(user_id))
     if user is None:
-        raise credentials_exception
-    for scope in security_scopes.scopes:
-        if scope not in token_data.scopes:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Forbidden",
-                headers={"WWW-Authenticate": authenticate_value}
-            )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if security_scopes.scopes:
+        for scope in security_scopes.scopes:
+            if scope not in token_data.scopes:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Insufficient permissions",
+                    headers={"WWW-Authenticate": f"Bearer scope=\"{security_scopes.scope_str}\""}
+                )
+
     return user
 
 

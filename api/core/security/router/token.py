@@ -1,30 +1,28 @@
 import logging
 from datetime import timedelta
 
-from fastapi import Depends, status, HTTPException, APIRouter
+from fastapi import Depends, status, HTTPException, APIRouter, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from elasticapm import set_transaction_outcome
 
-from core.logger.setup import apm_client
 from core.security.schemas import TokenSchema
 from core.security.auth import authenticate_user
 from core.security.token_manager import TokenManager, get_token_manager
-from core.database.dependencies import get_user_repository
+from core.dependencies.user_repository import get_user_repository
 from repositories.user_repository import UserRepository
 from core.config import settings
 
-
-security = APIRouter(tags=["Security"])
+router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-@security.post("/token", response_model=TokenSchema)
+@router.post("/token", status_code=status.HTTP_200_OK)
 async def login_for_access_token(
+    response: Response,
     user_repository: UserRepository = Depends(get_user_repository),
     form_data: OAuth2PasswordRequestForm = Depends(),
     token_manager: TokenManager = Depends(get_token_manager)
 ):
-
     user = await authenticate_user(
         email=form_data.username,
         password=form_data.password,
@@ -32,7 +30,8 @@ async def login_for_access_token(
     )
     if not user:
         logger.warning(
-            f"Failed login attempt by someone using this email: {form_data.username}")
+            f"Failed login attempt by someone using this email: {form_data.username}"
+        )
         set_transaction_outcome('failure')
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -62,7 +61,22 @@ async def login_for_access_token(
         expires_delta=refresh_token_lifespan,
     )
 
-    set_transaction_outcome('success')
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,  # Ensure this is set to True in production
+        samesite="Strict",
+        max_age=access_token_lifespan.total_seconds()
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,  # Ensure this is set to True in production
+        samesite="Strict",
+        max_age=refresh_token_lifespan.total_seconds()
+    )
 
     return TokenSchema(
         access_token=access_token,

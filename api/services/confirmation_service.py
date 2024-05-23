@@ -5,7 +5,9 @@ from fastapi import HTTPException
 
 from core.security.token_manager import TokenManager
 from repositories.user_repository import UserRepository
+import logging
 
+logger = logging.getLogger(__name__)
 
 class ConfirmationService:
     def __init__(self, db_session: AsyncSession, token_manager: TokenManager, redis_client):
@@ -15,7 +17,7 @@ class ConfirmationService:
 
     async def confirm_email(self, token: str):
         # Decode and validate the token
-        payload = await self.token_manager.validate_token(token, temp=True)
+        payload = await self.token_manager.validate_token(token)
         if not payload:
             raise HTTPException(status_code=400, detail="Invalid or expired token")
 
@@ -34,7 +36,7 @@ class ConfirmationService:
             raise HTTPException(status_code=404, detail="User not found or already confirmed")
 
         user_data = json.loads(user_data_json)
-
+        logger.info(user_data)
         # Move user to SQL database
         new_user = await self.user_repository.create_user(user_data)
 

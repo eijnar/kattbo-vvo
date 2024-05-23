@@ -4,16 +4,17 @@ from fastapi import APIRouter, status, HTTPException, Depends
 from sqlalchemy.exc import IntegrityError
 
 from schemas.user import UserCreateSchema
-from dependencies.confirmation import get_confirmation_service
-from dependencies.registration import get_registration_service
+from core.dependencies.confirmation_service import get_confirmation_service
+from core.dependencies.registration_service import get_registration_service
 from services.confirmation_service import ConfirmationService
 from services.registration_service import RegistrationService
 
 logger = logging.getLogger(__name__)
-registration = APIRouter()
+
+router = APIRouter(tags=["registration"])
 
 
-@registration.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_new_user(
     user_data: UserCreateSchema,
     user_service: RegistrationService = Depends(get_registration_service)
@@ -24,7 +25,7 @@ async def register_new_user(
         raise HTTPException(status_code=400, detail="Email already registered")
 
 
-@registration.get("/confirm-email")
+@router.get("/confirm-email")
 async def confirm_email(
     token: str,
     confirmation_service: ConfirmationService = Depends(

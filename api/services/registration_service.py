@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.security.token_manager import TokenManager
 from core.config import settings
 from core.security.passwords import get_password_hash
-from core.messaging.tasks import send_notification_task
+from core.tasks.notification_task import send_notification_task
 from repositories.user_repository import UserRepository
 
 class RegistrationService:
@@ -28,6 +28,8 @@ class RegistrationService:
         hashed_password = get_password_hash(user_data.password)
         user_data_dict = user_data.dict()
         user_data_dict.update({"hashed_password": hashed_password})
+        
+        user_data_dict.pop("password", None)
 
         # Store user data in Redis with a 1-hour expiration
         await self.redis_client.setex(user_key, timedelta(hours=1), json.dumps(user_data_dict))
@@ -41,17 +43,16 @@ class RegistrationService:
         )
 
         # Generate confirmation link
-        confirmation_link = f"{settings.HTTP_PROTOCOL}://{settings.SITE_URL}/confirm-email?token={confirmation_token}"
+        confirmation_link = f"{settings.HTTP_PROTOCOL}://{settings.SITE_URL}/v1/confirm-email?token={confirmation_token}"
 
         # Prepare context for email template
         context = {
             "first_name": user_data.first_name,
-            "last_name": user_data.last_name,
             "confirmation_link": confirmation_link
         }
 
         # Send registration email
-        send_notification_task.delay(
+        await send_notification_task(
             service_name='email',
             recipients=[user_data.email],
             template_name='registration',
