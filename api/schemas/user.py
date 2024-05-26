@@ -13,11 +13,9 @@ class UserBaseSchema(BaseModel):
 
 
 class UserCreateSchema(BaseModel):
-    sub: str
-    nickname: str
-    name: str
-    picture: str
-    updated_at: str
+    auth0_id: str
+    email: str
+    first_name: str
 
     class Config:
         orm_mode: True

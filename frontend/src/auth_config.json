@@ -1,0 +1,7 @@
+{
+    "domain": "dev-81g6m1bwja4pqaof.eu.auth0.com",
+    "clientId": "kL1RLUxgfsVZBa7vVKgry2Eyq8taK1pA",
+    "authorizationParams.redirect_uri": "http://localhost:5173/",
+    "audience": "http://localhost:8000"
+  }
+  
