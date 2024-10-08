@@ -23,6 +23,7 @@ root.render(
       authorizationParams={{  
         redirect_uri: window.location.origin,
         audience: config.audience,
+        scope: "users:read_self users:edit_self"
       }}
       onRedirectCallback={onRedirectCallback}
       useRefreshTokens={true}

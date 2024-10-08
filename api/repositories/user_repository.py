@@ -6,8 +6,7 @@ from sqlalchemy.future import select
 
 from core.config import settings
 from core.database.utils.database_operations import sqlalchemy_error_handler
-from core.database.models import UserModel, GroupModel
-
+from core.database.models import UserModel
 
 
 class UserRepository:
@@ -37,54 +36,14 @@ class UserRepository:
             users = result.scalars().all()
             return users
 
-    @sqlalchemy_error_handler
-    async def get_user_by_id(self, user_id: int) -> Optional[UserModel]:
-        """
-        Fetches a user by ID.
+    async def get_by_auth0_id(self, auth0_id: str):
+        result = await self.db_session.execute(
+            select(UserModel).filter(UserModel.auth0_id == auth0_id)
+        )
+        return result.scalars().first()
 
-        Args:
-            user_id (int): The ID of the user.
-
-        Returns:
-            Optional[UserModel]: The user model if found, None otherwise.
-        """
-        async with self.db_session as session:
-            user = await session.get(UserModel, user_id)
-            return user
-
-    @sqlalchemy_error_handler
-    async def get_user_by_email(self, email: EmailStr) -> Optional[UserModel]:
-        """
-        Fetches a user by email.
-
-        Args:
-            email (EmailStr): The email of the user.
-
-        Returns:
-            Optional[UserModel]: The user model if found, None otherwise.
-        """
-        async with self.db_session as session:
-            result = await session.execute(
-                select(UserModel).filter(UserModel.email == email)
-            )
-            return result.scalars().first()
-
-    async def auth0_register_user(self, user_data):
-        """
-        Creates a new user in the database with the provided user data.
-
-        Args:
-            user_data (dict): A dictionary containing the user's data.
-
-        Returns:
-            UserModel: The newly created user object.
-
-        Raises:
-            SQLAlchemyError: If there is an error executing the query.
-        """
-        async with self.db_session as session:
-            user = UserModel(**user_data)
-            session.add(user)
-            await session.commit()
-            await session.refresh(user)
-            return user
+    async def create_user(self, new_user: UserModel):
+        self.db_session.add(new_user)
+        await self.db_session.commit()
+        await self.db_session.refresh(new_user)
+        return new_user

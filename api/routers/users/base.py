@@ -9,7 +9,7 @@ from core.database.models import UserModel
 from services.user_service import UserService
 from core.dependencies.user_service import get_user_service
 from utils.rate_limiter import limiter
-from core.security.dependencies import get_user_and_check_scopes
+from core.security.dependencies import requires_scope
 
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ async def get_users(
     return await user_service.get_all_users(page, page_size)
 
 
-@router.get("/current", response_model=UserBaseSchema, dependencies=[Depends(get_user_and_check_scopes('users:read_self'))])
+@router.get("/current", response_model=UserBaseSchema, dependencies=[Depends(requires_scope('users:read_self'))])
 async def read_users_me(
     current_user: UserModel = Depends(get_current_active_user)
 ):
