@@ -1,34 +1,25 @@
-import logging
+from logging import getLogger
+from typing import Optional
+
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
+
 from core.database.base import get_db_session
 from core.database.models.user import UserModel
-from core.security.jwt import decode_jwt
-from core.security.schemas import TokenPayload
+from core.security.jwt import decode_and_validate_token
 
-logger = logging.getLogger(__name__)
-# Define OAuth2 scheme
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+logger = getLogger(__name__)
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    payload: dict = Depends(decode_and_validate_token),
     db: Session = Depends(get_db_session)
 ) -> UserModel:
-    try:
-        payload = decode_jwt(token)
-        auth0_id: str = payload.get("sub")
-        if auth0_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
-    except JWTError:
+    auth0_id: str = payload.get("sub")
+    if auth0_id is None:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
 
     result = await db.execute(select(UserModel).filter(UserModel.auth0_id == auth0_id))
     user = result.scalars().first()
@@ -60,42 +51,21 @@ async def get_current_active_user(
     return current_user
 
 
-def check_scopes(required_scope: str):
-    """
-    Check if the token has the required scope.
-
-    Args:
-        required_scope (str): The required scope.
-        token (str): The token.
-
-    Returns:
-        dict: The token payload.
-
-    Raises:
-        HTTPException: If the token does not have the required scope.
-    """
-    async def dependency(token: str = Depends(oauth2_scheme)):
-        payload = decode_jwt(token)
-        if 'scope' not in payload or required_scope not in payload['scope'].split():
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions"
-            )
+def requires_scope(required_scope: Optional[str] = None):
+    async def dependency(
+        payload: dict = Depends(decode_and_validate_token)
+    ):
+        if required_scope:
+            # Collect scopes from 'scope' and 'permissions'
+            scopes = set()
+            if 'scope' in payload:
+                scopes.update(payload['scope'].split())
+            if 'permissions' in payload:
+                scopes.update(payload['permissions'])
+            if required_scope not in scopes:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not enough permissions"
+                )
         return payload
     return dependency
-
-async def verify_auth0_token(token: str = Depends(oauth2_scheme)) -> TokenPayload:
-    """
-    Validate the Auth0 token and get the user payload.
-
-    Args:
-        token (str): The JWT token from the request.
-
-    Returns:
-        TokenPayload: The payload of the token.
-
-    Raises:
-        HTTPException: If the token is invalid or expired.
-    """
-    payload = decode_jwt(token)
-    return TokenPayload(**payload)

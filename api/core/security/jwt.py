@@ -1,9 +1,14 @@
 import requests
+from logging import getLogger
 from jose import JWTError, jwt
-from fastapi import HTTPException
+
+from fastapi import HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordBearer
 
 from core.config import settings
 
+logger = getLogger(__name__)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def get_public_key():
     jwks_url = f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json"
@@ -45,3 +50,16 @@ def decode_jwt(token: str):
             detail="Invalid token"
         )
 
+async def decode_and_validate_token(
+    token: str = Depends(oauth2_scheme)
+) -> dict:
+    try:
+        payload = decode_jwt(token)
+        logger.debug(f"Decoded payload: {payload}")
+        return payload
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"}
+        )

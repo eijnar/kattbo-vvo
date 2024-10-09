@@ -1,8 +1,8 @@
-import logging
+from logging import getLogger
 from celery import Celery
 from core.config import settings
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 def make_celery(app_name=__name__):
     broker_url = f'amqp://{settings.RABBITMQ_USERNAME}:{settings.RABBITMQ_PASSWORD}@{settings.RABBITMQ_HOSTNAME}:{settings.RABBITMQ_PORT}/{settings.RABBITMQ_VHOST}'

@@ -1,14 +1,15 @@
+from logging import getLogger
+
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from jinja2 import Template as JinjaTemplate
 from core.messaging.base import MessagingService
 from core.messaging.template_service import TemplateService
-import logging
 from email.header import Header
 from email.utils import formataddr
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 class EmailService(MessagingService):
     def __init__(self, smtp_server: str, smtp_port: int, username: str, password: str, template_service: TemplateService):

@@ -1,12 +1,14 @@
-from typing import Optional
+from logging import getLogger
 
-from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.future import select
 
-from core.config import settings
 from core.database.utils.database_operations import sqlalchemy_error_handler
 from core.database.models import UserModel
+from core.exceptions import DatabaseOperationException
+
+logger = getLogger(__name__)
 
 
 class UserRepository:
@@ -37,13 +39,47 @@ class UserRepository:
             return users
 
     async def get_by_auth0_id(self, auth0_id: str):
-        result = await self.db_session.execute(
-            select(UserModel).filter(UserModel.auth0_id == auth0_id)
-        )
-        return result.scalars().first()
+        """
+        Retrieves a user from the database based on their Auth0 ID.
+        """
+        try:
+            result = await self.db_session.execute(
+                select(UserModel).filter(UserModel.auth0_id == auth0_id)
+            )
+            return result.scalars().first()
+        except SQLAlchemyError as e:
+            logger.error(
+                f"Database error while fetching user by Auth0 ID {auth0_id}: {str(e)}")
+            raise DatabaseOperationException(
+                "Error fetching user by Auth0 ID") from e
 
     async def create_user(self, new_user: UserModel):
-        self.db_session.add(new_user)
-        await self.db_session.commit()
-        await self.db_session.refresh(new_user)
-        return new_user
+        """
+        Creates a new user in the database.
+        """
+        try:
+            self.db_session.add(new_user)
+            await self.db_session.commit()
+            await self.db_session.refresh(new_user)
+            return new_user
+        except IntegrityError as e:
+            logger.error(
+                f"Integrity error while creating user {new_user.email}: {str(e)}")
+            raise DatabaseOperationException(
+                "Error creating user due to constraint violation") from e
+        except SQLAlchemyError as e:
+            logger.error(
+                f"Database error while creating user {new_user.email}: {str(e)}")
+            raise DatabaseOperationException("Error creating user") from e
+
+    async def update_user(self, user: UserModel) -> UserModel:
+        """
+        Updates a user's information in the database.
+        """
+        try:
+            self.db_session.add(user)
+            await self.db_session.commit()
+            await self.db_session.refresh(user)
+            return user
+        except Exception as e:
+            raise DatabaseOperationException(f"Error updating user: {str(e)}")

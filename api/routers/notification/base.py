@@ -1,11 +1,12 @@
-import logging
+from logging import getLogger
+
 from fastapi import APIRouter, HTTPException
 from schemas.notification import NotificationRequest
 from core.tasks.notification_task import send_notification_task
 
 
 router = APIRouter(tags=["notification"])
-logger = logging.getLogger("tjolaop")
+logger = getLogger(__name__)
 
 
 @router.post("/send-notification/")

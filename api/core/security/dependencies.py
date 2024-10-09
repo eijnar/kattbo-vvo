@@ -1,11 +1,15 @@
-from fastapi import Depends, Security, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from core.security.auth import get_current_active_user, check_scopes
-from core.security.jwt import decode_jwt
+from logging import getLogger
+from typing import Optional
+
+from fastapi import Depends
+from fastapi.security import HTTPBearer
+from core.security.auth import get_current_active_user, requires_scope
+
 
 http_bearer = HTTPBearer()
+logger = getLogger(__name__)
 
-def get_user_and_check_scopes(required_scope: str):
+def get_user_and_check_scopes(required_scope: Optional[str] = None):
     """
     Dependency to get the current active user and check the required scope.
 
@@ -17,21 +21,7 @@ def get_user_and_check_scopes(required_scope: str):
     """
     async def dependency(
         current_user = Depends(get_current_active_user),
-        payload = Depends(lambda: check_scopes(required_scope))
+        _: dict = Depends(requires_scope(required_scope))
     ):
         return current_user
-    return dependency
-
-def requires_scope(required_scope: str):
-    async def dependency(credentials: HTTPAuthorizationCredentials = Security(http_bearer)):
-        token = credentials.credentials
-        payload = decode_jwt(token)
-        token_scopes = payload.get('scope', '').split()
-        if required_scope not in token_scopes:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
-        return payload
     return dependency

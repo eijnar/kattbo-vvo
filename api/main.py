@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,7 +15,7 @@ from utils.rate_limiter import limiter
 from core.redis.factory import init_redis_pools
 
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 def create_app() -> FastAPI:

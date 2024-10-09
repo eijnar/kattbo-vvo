@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from core.config import settings
 
-logger = logging.getLogger('__name__')
+logger = getLogger(__name__)
 
 DATABASE_URL = settings.SQL_DATABASE_URL
 
@@ -41,17 +41,17 @@ async def get_db_session():
     except SQLAlchemyError as e:
         logger.error(f"Error during database session creation: {e}")
         raise
-    except Exception as e:
+    except Exception as e: 
         logger.error(f"Unexpected error ajusted: {e}")
         raise
 
 
 async def create_tables():
-    logger.info("Creating database tables.")
+    logger.debug("Creating database tables.")
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-            logger.info("Database tables created successfully.")
+            logger.debug("Database tables created successfully.")
     except SQLAlchemyError as e:
         logger.error(f"Error creating tables: {e}")
         raise

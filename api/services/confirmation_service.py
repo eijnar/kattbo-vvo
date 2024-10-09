@@ -1,3 +1,4 @@
+from logging import getLogger
 import json
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -5,9 +6,9 @@ from fastapi import HTTPException
 
 from core.security.token_manager import TokenManager
 from repositories.user_repository import UserRepository
-import logging
 
-logger = logging.getLogger(__name__)
+
+logger = getLogger(__name__)
 
 class ConfirmationService:
     def __init__(self, db_session: AsyncSession, token_manager: TokenManager, redis_client):

@@ -1,0 +1,30 @@
+
+Re-optimizing dependencies because lockfile has changed
+
+  VITE v5.4.8  ready in 322 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+node:internal/process/promises:288
+            triggerUncaughtException(err, true /* fromPromise */);
+            ^
+
+[Failed to load PostCSS config: Failed to load PostCSS config (searchPath: /home/eijnar/projects/kattbo-vvo-web/frontend): [Error] Loading PostCSS Plugin failed: Cannot find module 'tailwindcss'
+Require stack:
+- /home/eijnar/projects/kattbo-vvo-web/frontend/postcss.config.js
+
+(@/home/eijnar/projects/kattbo-vvo-web/frontend/postcss.config.js)
+Error: Loading PostCSS Plugin failed: Cannot find module 'tailwindcss'
+Require stack:
+- /home/eijnar/projects/kattbo-vvo-web/frontend/postcss.config.js
+
+(@/home/eijnar/projects/kattbo-vvo-web/frontend/postcss.config.js)
+    at load (file:///home/eijnar/projects/kattbo-vvo-web/frontend/node_modules/vite/dist/node/chunks/dep-CDnG8rE7.js:33602:11)
+    at file:///home/eijnar/projects/kattbo-vvo-web/frontend/node_modules/vite/dist/node/chunks/dep-CDnG8rE7.js:33627:16
+    at Array.map (<anonymous>)
+    at plugins (file:///home/eijnar/projects/kattbo-vvo-web/frontend/node_modules/vite/dist/node/chunks/dep-CDnG8rE7.js:33626:8)
+    at processResult (file:///home/eijnar/projects/kattbo-vvo-web/frontend/node_modules/vite/dist/node/chunks/dep-CDnG8rE7.js:33696:14)
+    at file:///home/eijnar/projects/kattbo-vvo-web/frontend/node_modules/vite/dist/node/chunks/dep-CDnG8rE7.js:33826:14]
+
+Node.js v18.19.0[201~

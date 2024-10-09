@@ -1,9 +1,9 @@
-import logging
+from logging import getLogger
 
 from functools import wraps
 from sqlalchemy.exc import SQLAlchemyError
 
-logger = logging.getLogger("__name__")
+logger = getLogger(__name__)
 
 
 class DatabaseOperationException(Exception):
