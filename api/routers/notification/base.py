@@ -12,8 +12,7 @@ logger = getLogger(__name__)
 @router.post("/send-notification/")
 async def send_notification(notification: NotificationRequest):
     try:
-        # Log the request for debugging
-        logger.info(f"Sending notification: service_name={notification.service_name}, recipient={notification.recipients}, template_name={notification.template_name}, context={notification.context}")
+        logger.debug(f"Sending notification: service_name={notification.service_name}, recipient={notification.recipients}, template_name={notification.template_name}, context={notification.context}")
 
         send_notification_task.delay(
             notification.service_name, notification.recipients, notification.template_name, notification.context.dict())

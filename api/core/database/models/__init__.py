@@ -1,2 +1,2 @@
-from .user import UserModel, GroupModel
+from .user import UserModel
 from .template import Template

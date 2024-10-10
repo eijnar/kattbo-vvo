@@ -1,12 +1,10 @@
 from logging import getLogger
 from typing import List
-from time import sleep
 
 from fastapi import HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.exceptions import DatabaseOperationException
-from schemas import UserBaseSchema, UserCreateSchema, UserUpdateSchema
+from core.exceptions import DatabaseException
+from ..schemas.user import UserBaseSchema, UserCreateSchema, UserUpdateSchema
 from repositories.user_repository import UserRepository
 from core.database.models import UserModel
 
@@ -14,17 +12,12 @@ logger = getLogger(__name__)
 
 
 class UserService:
-    def __init__(self, db_session: AsyncSession):
-        self.user_repository = UserRepository(db_session)
+    def __init__(self, user_repository: UserRepository):
+        self.user_repository = user_repository
 
     async def get_all_users(self, page: int, page_size: int) -> List[UserBaseSchema]:
-        try:
-            users = await self.user_repository.get_all_users(page=page, page_size=page_size)
-            return users
-        except Exception as e:
-            logger.error(f"Failed to fetch users: {e}")
-            raise HTTPException(
-                status_code=500, detail="Failed to fetch users")
+        users = await self.user_repository.get_all_users(page=page, page_size=page_size)
+        return [UserBaseSchema.model_validate(user) for user in users]
 
     async def get_user_by_auth0_id(self, auth0_id: str) -> UserBaseSchema:
         try:
@@ -59,7 +52,7 @@ class UserService:
 
             return await self.user_repository.create_user(new_user)
 
-        except DatabaseOperationException as e:
+        except DatabaseException as e:
             logger.error(
                 f"Failed to register user due to a database error: {str(e)}")
             raise HTTPException(
@@ -79,12 +72,13 @@ class UserService:
         Updates a user's profile in the repository.
         """
         try:
-            logger.info(f"Starting update_user_profile for user: {user}, user_data: {user_data}")
-            sleep(5)
+            logger.info(
+                f"Starting update_user_profile for user: {user}, user_data: {user_data}")
             # Retrieve the existing user from the repository
             existing_user = await self.user_repository.get_by_auth0_id(user.auth0_id)
             if not existing_user:
-                logger.warning(f"User not found in repository with auth0_id: {user.auth0_id}")
+                logger.warning(
+                    f"User not found in repository with auth0_id: {user.auth0_id}")
                 raise HTTPException(status_code=404, detail="User not found")
             else:
                 logger.debug(f"Retrieved existing user: {existing_user}")
@@ -93,7 +87,8 @@ class UserService:
             update_fields = False
             updated_fields = []
             if user_data.phone_number is not None:
-                logger.debug(f"Updating phone_number to: {user_data.phone_number}")
+                logger.debug(
+                    f"Updating phone_number to: {user_data.phone_number}")
                 existing_user.phone_number = user_data.phone_number
                 update_fields = True
                 updated_fields.append('phone_number')
@@ -123,8 +118,9 @@ class UserService:
             logger.debug(f"User updated successfully: {updated_user.id}")
             return updated_user
 
-        except DatabaseOperationException as e:
-            logger.error(f"Failed to update user due to a database error: {str(e)}")
+        except DatabaseException as e:
+            logger.error(
+                f"Failed to update user due to a database error: {str(e)}")
             raise HTTPException(
                 status_code=500,
                 detail="Database error while updating user"
@@ -134,7 +130,8 @@ class UserService:
             # Re-raise HTTP exceptions to be handled by FastAPI
             raise e
         except Exception as e:
-            logger.exception(f"Unexpected error occurred while updating user: {str(e)}")
+            logger.exception(
+                f"Unexpected error occurred while updating user: {str(e)}")
             raise HTTPException(
                 status_code=500,
                 detail="Failed to update user due to an unexpected error"

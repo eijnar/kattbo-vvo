@@ -1,8 +1,9 @@
+from uuid import UUID
 from pydantic import BaseModel, model_validator
 from typing import Optional
 
 class UserBaseSchema(BaseModel):
-    id: int
+    id: UUID
     email: str
     first_name: str | None = None
     last_name: str | None = None

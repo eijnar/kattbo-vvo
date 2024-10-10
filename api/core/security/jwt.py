@@ -1,5 +1,6 @@
 import requests
 from logging import getLogger
+from typing import Optional
 from jose import JWTError, jwt
 
 from fastapi import HTTPException, Depends, status
@@ -51,8 +52,10 @@ def decode_jwt(token: str):
         )
 
 async def decode_and_validate_token(
-    token: str = Depends(oauth2_scheme)
-) -> dict:
+    token: Optional[str] = Depends(oauth2_scheme)
+) -> Optional[dict]:
+    if not token:
+        return None
     try:
         payload = decode_jwt(token)
         logger.debug(f"Decoded payload: {payload}")

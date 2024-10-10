@@ -1,11 +1,11 @@
-// src/components/users/ListUsers.tsx
+// src/pages/ListUsers.tsx
 
-import React, { useEffect, useState } from 'react';
-import { User } from '../../types/User';
-import { fetchUsers } from '../../services/api/userService';
-import Table from '../common/Table';
-import Spinner from '../common/Spinner';
-import ErrorMessage from '../common/ErrorMessage';
+import React, { useEffect, useState } from "react";
+import { User } from "../../types/User";
+import { fetchUsers } from "../../services/api/userService";
+import Table, { Column } from "../common/Table";
+import Spinner from "../common/Spinner";
+import ErrorMessage from "../common/ErrorMessage";
 
 const ListUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -20,7 +20,7 @@ const ListUsers: React.FC = () => {
         const data = await fetchUsers();
         setUsers(data);
       } catch (err: any) {
-        setError(err.message || 'An unexpected error occurred');
+        setError(err.message || "An unexpected error occurred");
       } finally {
         setIsLoading(false);
       }
@@ -29,18 +29,16 @@ const ListUsers: React.FC = () => {
     getUsers();
   }, []);
 
-  const columns = [
-    { header: 'ID', accessor: 'id' },
-    { header: 'First Name', accessor: 'first_name' },
-    { header: 'Last Name', accessor: 'last_name' },
-    { header: 'Email', accessor: 'email' },
-    { header: 'Phone Number', accessor: 'phone_number' },
-    // Add more columns as needed
+  const columns: Column<User>[] = [
+    { header: "First Name", accessor: "first_name", sortable: true },
+    { header: "Last Name", accessor: "last_name", sortable: true },
+    { header: "Email", accessor: "email", sortable: true },
+    { header: "Phone Number", accessor: "phone_number", sortable: false },
   ];
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-screen">
         <Spinner size="lg" color="text-blue-500" />
       </div>
     );

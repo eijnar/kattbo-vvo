@@ -6,6 +6,7 @@ from elasticapm.contrib.starlette import ElasticAPM
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from starlette.middleware.sessions import SessionMiddleware
+from sqlalchemy.exc import SQLAlchemyError
 
 from core.celery import make_celery
 from core.config import settings
@@ -13,6 +14,14 @@ from core.database.base import create_tables
 from core.logger.setup import setup_logging, apm_client
 from utils.rate_limiter import limiter
 from core.redis.factory import init_redis_pools
+from core.exceptions_handlers import (
+    not_found_exception_handler,
+    conflict_exception_handler,
+    database_exception_handler,
+    sqlalchemy_exception_handler,
+    generic_exception_handler
+)
+from core.exceptions import NotFoundException, ConflictException, DatabaseException
 
 
 logger = getLogger(__name__)
@@ -44,12 +53,18 @@ def create_app() -> FastAPI:
         client=apm_client
     )
 
+    app.add_exception_handler(NotFoundException, not_found_exception_handler)
+    app.add_exception_handler(ConflictException, conflict_exception_handler)
+    app.add_exception_handler(DatabaseException, database_exception_handler)
+    app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
+    app.add_exception_handler(Exception, generic_exception_handler)
+
     @app.get("/")
     def read_root():
         return {"message": "The API is running..."}
 
-    from routers import router as app_router
-    app.include_router(app_router, prefix="/v1")
+    from routers import api_router
+    app.include_router(api_router, prefix="/v1")
 
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)

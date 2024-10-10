@@ -8,7 +8,7 @@ interface TableProps<T> {
   className?: string;
 }
 
-interface Column<T> {
+export interface Column<T> {
   header: string;
   accessor: keyof T | ((row: T) => React.ReactNode);
   sortable?: boolean;
@@ -19,13 +19,15 @@ const Table = <T extends { id: number | string }>({
   columns,
   className = '',
 }: TableProps<T>) => {
+  console.log('Table Columns:', columns); // Existing log
+  console.log('Table Data:', data);
   const [sortConfig, setSortConfig] = useState<{ key: keyof T; direction: 'ascending' | 'descending' } | null>(null);
 
   const sortedData = React.useMemo(() => {
     if (sortConfig !== null) {
       return [...data].sort((a, b) => {
-        const aValue = typeof sortConfig.key === 'function' ? sortConfig.key(a) : a[sortConfig.key];
-        const bValue = typeof sortConfig.key === 'function' ? sortConfig.key(b) : b[sortConfig.key];
+        const aValue = a[sortConfig.key];
+        const bValue = b[sortConfig.key];
 
         if (aValue < bValue) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
@@ -82,7 +84,7 @@ const Table = <T extends { id: number | string }>({
             <tr key={row.id} className="border-b hover:bg-gray-50">
               {columns.map((col, index) => (
                 <td key={index} className="py-2 px-4">
-                  {typeof col.accessor === 'function' ? col.accessor(row) : row[col.accessor]}
+                  {typeof col.accessor === 'function' ? col.accessor(row) : String(row[col.accessor])}
                 </td>
               ))}
             </tr>

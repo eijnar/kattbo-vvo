@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_PASSWORD: str = ''
     REDIS_SSL: bool = False
-    REDIS_CELERY_DB: int = 0
+    REDIS_CELERY_DB: int = 1
     
     class Config:
         env_file = '.env'

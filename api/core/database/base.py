@@ -33,19 +33,6 @@ AsyncSessionLocal = sessionmaker(
 Base: DeclarativeMeta = declarative_base()
 
 
-async def get_db_session():
-    try:
-        async with AsyncSessionLocal() as session:
-            yield session
-            logger.debug("Database session created successfully.")
-    except SQLAlchemyError as e:
-        logger.error(f"Error during database session creation: {e}")
-        raise
-    except Exception as e: 
-        logger.error(f"Unexpected error ajusted: {e}")
-        raise
-
-
 async def create_tables():
     logger.debug("Creating database tables.")
     try:

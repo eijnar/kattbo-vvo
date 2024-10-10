@@ -11,6 +11,7 @@ REDIS_SETTINGS = {
 }
 
 REDIS_DBS = {
+    'cache': 0,
     'tokens': 2,
     'authorize': 3,
     'unconfirmed_users': 4

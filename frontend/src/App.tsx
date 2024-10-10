@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/common/Navbar';
 import LandingPage from './pages/LandingPage';
 import ProfilePage from './pages/ProfilePage';
-import ListUsers from './pages/ListUsers';
+import ListUsers from './pages/ListUsersPage';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
