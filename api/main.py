@@ -8,6 +8,7 @@ from slowapi.errors import RateLimitExceeded
 from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
+from core.logger.middleware import log_requests
 from core.celery import make_celery
 from core.config import settings
 from core.database.base import create_tables
@@ -31,6 +32,8 @@ def create_app() -> FastAPI:
     setup_logging()
 
     app = FastAPI(title=settings.APP_NAME)
+
+    app.middleware("http")(log_requests)
 
     allowed_origins = [
         "http://localhost:5173",
@@ -69,8 +72,8 @@ def create_app() -> FastAPI:
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-    celery_app = make_celery(app)
-    app.celery_app = celery_app
+    # celery_app = make_celery(app)
+    # app.celery_app = celery_app
 
     @app.on_event("startup")
     async def startup_event():

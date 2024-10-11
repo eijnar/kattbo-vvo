@@ -10,7 +10,6 @@ import ecs_logging
 from elasticapm.contrib.starlette import make_apm_client
 
 from core.config import settings
-from .json_formatter import MyJSONFormatter
 
 
 log_queue = queue.Queue()
@@ -30,23 +29,24 @@ def setup_logging():
 
     logging.config.dictConfig(config)
     file_json_handler_config = config['handlers']['file_json']
-    
+
     file_json_handler = logging.handlers.RotatingFileHandler(
         filename=file_json_handler_config['filename'],
         maxBytes=file_json_handler_config['maxBytes'],
         backupCount=file_json_handler_config['backupCount']
     )
     file_json_handler.setLevel(file_json_handler_config['level'])
-    file_json_formatter = ecs_logging.StdlibFormatter(exclude_fields=["log.original"], stack_trace_limit=0)
+    file_json_formatter = ecs_logging.StdlibFormatter(
+        exclude_fields=["log.original"], stack_trace_limit=0)
     file_json_handler.setFormatter(file_json_formatter)
 
     # Start QueueListener with these handlers
-    queue_listener = logging.handlers.QueueListener(log_queue, file_json_handler)
+    queue_listener = logging.handlers.QueueListener(
+        log_queue, file_json_handler)
     queue_listener.start()
 
     atexit.register(queue_listener.stop)
     return queue_listener
-    
 
 
 def get_log_handlers(config):
@@ -60,10 +60,12 @@ def get_log_handlers(config):
     for handler_name, handler_config in handler_configs.items():
         if handler_name != "queue":
             try:
-                handler = logging_config.DictConfigurator(config).configure_handler(handler_config)
+                handler = logging_config.DictConfigurator(
+                    config).configure_handler(handler_config)
                 handlers.append(handler)
             except Exception as e:
-                raise ValueError(f"Error configuring handler {handler_name}: {str(e)}")
+                raise ValueError(
+                    f"Error configuring handler {handler_name}: {str(e)}")
     return handlers
 
 

@@ -15,7 +15,8 @@ class TelegramService(MessagingService):
         async with httpx.AsyncClient() as client:
             await client.post(
                 f'https://api.telegram.org/bot{self.bot_token}/sendMessage',
-                json={'chat_id': recipient, 'text': full_message}
+                json={'chat_id': recipient, 'text': full_message},
+                timeout=5.0
             )
 
     async def set_template(self, template_name: str, context: dict) -> str:

@@ -1,11 +1,10 @@
 from logging import getLogger
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, Query, Request
 
 from core.dependencies import get_user_service
-from core.database.models.user import UserModel
-from core.security.dependencies import get_user_and_check_scopes, requires_scope
+from core.security.dependencies import requires_scope
 from utils.rate_limiter import limiter
 from routers.users.services.user_service import UserService
 from routers.users.schemas.user import UserBaseSchema, UserCreateSchema
@@ -25,8 +24,8 @@ async def get_users(
     Retrieve a paginated list of users.
     Accessible to everyone.
     """
-    user_id = "anonymous"
-    logger.info(f"User ID {user_id} requested users list (page: {page}, page_size: {page_size}).")
+
+    logger.info(f"User requested users list (page: {page}, page_size: {page_size}).")
     return await user_service.get_all_users(page, page_size)
 
 
@@ -39,6 +38,7 @@ async def register_user(
 ):
     """
     This route is for registering new users, only used by Auth0
+    Requires the create:user permission
     """
 
     logger.debug(f"Received registration request with user data: {user}")

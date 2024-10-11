@@ -65,6 +65,12 @@ class MyJSONFormatter(logging.Formatter):
             else getattr(record, val)
             for key, val in self.fmt_keys.items()
         }
+        
+        if hasattr(record, 'user_id'):
+            message['user'] = {
+                'id': record.user_id
+            }
+        
         message.update(
             {key: val for key, val in always_fields.items()}
         )

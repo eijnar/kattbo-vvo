@@ -3,10 +3,12 @@ from typing import List
 
 from fastapi import HTTPException
 
+from utils.mask_sensitive_data import mask_sensitive_data
 from core.exceptions import DatabaseException
-from ..schemas.user import UserBaseSchema, UserCreateSchema, UserUpdateSchema
-from repositories.user_repository import UserRepository
 from core.database.models import UserModel
+from repositories.user_repository import UserRepository
+from routers.users.schemas.user import UserBaseSchema, UserCreateSchema, UserUpdateSchema
+
 
 logger = getLogger(__name__)
 
@@ -39,6 +41,8 @@ class UserService:
         try:
             existing_user = await self.user_repository.get_by_auth0_id(user.auth0_id)
             if existing_user:
+                logger.info("User alread registered", extra={
+                            'user.id': str(existing_user.id)})
                 raise HTTPException(
                     status_code=400, detail="User already registered")
 
@@ -73,66 +77,91 @@ class UserService:
         """
         try:
             logger.info(
-                f"Starting update_user_profile for user: {user}, user_data: {user_data}")
-            # Retrieve the existing user from the repository
+                f"Starting profile update",
+                extra={'user.id': str(user.id)}
+            )
+
+            # Retrieve user from the repository
             existing_user = await self.user_repository.get_by_auth0_id(user.auth0_id)
             if not existing_user:
                 logger.warning(
-                    f"User not found in repository with auth0_id: {user.auth0_id}")
+                    f"User not found in repository for auth0_id: {user.auth0_id}",
+                    extra={'user.auth0_id': user.auth0_id}
+                )
                 raise HTTPException(status_code=404, detail="User not found")
-            else:
-                logger.debug(f"Retrieved existing user: {existing_user}")
 
-            # Update allowed fields if they are provided
-            update_fields = False
+            logger.debug(f"Successfully retrieved user from repository", extra={'user.id': str(existing_user.id)})
+
+            # Update allowed fields
             updated_fields = []
-            if user_data.phone_number is not None:
-                logger.debug(
-                    f"Updating phone_number to: {user_data.phone_number}")
+            if user_data.phone_number:
+                logger.debug(f"Updating phone number for user", extra={'user.id': str(existing_user.id)})
+                
+                # Mask phone number for logging
+                masked_phone_number = mask_sensitive_data(user_data.phone_number, 'phone')
+                logger.debug(f"Phone number updated to {masked_phone_number} for user", extra={'user.id': str(existing_user.id)})
+
+                # Use the actual phone number for updating the user
                 existing_user.phone_number = user_data.phone_number
-                update_fields = True
                 updated_fields.append('phone_number')
-            if user_data.first_name is not None:
-                logger.debug(f"Updating first_name to: {user_data.first_name}")
-                existing_user.first_name = user_data.first_name
-                update_fields = True
+
+            # First name update logic
+            if user_data.first_name:
+                logger.debug(f"Updating first name for user", extra={'user.id': str(existing_user.id)})
+                
+                # Mask first name for logging
+                masked_first_name = mask_sensitive_data(user_data.first_name, 'name')
+                logger.debug(f"First name updated to {masked_first_name} for user", extra={'user.id': str(existing_user.id)})
+
+                existing_user.first_name = user_data.first_name  # Actual update
                 updated_fields.append('first_name')
-            if user_data.last_name is not None:
-                logger.debug(f"Updating last_name to: {user_data.last_name}")
-                existing_user.last_name = user_data.last_name
-                update_fields = True
+
+            # Last name update logic
+            if user_data.last_name:
+                logger.debug(f"Updating last name for user", extra={'user.id': str(existing_user.id)})
+                
+                # Mask last name for logging
+                masked_last_name = mask_sensitive_data(user_data.last_name, 'name')
+                logger.debug(f"Last name updated to {masked_last_name} for user", extra={'user.id': str(existing_user.id)})
+
+                existing_user.last_name = user_data.last_name  # Actual update
                 updated_fields.append('last_name')
 
-            if not update_fields:
-                logger.warning("No valid fields provided for update")
-                raise HTTPException(
-                    status_code=400,
-                    detail="No valid fields provided for update"
-                )
-            else:
-                logger.debug(f"Fields updated: {updated_fields}")
+            # Handle case where no valid fields were provided
+            if not updated_fields:
+                logger.warning("No valid fields provided for update", extra={'user.id': str(existing_user.id)})
+                raise HTTPException(status_code=400, detail="No valid fields provided for update")
+
+
+            logger.info(f"Fields updated: {', '.join(updated_fields)}", extra={'user.id': str(existing_user.id)})
 
             # Save the updated user in the repository
-            logger.debug(f"Saving updated user: {existing_user.id}")
             updated_user = await self.user_repository.update_user(existing_user)
-            logger.debug(f"User updated successfully: {updated_user.id}")
+            logger.info(f"User profile updated successfully", extra={'user.id': str(updated_user.id)})
             return updated_user
 
         except DatabaseException as e:
             logger.error(
-                f"Failed to update user due to a database error: {str(e)}")
+                f"Database error occurred while updating user {user.id}: {str(e)}",
+                extra={'user.id': str(user.id)}
+            )
             raise HTTPException(
                 status_code=500,
-                detail="Database error while updating user"
-            )
+                detail="Internal server error"
+            )  # Keep the error message generic
+
         except HTTPException as e:
-            logger.error(f"HTTPException encountered: {e.detail}")
-            # Re-raise HTTP exceptions to be handled by FastAPI
+            # HTTP exceptions should be logged and raised as is.
+            logger.error(f"HTTP error while updating user: {e.detail}", extra={'user.id': str(user.id)})
             raise e
+
         except Exception as e:
             logger.exception(
-                f"Unexpected error occurred while updating user: {str(e)}")
+                f"Unexpected error occurred during profile update for user {user.id}",
+                extra={'user.id': str(user.id)}
+            )
             raise HTTPException(
                 status_code=500,
-                detail="Failed to update user due to an unexpected error"
+                detail="Internal server error"  # Don't expose the full error to the user
             )
+

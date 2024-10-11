@@ -13,7 +13,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 def get_public_key():
     jwks_url = f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json"
-    response = requests.get(jwks_url)
+    response = requests.get(jwks_url, timeout=5.0)
     if response.status_code != 200:
         raise HTTPException(
             status_code=500, detail="Failed to fetch public keys")
@@ -55,12 +55,14 @@ async def decode_and_validate_token(
     token: Optional[str] = Depends(oauth2_scheme)
 ) -> Optional[dict]:
     if not token:
+        logger.debug("No token provided for decoding.")
         return None
     try:
         payload = decode_jwt(token)
         logger.debug(f"Decoded payload: {payload}")
         return payload
-    except JWTError:
+    except JWTError as e:
+        logger.warning(f"Token decode failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid authentication credentials",
