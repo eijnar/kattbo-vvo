@@ -1,5 +1,5 @@
 from app import db
-from app.utils.mixins import TrackingMixin
+from models.utils.tracking_mixin import TrackingMixin
 from app.utils.crud import CRUDMixin
 
 
@@ -19,7 +19,7 @@ class Event(db.Model, TrackingMixin, CRUDMixin):
     def is_cancelled(self):
         # Count the number of active (non-cancelled) days for this event
         active_days = EventDay.query.filter_by(
-            event_id=self.id, cancelled=True  # Assuming cancelled is a boolean field
+            event_id=self.id, cancelled=True
         ).count()
         return active_days > 0
 
@@ -30,6 +30,7 @@ class EventDay(db.Model, TrackingMixin):
     start_time = db.Column(db.Time, default='07:00:00', nullable=True)
     end_time = db.Column(db.Time, default='16:00:00', nullable=True)
     cancelled = db.Column(db.Boolean, default=False)
+    sequence = db.Column(db.Integer, default=1)
 
     # ForeignKeys
     event_id = db.Column(db.Integer, db.ForeignKey(

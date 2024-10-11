@@ -8,6 +8,12 @@ class Config(object):
 
     UPLOAD_FOLDER = environ.get('UPLOAD_FOLDER')
 
+    # Logging defaults
+    LOG_FORMAT = "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
+    LOG_FILE_PATH = environ.get('LOG_FILE_PATH')
+    LOG_FILE_MAX_SIZE = 10240
+    LOG_FILE_BACKUP_COUNT = 5
+
     # Default mail configuration
     MAIL_USERNAME = environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = environ.get('MAIL_PASSWORD')
@@ -32,11 +38,10 @@ class Config(object):
     # Flask-Security-Too registration settings
     SECURITY_REGISTERABLE = environ.get('SECURITY_REGISTERABLE')
     SECURITY_CONFIRMABLE = environ.get('SECURITY_CONFIRMABLE')
-    SECURITY_AUTO_LOGIN_AFTER_CONFIRM = True
     JWT_SECRET_KEY = environ.get('JWT_SECRET_KEY')
     JWT_ALGORITHM = environ.get('JWT_ALGORITHM')
 
-    API_BASE = 'http://127.0.0.1:5000'
+    API_BASE = environ.get('API_BASE')
 
     # Celery 
     CELERY = dict(
@@ -51,14 +56,16 @@ class Config(object):
     # Elastic APM
     ELASTIC_APM = {
         'SERVICE_NAME': 'kattbo-vvo-web',
-        'SERVER_URL': 'http://riker.srv.kaffesump.se:8200/',
-        'SECRET_TOKEN': 'tYeW2uFgP6JfcbUzkkqU7xur9i5DKPHMnRzqE',
-        'ENVIRONMENT': 'development',
+        'SERVER_URL': environ.get('ELASTIC_SERVER_URL'),
+        'SECRET_TOKEN': environ.get('ELASTIC_SECRET_TOKEN'),
+        'ENVIRONMENT': environ.get('FLASK_ENV'),
         'DEBUG': True,
     }
 
 class Development(Config):
     DEBUG = True
+    LOG_LEVEL = 'DEBUG'
+    INCLUDE_ELASTIC_APM = True
     SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_DEV')
 
     # Flask-Security-Too settings
@@ -70,4 +77,11 @@ class Development(Config):
 
 class Production(Config):
     DEBUG = False
+    LOG_LEVEL = 'INFO'
+    INCLUDE_ELASTIC_APM = True
     SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_PROD')
+
+class Testing(Config):
+    DEBUG = False
+    LOG_LEVEL = 'CRITICAL'
+    SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI_DEV')

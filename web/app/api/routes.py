@@ -3,6 +3,7 @@ from app import db
 from models.events import EventType, EventDay, Event
 from models.users import UsersTags, User
 from models.hunting import StandAssignment, Stand
+from app.utils.geo_utils import extract_lat_long
 
 api = Blueprint('api', __name__, template_folder='templates')
 
@@ -15,26 +16,57 @@ def set_hunt_year():
 
 @api.route('/event/get_all_events')
 def api_get_events():
+    
+    include_attendees = request.args.get('include_attendees', 'false').lower() == 'true'
     events = Event.query.join(EventType).join(EventDay).all()
     events_data = []
     for event in events:
         for day in event.event_days:
+            location_data = [
+                {
+                    "team_id": gathering.team_id,
+                    "poi_name": gathering.place.name,
+                    "latitude": extract_lat_long(gathering.place.geopoint, db.session)[0],
+                    "longitude": extract_lat_long(gathering.place.geopoint, db.session)[1]
+                }
+                for gathering in day.gatherings if gathering.place is not None
+            ]
+
             event_data = {
-                "id": event.id,
-                "title": event.event_type.name,
-                "start_date": day.date.isoformat(),
-                "end_date": day.date.isoformat(),
-                "start_time": day.start_time.isoformat(),
-                "end_time": day.end_time.isoformat(),
+                "event_id": event.id,
+                "sequence": day.sequence,
                 "cancelled": day.cancelled,
+                "title": event.event_type.name,
+                "category": event.event_type.event_category.name,
+                "day_id": day.id,
+                "creator": {
+                    "name": f'{event.creator.first_name} {event.creator.last_name}',
+                    "phone_number": event.creator.phone_number,
+                    "email": event.creator.email
+                },
+                "datetime": {
+                    "start_date": day.date.isoformat(),
+                    "end_date": day.date.isoformat(),
+                    "start_time": day.start_time.isoformat(),
+                    "end_time": day.end_time.isoformat(),
+                },
+                "location": location_data,
+                "metadata": {}
             }
+
             if event.is_cancelled:
-                event_data["color"] = "red" 
+                event_data["metadata"]["color"] = "red" 
             else:
                 if event.event_type.name.lower() == 'älgjakt':
-                    event_data["color"] = "blue"
+                    event_data["metadata"]["color"] = "blue"
                 elif event.event_type.name.lower() == 'årsmöte':
-                    event_data["color"] = "green"
+                    event_data["metadata"]["color"] = "green"
+
+            if include_attendees:
+                event_data['attendees'] = [
+                    {"name": f'{ue.user.first_name} {ue.user.last_name}', "email": ue.user.email}
+                    for ue in day.users_events
+                ]
 
             events_data.append(event_data)
             

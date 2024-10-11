@@ -3,24 +3,34 @@ from models.events import UsersEvents, Event, EventDayGathering, EventDay
 from datetime import datetime
 
 
-def handle_user_event_day_registration(user_id, days_ids):
+def handle_user_event_day_registration(user_id, event_id, days_ids):
     try:
         submitted_day_ids = set(days_ids)
-        current_registrations = UsersEvents.query.filter_by(
-            user_id=user_id).all()
-        current_registered_day_ids = {
-            reg.day_id for reg in current_registrations}
+
+        current_registrations = UsersEvents.query.join(EventDay).filter(
+            UsersEvents.user_id == user_id, EventDay.event_id == event_id).all()
+        
+        current_registered_day_ids = {reg.day_id for reg in current_registrations}
 
         day_ids_to_add = submitted_day_ids - current_registered_day_ids
         day_ids_to_remove = current_registered_day_ids - submitted_day_ids
+
+        relevant_event_days = EventDay.query.filter(
+            EventDay.id.in_(day_ids_to_add.union(day_ids_to_remove))
+        ).all()
+
+        for event_day in relevant_event_days:
+            event_day.sequence += 1
 
         for day_id in day_ids_to_add:
             new_registration = UsersEvents(user_id=user_id, day_id=day_id)
             db.session.add(new_registration)
 
         for day_id in day_ids_to_remove:
-            registrations_to_remove = UsersEvents.query.filter_by(
-                user_id=user_id, day_id=day_id)
+            registrations_to_remove = UsersEvents.query.join(EventDay).filter(
+                UsersEvents.user_id == user_id, UsersEvents.day_id == day_id, 
+                EventDay.event_id == event_id)
+            
             for registration in registrations_to_remove:
                 db.session.delete(registration)
 
@@ -31,7 +41,6 @@ def handle_user_event_day_registration(user_id, days_ids):
         print(e)
         db.session.rollback()
         return False
-
 
 def create_event_and_gatherings(form, current_user):
     try:
@@ -84,3 +93,24 @@ def create_event_day_gatherings(event, place_id, team_id):
         print(e)
         db.session.rollback()
         return False  
+
+def get_user_event_location(event_data, user_team_id):
+    locations = event_data.get('location', [])
+
+    if len(locations) == 1 and locations[0]['team_id'] is None:
+        selected_location = locations[0]
+
+    else:
+        selected_location = next((loc for loc in locations if loc['team_id'] == user_team_id), None)
+
+        if not selected_location:
+            selected_location = locations[0] if locations else None
+
+    if selected_location:
+        return {
+            "location_name": selected_location['poi_name'],
+            "latitude": selected_location['latitude'],
+            "longitude": selected_location['longitude'],
+        }
+    else: 
+        None

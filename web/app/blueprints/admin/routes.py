@@ -1,6 +1,6 @@
 from app import db
 from flask_security import login_required, roles_accepted, login_required
-from flask import Blueprint, render_template, request, jsonify, session
+from flask import Blueprint, render_template, request, jsonify
 from models.users import User, UsersTags
 from models.tag import Tag, TagsCategories, TagCategory
 from models.hunting import UserTeamYear, HuntYear, HuntTeam, StandAssignment, Stand
@@ -19,16 +19,14 @@ def edit_user(user_id):
                     .join(TagCategory, TagCategory.id == TagsCategories.tag_category_id) \
                     .filter(TagCategory.name == 'hunter') \
                     .all()
-    stand_query = db.session.query(Stand.number) \
+    stands = [stand_tuple[0] for stand_tuple in db.session.query(Stand.number) \
         .join(StandAssignment, Stand.id == StandAssignment.stand_id) \
         .filter(StandAssignment.user_id == user_id) \
         .filter(StandAssignment.hunt_year_id == 1) \
         .group_by(Stand.number) \
-        .all()
-    for stand_tuple in stand_query:
-        stand = stand_tuple[0]
-
-    return render_template('admin/edit_user.html.j2', user=user, tags=tags, stand=stand)
+        .all()]
+    print(stands)
+    return render_template('admin/edit_user.html.j2', user=user, tags=tags, stands=stands)
 
 
 @admin.route("/edit/<int:selected_hunt_year_id>")
@@ -39,7 +37,6 @@ def edit_hunt_teams(selected_hunt_year_id):
     users = User.query.all()
     teams = HuntTeam.query.all()
     year = HuntYear.query.filter_by(id=selected_hunt_year_id).first()
-    print(f'År: {selected_hunt_year_id}')
     # Query for the specific TagCategory
     tag_category_name = 'hunter'
 

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kattbo_models"
+version = "0.5.3.1"
+authors = [{name = "Johan Andersson", email = "johan@morbit.se"}]
+description = "Package containing shared resources for Kättbo VVO"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3"
+]
+dependencies = [
+    "sqlalchemy",
+    "alembic"
+]

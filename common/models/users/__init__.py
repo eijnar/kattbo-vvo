@@ -1,7 +1,7 @@
 from app import db
 from flask_security import UserMixin, RoleMixin
 from flask_security.models import fsqla_v3 as fsqla 
-from app.utils.mixins import TrackingMixin
+from models.utils.tracking_mixin import TrackingMixin
 from app.utils.crud import CRUDMixin
 
 class RolesUsers(db.Model):
@@ -19,7 +19,7 @@ class User(db.Model, fsqla.FsUserMixin, UserMixin, CRUDMixin):
     first_name = db.Column(db.String(255))
     last_name = db.Column(db.String(255))
     phone_number = db.Column(db.String(255))
-    profile_picture = db.Column(db.String(255))
+    profile_picture = db.Column(db.String(255), default='public/default.png')
 
     # Relationships
     roles = db.relationship('Role', secondary='roles_users', backref=db.backref('users', lazy='dynamic'))

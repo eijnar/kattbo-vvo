@@ -24,15 +24,23 @@ migrate = Migrate()
 celery = Celery()
 apm = ElasticAPM()
 
-def create_app() -> Flask:
+def create_app(config_object=None) -> Flask:
     app = Flask(__name__)
 
-    if os.environ.get('FLASK_ENV') == 'production':
+    
+    # Setting up the different environments.
+    if config_object:
+        app.config.from_object(config_object)
+    elif os.environ.get('FLASK_ENV') == 'production':
         app.config.from_object(Production)
     else:
         app.config.from_object(Development)
 
     app.config.from_prefixed_env()
+
+    # Setup logging
+    setup_logging(app)
+    app.logger.info('create_app is initializing')
 
     db.init_app(app)
     mail.init_app(app)
@@ -40,11 +48,10 @@ def create_app() -> Flask:
     jwt.init_app(app)
     migrate.init_app(app, db)
     celery_init_app(app)
-    apm.init_app(app)
 
-    # Setup logging
-    setup_logging(app)
-    app.logger.info('Webpage is starting up...')
+    # if app.config.get('INCLUDE_ELASTIC_APM', False):
+    #     apm.init_app(app)
+
     
     #fsqla.FsModels.set_db_info(db)
     from models.users import User, Role  # noqa
@@ -115,18 +122,23 @@ def celery_init_app(app: Flask) -> Celery:
 
 
 def setup_logging(app):
-    log_format = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+    log_format_string = app.config.get('LOG_FORMAT')
+    formatter = logging.Formatter(log_format_string)
 
-    if not app.logger.handlers:
-        if app.debug:
-            file_handler = RotatingFileHandler('kattbo_vvo_dev_flask.log', maxBytes=10240, backupCount=10)
-            file_handler.setFormatter(log_format)
-            file_handler.setLevel(logging.DEBUG)
-            app.logger.addHandler(file_handler)
-        else:
-            file_handler = RotatingFileHandler('kattbo_vvo_flask.log', maxBytes=10240, backupCount=10)
-            file_handler.setFormatter(log_format)
-            file_handler.setLevel(logging.INFO)
-            app.logger.addHandler(file_handler)
+    DEFAULT_LOG_LEVEL = logging.INFO
+    try:
+        for handler in app.logger.handlers:
+            if isinstance(handler, RotatingFileHandler):
+                app.logger.handlers.remove(handler)
 
-        app.logger.setLevel(logging.DEBUG if app.debug else logging.INFO)
+        file_handler = RotatingFileHandler(app.config.get('LOG_FILE_PATH'), maxBytes=app.config.get('LOG_FILE_MAX_SIZE'), backupCount=app.config.get('LOG_FILE_BACKUP_COUNT'))
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(app.config.get('LOG_LEVEL', DEFAULT_LOG_LEVEL))
+        app.logger.addHandler(file_handler)
+
+    except PermissionError:
+        raise
+    except Exception:
+        raise
+
+    app.logger.setLevel(app.config.get('LOG_LEVEL', DEFAULT_LOG_LEVEL))

@@ -1,5 +1,5 @@
 from app import db
-from app.utils.mixins import TrackingMixin
+from models.utils.tracking_mixin import TrackingMixin
 
 class Post(db.Model, TrackingMixin):
     id = db.Column(db.Integer, primary_key=True)

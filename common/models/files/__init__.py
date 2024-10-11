@@ -1,5 +1,2 @@
 from app import db
-from app.utils.mixins import TrackingMixin
-
-
-class 
+from models.utils.tracking_mixin import TrackingMixin

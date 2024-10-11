@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "simple": {
+      "format": "[%(levelname)s|%(module)s|L%(lineno)d] %(asctime)s: %(message)s",
+      "datefmt": "%Y-%m-%dT%H:%M:%S%z"
+    },
+    "ecs": {
+
+    }
+  },
+  "handlers": {
+    "stderr": {
+      "class": "logging.StreamHandler",
+      "level": "INFO",
+      "formatter": "simple",
+      "stream": "ext://sys.stderr"
+    },
+    "file_json": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "level": "INFO",
+      "filename": "../logs/api.log.jsonl",
+      "maxBytes": 100000,
+      "backupCount": 3
+    },
+    "queue": {
+      "()": "logging.handlers.QueueHandler",
+      "queue": "ext://core.logger.setup.log_queue"
+    }
+  },
+  "root": {
+    "level": "INFO",
+    "handlers": ["queue"]
+  }
+}

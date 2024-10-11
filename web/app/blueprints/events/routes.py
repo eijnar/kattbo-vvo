@@ -1,9 +1,12 @@
-from flask_security import current_user, login_required, roles_accepted
+from os import environ
+from flask_security import current_user, login_required, roles_accepted, auth_required
 from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, make_response, current_app, jsonify, Response
 from app import db, celery
 from flask_jwt_extended import decode_token
 from app.blueprints.events.forms import EventForm, RegisterEventDayForm
-from app.blueprints.events.utils import handle_user_event_day_registration, create_event_and_gatherings
+from app.blueprints.events.utils import handle_user_event_day_registration, create_event_and_gatherings, get_user_event_location
+from app.blueprints.hunting.utils import get_hunt_team_for_user_and_year
+from app.utils.hunt_year import HuntYearFinder
 from models.events import Event, EventDay, UsersEvents, EventType, EventCategory
 from models.users import User, UsersTags
 from models.tag import Tag
@@ -18,7 +21,8 @@ from collections import defaultdict
 from celery.result import AsyncResult
 import requests
 import pytz
-from icalendar import Calendar, Event as ICalEvent
+from icalendar import Calendar, Event as ICalEvent, vCalAddress, vText, vGeo
+from sqlalchemy import desc
 
 events = Blueprint('events', __name__, template_folder='templates')
 
@@ -165,7 +169,6 @@ def create_event():
 
     if event_form.validate_on_submit():
         new_event = create_event_and_gatherings(event_form, current_user)
-        print(new_event.id)
         task = notify_users_about_event.apply_async(args=[new_event.id, event_form.event_type.data], countdown=20)
         notification_task = NotificationTask(
             celery_task_id=task.id,
@@ -197,17 +200,17 @@ def register_event(event_id):
     if form.validate_on_submit():
         user_id = current_user.id
         day_ids = form.event_days.data
-        success = handle_user_event_day_registration(user_id, day_ids)
+        success = handle_user_event_day_registration(user_id, event.id, day_ids)
         if success:
             flash('Din registreting har hanterats', 'success')
         else:
             flash('Det blev något fel när vi hanterade din registrering', 'error')
-        return redirect(url_for('events.list_events', event_id=event_id))
+        return redirect(url_for('events.list_events'))
 
     # Select all event days by default
     form.event_days.data = [choice[0] for choice in form.event_days.choices]
 
-    event_days = EventDay.query.filter_by(event_id=event_id).all()
+    event_days = EventDay.query.filter_by(event_id=event_id).order_by(desc(EventDay.date)).all()
 
     # Organize users and their subscribed days
     user_subscriptions = defaultdict(list)
@@ -223,12 +226,11 @@ def register_event(event_id):
 @roles_accepted('admin', 'hunt-leader')
 def generate_event_pdf(event_id):
     current_app.logger.info(f'{current_user.email} is creating a PDF')
-    event_days = EventDay.query.filter_by(event_id=event_id).all()
-
     users_by_team_and_day = {}
     specific_tags = ['doghandler', 'shooter', 'hunt-leader']
     team_id = request.args.get('team_id')
 
+    event_days = EventDay.query.filter_by(event_id=event_id).all()
     if team_id is not None:
         teams = [team_id]
     else:
@@ -327,6 +329,8 @@ def cancel_event(event_id):
         
         for event_day in event.event_days:
             event_day.cancelled = True
+            event_day.sequence += 1
+
         db.session.commit()
 
         if not abort_task(event_id):
@@ -349,31 +353,66 @@ def abort_task(event_id):
         return True
     return False
 
-
-@events.route("/calendar")
+@events.route("/ical")
+@auth_required('basic')
 def ical_calendar():
-    events_data = fetch_events_from_api()
+
+    events_data = fetch_events_from_api(include_attendees=True)
+    hunt_year = HuntYearFinder()
+    user_team = get_hunt_team_for_user_and_year(1, hunt_year.current.id)
     cal = Calendar()
 
     cal.add('X-WR-CALNAME', 'Kättbo VVO')
+    cal.add('PRODID', vText('KattboVVO/web/SE'))
+    cal.add('VERSION', vText('2.0'))
 
     for event_data in events_data:
-        date_str = event_data['start_date']
-        start_time_str = event_data['start_time']
-        end_time_str = event_data['end_time']
-        start_datetime_str = f'{date_str}T{start_time_str}'
-        end_datetime_str = f'{date_str}T{end_time_str}'
+        datetime_info = event_data.get('datetime', {})
+        creator_info = event_data.get('creator', {})
+        creator_email_str = creator_info.get('email', '')
+        creator_phone_number_str = creator_info.get('phone_number', '')
+        creator_name_str = creator_info.get('name', '')
+
+        start_datetime_str = f'{datetime_info.get("start_date","")}T{datetime_info.get("start_time", "")}'
+        end_datetime_str = f'{datetime_info.get("start_date","")}T{datetime_info.get("end_time", "")}'
 
         event = ICalEvent()
+
+        location_info = get_user_event_location(event_data, user_team)
+        if location_info:
+            event.add('location', vText(location_info["location_name"]))
+            event.add('geo', vGeo((location_info["latitude"], location_info["longitude"])))
+            event.add('X-APPLE-STRUCTURED-LOCATION',f'geo:{location_info["latitude"]},{location_info["longitude"]}', parameters={'VALUE': 'URI', 'X-APPLE-MAPKIT-HANDLE': '','X-APPLE-RADIUS':'80','X-TITLE':location_info['location_name']})
+
+        organizer = vCalAddress(f'MAILTO:{creator_email_str}')
+        organizer.params['cn'] = vText(creator_name_str)
+        event['organizer'] = organizer
+        event.add('contact', vText(f'{creator_name_str}, {creator_phone_number_str}'))
+        event.add('categories', event_data['category'].upper())
         event.add('summary', event_data['title'])
         event.add('dtstart', datetime.fromisoformat(start_datetime_str))
         event.add('dtend', datetime.fromisoformat(end_datetime_str))
         event.add('dtstamp', datetime.now(pytz.utc))
-        if event_data['cancelled'] == True:
-            event.add('sequence', 1)
-            event.add('status', 'CANCELLED')
-        event['uid'] = str(event_data['id'])
+        event.add('sequence', event_data["sequence"])
+       
 
+        if event_data['cancelled'] == True:
+            event.add('status', 'CANCELLED')
+        
+        for attendee in event_data.get('attendees', []):
+            attendee_email = attendee['email']
+            attendee_name = attendee['name']
+
+            attendee_ical = vCalAddress(f'MAILTO:{attendee_email}')
+            attendee_ical.params['cn'] = vText(attendee_name)
+            attendee_ical.params['CUTYPE'] = vText('INDIVIDUAL')
+            attendee_ical.params['ROLE'] = vText('REQ-PARTICIPANT')
+            attendee_ical.params['PARTSTAT'] = vText("ACCEPTED")
+            attendee_ical.params['RSVP'] = vText(f"{True}")
+
+            event.add('attendee', attendee_ical, encode=0)
+
+        event['uid'] = str(event_data['day_id'])
         cal.add_component(event)
 
     response = Response(cal.to_ical())
@@ -381,7 +420,7 @@ def ical_calendar():
     response.headers['Content-Disposition'] = 'attachment; filename="kattbo_vvo.ics"'
     return response
 
-def fetch_events_from_api():
-    api_url = f'{API_BASE}/api/event/get_all_events'
-    response = requests.get(api_url)
+def fetch_events_from_api(include_attendees=False):
+    api_url = f'{environ.get("API_BASE")}/api/event/get_all_events'
+    response = requests.get(api_url, params={'include_attendees': include_attendees})
     return response.json()

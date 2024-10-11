@@ -1,15 +1,17 @@
-name: Development - frontend & celery worker CD/CI
+name: Web CD/CI
 
 on: 
   push:
     branches:
       - development
     paths:
+      - .github/workflows/*.yml
       - 'web/**'
       - 'common/**'
       - 'docker-compose.yml'
   pull_request:
     paths:
+      - .github/workflows/*.yml
       - 'web/**'
       - 'common/**'
       - 'docker-compose.yml'
@@ -17,14 +19,15 @@ on:
 jobs:
   build-and-deploy:
     runs-on: self-hosted
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/development'
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Development - Create env file
+      - name: Creating .env file
         run: |
           echo "FLASK_ENV='development'" >> .env
+          echo "API_BASE='https://dev.kattbovvo.se'" >> .env
           echo "GUNICORN_PORT=5000" >> .env
           echo "UPLOAD_FOLDER='/usr/src/kattbo-vvo/uploads'" >> .env
           echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
@@ -32,8 +35,8 @@ jobs:
           echo "MAIL_PORT=465" >> .env
           echo "MAIL_USE_SSL=True" >> .env
           echo "MAIL_SERVER=${{ secrets.MAIL_SERVER }}" >> .env
-          echo "MAIL_DEFAULT_SENDER_DEV='development@kattbovvo.se'" >> .env
-          echo "MAIL_DEFAULT_SENDER_PROD='info@kattbovvo.se'" >> .env
+          echo "MAIL_DEFAULT_SENDER_DEV=development@kattbovvo.se" >> .env
+          echo "MAIL_DEFAULT_SENDER_PROD=info@kattbovvo.se" >> .env
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
           echo "SECURITY_PASSWORD_SALT=${{ secrets.SECURITY_PASSWORD_SALT }}" >> .env
           echo "SECURITY_PASSWORD_HASH=${{ secrets.SECURITY_PASSWORD_HASH }}" >> .env
@@ -47,14 +50,15 @@ jobs:
           echo "CELERY_BACKEND_URL=${{ secrets.CELERY_BACKEND_URL }}" >> .env
           echo "ELASTIC_SECRET_TOKEN=${{ secrets.ELASTIC_SECRET_TOKEN }}" >> .env
           echo "ELASTIC_SERVER_URL=${{ secrets.ELASTIC_SERVER_URL }}" >> .env
+          echo "LOG_FILE_PATH=/usr/src/kattbo-vvo/logs/kattbo-vvo-web.log" >> .env
 
-      - name: Development - build the containers
+      - name: Building containers
         run: |
-          docker-compose -f docker-compose.yml build web
-          docker-compose -f docker-compose.yml build web_celery_worker
+          docker-compose -f docker-compose.yml pull
+          docker-compose -f docker-compose.yml build
 
-      - name: Development - deploy the frontend and celery worker
+      - name: Deploying application
         run: |
-          docker-compose up -d web
-          docker-compose up -d web_celery_worker
+          docker-compose down --remove-orphans
+          docker-compose up -d
 
