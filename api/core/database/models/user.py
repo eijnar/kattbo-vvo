@@ -20,5 +20,8 @@ class UserModel(Base, CRUDMixin):
     profile_picture = Column(String(255), default='profile_pics/default.png')
     disabled = Column(Boolean, default=True)
     
+    stands_assigned = relationship('StandAssignment', backref='user', lazy=True)
+    animals_shot = relationship('AnimalShot', backref='user', lazy=True)
+    
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
