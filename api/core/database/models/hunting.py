@@ -138,4 +138,3 @@ class AnimalShot(Base, CRUDMixin):
         'animal_quotas.id'), nullable=False)
     quota = relationship('AnimalQuota', back_populates='animals_shot')
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'))
-    user = relationship('User')
