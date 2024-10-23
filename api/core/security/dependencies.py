@@ -7,9 +7,9 @@ from fastapi.security import OAuth2PasswordBearer, HTTPBearer
 from core.security.auth import get_current_active_user, requires_scope
 
 
-http_bearer = HTTPBearer()
 logger = getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+http_bearer = HTTPBearer(auto_error=False)
 
 
 def get_user_and_check_scopes(required_scope: Optional[str] = None):

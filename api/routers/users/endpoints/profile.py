@@ -23,11 +23,11 @@ async def get_self_profile(
     Get the logged in users profile
     """
     logger.info(
-        "Fetching user's profile", 
+        "Fetching user's profile",
         extra={
             "user.id": str(current_user.id),
             **request.state.http_request,  # Include request info
-            })
+        })
     return current_user
 
 
@@ -38,12 +38,30 @@ async def update_profile(
     current_user: UserModel = Depends(get_user_and_check_scopes()),
     user_service: UserService = Depends(get_user_service)
 ):
-    
+
     logger.info(
-        "Starting update user's profile", 
+        "Starting update user's profile",
         extra={
             "user.id": str(current_user.id),
             **request.state.http_request,  # Include request info
-            })
+        })
     updated_user = await user_service.update_user_profile(current_user, user_data)
+    return updated_user
+
+
+@router.patch("/", response_model=UserBaseSchema)
+async def partial_update_profile(
+    request: Request,
+    user_data: UserUpdateSchema,
+    current_user: UserModel = Depends(get_user_and_check_scopes()),
+    user_service: UserService = Depends(get_user_service)
+):
+    logger.info(
+        "Starting partial update of user's profile",
+        extra={
+            "user.id": str(current_user.id),
+            **request.state.http_request,
+        })
+
+    updated_user = await user_service.update_user_profile_partial(current_user, user_data)
     return updated_user

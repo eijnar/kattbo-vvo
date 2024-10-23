@@ -4,13 +4,13 @@ from datetime import datetime
 from sqlalchemy import Column, String, Date, ForeignKey, Integer, UniqueConstraint, Boolean, Float, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from geoalchemy2 import Geometry
+
 
 from core.database.base import Base
 from core.database.models.mixins import CRUDMixin
 
 
-class HuntYear(Base, CRUDMixin):
+class HuntYearModel(Base, CRUDMixin):
     __tablename__ = 'hunt_years'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(10), nullable=False)
@@ -22,7 +22,7 @@ class HuntYear(Base, CRUDMixin):
     animal_quotas = relationship('AnimalQuota', back_populates='hunt_year')
 
 
-class HuntTeam(Base, CRUDMixin):
+class HuntTeamModel(Base, CRUDMixin):
     __tablename__ = 'hunt_teams'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
@@ -32,7 +32,7 @@ class HuntTeam(Base, CRUDMixin):
     animal_quotas = relationship('AnimalQuota', back_populates='hunt_team')
 
 
-class UserTeamYear(Base, CRUDMixin):
+class UserTeamYearModel(Base, CRUDMixin):
     __tablename__ = 'user_team_years'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey(
@@ -51,35 +51,9 @@ class UserTeamYear(Base, CRUDMixin):
     )
 
 
-class Area(Base, CRUDMixin):
-    __tablename__ = 'areas'
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(String(128), nullable=False)
-    boundary = Column(Geometry('POLYGON'))
-
-    hunt_team_id = Column(UUID(as_uuid=True), ForeignKey('hunt_teams.id'))
-
-    # Relationships
-    stands = relationship('Stand', backref='area', lazy=True)
-    hunt_team = relationship('HuntTeam', back_populates='areas')
 
 
-class Stand(Base, CRUDMixin):
-    __tablename__ = 'stands'
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    number = Column(String(255), nullable=False)
-    geopoint = Column(Geometry('POINT'))
-
-    # Relationships
-    area_id = Column(UUID(as_uuid=True), ForeignKey(
-        'areas.id'), nullable=False)
-
-    __table_args__ = (
-        UniqueConstraint('number', 'area_id', name='_stand_number_area_uc'),
-    )
-
-
-class StandAssignment(Base, CRUDMixin):
+class StandAssignmentModel(Base, CRUDMixin):
     __tablename__ = 'stand_assignments'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey(
@@ -95,7 +69,7 @@ class StandAssignment(Base, CRUDMixin):
     )
 
 
-class AnimalQuota(Base, CRUDMixin):
+class AnimalQuotaModel(Base, CRUDMixin):
     __tablename__ = 'animal_quotas'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     hunt_year_id = Column(UUID(as_uuid=True), ForeignKey(
@@ -112,7 +86,7 @@ class AnimalQuota(Base, CRUDMixin):
     animals_shot = relationship('AnimalShot', back_populates='quota')
 
 
-class AnimalType(Base, CRUDMixin):
+class AnimalTypeModel(Base, CRUDMixin):
     __tablename__ = 'animal_types'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(255), nullable=False)
@@ -121,7 +95,7 @@ class AnimalType(Base, CRUDMixin):
     quotas = relationship('AnimalQuota', back_populates='animal_type')
 
 
-class AnimalShot(Base, CRUDMixin):
+class AnimalShotModel(Base, CRUDMixin):
     __tablename__ = 'animals_shot'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     date_shot = Column(DateTime, default=datetime.utcnow, nullable=False)

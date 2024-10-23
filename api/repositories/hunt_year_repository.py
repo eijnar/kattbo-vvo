@@ -12,7 +12,7 @@ class HuntYearRepository:
         self.db = db
 
     def create_hunt_year(self, hunt_year_data: HuntYearCreate) -> HuntYear:
-        new_hunt_year = HuntYear(**hunt_year_data.dict())
+        new_hunt_year = HuntYear(**hunt_year_data.model_dump())
         self.db.add(new_hunt_year)
         self.db.commit()
         self.db.refresh(new_hunt_year)
