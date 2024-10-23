@@ -5,8 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 
 from repositories.user_repository import UserRepository
-from .database.base import AsyncSessionLocal
+from core.database.base import AsyncSessionLocal
 from routers.users.services.user_service import UserService
+from core.security.api_key_repository import APIKeyRepository
+from core.security.service import SecurityService
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +25,11 @@ async def get_db_session():
         logger.error(f"Unexpected error ajusted: {e}")
         raise
 
+def get_api_key_repository(db: AsyncSession = Depends(get_db_session)) -> APIKeyRepository:
+    return APIKeyRepository(db)
+
+def get_security_service(api_key_repository: APIKeyRepository = Depends(get_api_key_repository)) -> SecurityService:
+    return SecurityService(api_key_repository)
 
 async def get_user_repository(db_session: AsyncSession = Depends(get_db_session)) -> UserRepository:
     """

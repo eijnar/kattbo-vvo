@@ -9,6 +9,8 @@ from core.database.models.security import APIKeyModel
 from core.database.models.user import UserModel
 
 class APIKeyRepository(CRUDMixin[APIKeyModel]):
+    model = APIKeyModel
+    
     def __init__(self, db: AsyncSession):
         super().__init__(APIKeyModel, db)
 

@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,8 +9,6 @@ from core.database.models.mixins.crud_mixin import CRUDMixin
 from core.database.models import UserModel
 from core.exceptions import NotFoundException, DatabaseException
 
-
-from logging import getLogger
 
 logger = getLogger(__name__)
 
