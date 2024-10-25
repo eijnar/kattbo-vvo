@@ -2,37 +2,34 @@ from logging import getLogger
 from typing import Optional
 
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordBearer, HTTPBearer
+from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
 
-from core.dependencies import get_db_session
-from core.database.models.user import UserModel
 from core.security.jwt import decode_and_validate_token
-from core.security.service import SecurityService
+from core.security.security_service import SecurityService
+from core.dependencies import get_security_service
+from core.security.models import UserContext
 
 
 logger = getLogger(__name__)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-api_key_scheme = HTTPBearer(auto_error=False)
+api_key_header = APIKeyHeader(name='X-API-Key', auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 async def get_current_user(
     security_service: SecurityService = Depends(get_security_service),
     token: Optional[str] = Depends(oauth2_scheme),
-    api_key: Optional[str] = Depends(api_key_scheme),
-    db: Session = Depends(get_db_session),
-    required_scope: Optional[str] = None
-) -> UserModel:
+    api_key: Optional[str] = Depends(api_key_header),
+) -> UserContext:
     """
-    Dependency to get the current active user based on either an Auth0 token or an API Key.
-    Also checks for required scopes if provided.
+    Dependency to get the current authenticated user and their permissions.
     """
-    user = None
+    user_context = None
+    logger.debug("get_current_user called")
 
-    # Authenticate using OAuth2 token
     if token:
+        logger.debug("Token provided")
         try:
-            user = await security_service.authenticate_with_token(token=token, db=db)
-            logger.info(f"User {user.username} authenticated via OAuth2 token.")
+            user_context = await security_service.authenticate_with_token(token=token)
+            logger.info(f"User authenticated via OAuth2 token.", extra={'user.id': str(user_context.user.id)})
         except HTTPException as e:
             logger.warning(f"OAuth2 authentication failed: {e.detail}")
             raise e
@@ -43,12 +40,11 @@ async def get_current_user(
                 detail="Invalid OAuth2 token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-
-    # If no user authenticated via token, try API Key
     elif api_key:
+        logger.debug("API key provided")
         try:
-            user = security_service.authenticate_with_api_key(api_key=api_key.credentials, db=db)
-            logger.info(f"User {user.username} authenticated via API Key.")
+            user_context = await security_service.authenticate_with_api_key(api_key=api_key)
+            logger.info(f"User authenticated via API Key.", extra={'user.id': str(user_context.user.id)})
         except HTTPException as e:
             logger.warning(f"API Key authentication failed: {e.detail}")
             raise e
@@ -60,29 +56,41 @@ async def get_current_user(
                 headers={"WWW-Authenticate": "ApiKey"},
             )
 
-    # If neither token nor API Key is provided
-    if not user:
+    if not user_context:
+        logger.warning("No authentication credentials provided")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Check for required scopes if any
-    if required_scope:
-        if not security_service.has_permission(user, required_scope):
+    return user_context
+
+
+def get_current_active_user(required_scope: Optional[str] = None):
+    async def dependency(
+        user_context: UserContext = Depends(get_current_user)
+    ) -> UserContext:
+        logger.debug("get_current_active_user called")
+        user = user_context.user
+
+        # Check if user is active (not disabled)
+        if user.disabled:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Not enough permissions",
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
             )
 
-    # Check if user is active (not disabled)
-    if user.disabled:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
-        )
+        # Check for required scopes if any
+        if required_scope:
+            if not user_context.has_permission(required_scope):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Not enough permissions",
+                )
 
-    return user
+        return user_context
+
+    return dependency
 
 
 def requires_scope(required_scope: Optional[str] = None):

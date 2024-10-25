@@ -1,5 +1,3 @@
-# core/services/security_service.py
-
 import secrets
 import hashlib
 from datetime import datetime, timedelta
@@ -10,10 +8,10 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 
-from core.database.models.security import APIKeyModel
+from core.database.models.api import APIKeyModel
 from core.database.models.user import UserModel
-from core.security.api_key_repository import APIKeyRepository
-from core.security.auth import decode_and_validate_token  # Existing function to decode Auth0 tokens
+from core.security.security_repository import APIKeyRepository
+from core.security.jwt import decode_and_validate_token
 
 pwd_context = CryptContext(
     schemes=["argon2"],

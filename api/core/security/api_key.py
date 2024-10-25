@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 import secrets
 import hashlib
 from datetime import datetime, timedelta
@@ -5,7 +7,7 @@ from typing import Optional
 
 from passlib.context import CryptContext
 
-from core.database.models.security import APIKeyModel
+from core.database.models.api import APIKeyModel
 from core.database.models.user import UserModel
 from core.dependencies import get_db_session
 
@@ -34,21 +36,21 @@ def hash_api_key(api_key: str) -> str:
     return pwd_context.hash(api_key)
 
 
-def verify_api_key_with_passlib(provided_key: str, hashed_key: str) -> bool:
-    return pwd_context.verify(provided_key, hashed_key)
+def verify_api_key_with_passlib(provided_key: str, hashed_secret: str) -> bool:
+    return pwd_context.verify(provided_key, hashed_secret)
 
 
 def create_api_key(db: get_db_session, user: UserModel, permissions: list, expires_in: timedelta = None) -> APIKeyModel:
     raw_api_key = generate_api_key()
     identifier = generate_api_key_identifier(raw_api_key)
-    hashed_key = hash_api_key(raw_api_key)
+    hashed_secret = hash_api_key(raw_api_key)
 
     api_key = APIKeyModel(
         identifier=identifier,
-        hashed_key=hashed_key,
+        hashed_secret=hashed_secret,
         user_id=user.id,
         permissions=permissions,
-        expires_at=datetime.utcnow() + expires_in if expires_in else None
+        expires_at=datetime.now(timezone.utc) + expires_in if expires_in else None
     )
 
     db.add(api_key)
@@ -66,8 +68,8 @@ def verify_api_key(provided_key: str, db: get_db_session) -> Optional[UserModel]
     if not api_key_obj:
         return None  # No matching API key found
 
-    if verify_api_key_with_passlib(provided_key, api_key_obj.hashed_key):
-        if api_key_obj.expires_at and api_key_obj.expires_at < datetime.utcnow():
+    if verify_api_key_with_passlib(provided_key, api_key_obj.hashed_secret):
+        if api_key_obj.expires_at and api_key_obj.expires_at < datetime.now(timezone.utc):
             return None  # API key has expired
         return api_key_obj.user  # Valid API key
 

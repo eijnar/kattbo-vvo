@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from core.database.models.hunting import HuntYear, UserTeamYear
-from core.database.models.user import UserModel
+from core.database.models.user import User
 from routers.hunting.schemas.hunting import HuntYearCreate, UserTeamYearCreate
 
 

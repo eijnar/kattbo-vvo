@@ -4,53 +4,79 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 
-from repositories.user_repository import UserRepository
 from core.database.base import AsyncSessionLocal
+from core.security.security_repository import SecurityRepository
+from core.security.security_service import SecurityService
+from repositories.user_repository import UserRepository
+from repositories.team_repository import TeamRepository
+from repositories.user_team_assignment_repository import UserTeamAssignmentRepository
 from routers.users.services.user_service import UserService
-from core.security.api_key_repository import APIKeyRepository
-from core.security.service import SecurityService
+from routers.teams.services.team_services import TeamService
+
 
 logger = logging.getLogger(__name__)
 
 
 async def get_db_session():
-    try:
-        async with AsyncSessionLocal() as session:
+    logger.debug(
+        "get_db_session: Attempting to create a new database session.")
+    async with AsyncSessionLocal() as session:
+        try:
             yield session
             logger.debug("Database session created successfully.")
-    except SQLAlchemyError as e:
-        logger.error(f"Error during database session creation: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error ajusted: {e}")
-        raise
+        except SQLAlchemyError as e:
+            logger.error(f"Error during database session creation: {e}")
+            await session.rollback()
+            raise
+        except Exception as e:
+            logger.error(f"get_db_session: {e}")
+            raise
+    logger.debug("get_db_session: Database session closed successfully.")
 
-def get_api_key_repository(db: AsyncSession = Depends(get_db_session)) -> APIKeyRepository:
-    return APIKeyRepository(db)
 
-def get_security_service(api_key_repository: APIKeyRepository = Depends(get_api_key_repository)) -> SecurityService:
-    return SecurityService(api_key_repository)
+# Repositories
 
 async def get_user_repository(db_session: AsyncSession = Depends(get_db_session)) -> UserRepository:
-    """
-    Dependency to provide an instance of UserRepository.
-
-    Args:
-        db_session (AsyncSession): The database session injected by FastAPI.
-
-    Returns:
-        UserRepository: An instance of UserRepository.
-    """
+    logger.debug("get_user_repository")
     return UserRepository(db_session)
 
-async def get_user_service(user_repository: UserRepository = Depends(get_user_repository)) -> UserService:
-    """
-    Dependency to provide an instance of UserService.
 
-    Args:
-        user_repository (UserRepository): The UserRepository instance injected by FastAPI.
+async def get_team_repository(db_session: AsyncSession = Depends(get_db_session)) -> TeamRepository:
+    logger.debug("get_team_repository")
+    return TeamRepository(db_session)
 
-    Returns:
-        UserService: An instance of UserService.
-    """
+
+async def get_security_repository(db_session: AsyncSession = Depends(get_db_session)) -> SecurityRepository:
+    logger.debug("get_security_repository")
+    return SecurityRepository(db_session)
+
+async def get_user_team_assignment_repository(db_session: AsyncSession = Depends(get_db_session)) -> UserTeamAssignmentRepository:
+    logger.debug("get_user_team_assignment_repository")
+    return UserTeamAssignmentRepository(db_session)
+
+
+# Services
+
+
+async def get_user_service(
+    user_repository: UserRepository = Depends(get_user_repository)
+) -> UserService:
+    logger.debug("get_user_service")
     return UserService(user_repository)
+
+
+async def get_team_service(
+    team_repository: TeamRepository = Depends(get_team_repository),
+    user_team_assignment_repository: UserTeamAssignmentRepository = Depends(get_user_team_assignment_repository)
+) -> TeamService:
+    logger.debug("get_user_service")
+    return TeamService(team_repository, user_team_assignment_repository)
+
+
+def get_security_service(
+    security_repository: SecurityRepository = Depends(get_security_repository),
+    user_service: UserService = Depends(get_user_service),
+    jwt_secret: str = "your_jwt_secret",
+    jwt_algorithm: str = "HS256"
+) -> SecurityService:
+    return SecurityService(security_repository, user_service, jwt_secret, jwt_algorithm)

@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     API_AUDIENCE: str
     ALGORITHMS: list = ["RS256"]
     
+    JWT_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
+    
     APP_NAME: str = 'Kättbo VVO API'
     DEBUG_MODE: bool = False
     

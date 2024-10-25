@@ -1,10 +1,10 @@
-from sqlalchemy import Column, String, Text, UUID
 from uuid import uuid4
 
-from core.database.base import Base
-from core.database.models.mixins import TrackingMixin, CRUDMixin
+from sqlalchemy import Column, String, Text, UUID
 
-class Template(Base, TrackingMixin, CRUDMixin):
+from core.database.base import Base
+
+class Template(Base):
     __tablename__ = 'templates'
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
     service = Column(String, nullable=False)

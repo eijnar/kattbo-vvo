@@ -24,7 +24,7 @@ class RedisFactory:
                     max_connections=REDIS_SETTINGS.get('max_connections', 10)
                 )
                 self.redis_pools[name] = pool
-                logger.info(f"Created Redis pool '{name}' with DB {db}.")
+                logger.debug(f"Created Redis pool '{name}' with DB {db}.")
             except Exception as e:
                 logger.error(f"Failed to create Redis pool '{name}': {e}")
                 raise
@@ -45,4 +45,4 @@ redis_factory = RedisFactory()
 async def init_redis_pools():
     for name, db in REDIS_DBS.items():
         redis_factory.create_redis_pool(name, db)
-    logger.info("All Redis pools have been initialized.")
+    logger.debug("All Redis pools have been initialized.")

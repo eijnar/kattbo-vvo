@@ -2,8 +2,9 @@
 
 from fastapi import APIRouter
 from .endpoints import (
-    user_management,
-    profile
+    me_api_key,
+    me_profile,
+    user_management
 )
 
 router = APIRouter(
@@ -19,7 +20,13 @@ router.include_router(
 )
 
 router.include_router(
-    profile.router,
-    prefix="/profile",
+    me_profile.router,
+    prefix="/me",
     tags=["Profile"]
+)
+
+router.include_router(
+    me_api_key.router,
+    prefix="/me/api-keys",
+    tags=["API Keys"]
 )

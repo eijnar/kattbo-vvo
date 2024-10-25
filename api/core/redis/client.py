@@ -22,7 +22,7 @@ async def get_redis_client(pool_name: str) -> aioredis.Redis:
     """
     try:
         client = await redis_factory.get_redis_pool(pool_name)
-        logger.info(f"Obtained Redis client for pool '{pool_name}'.")
+        logger.debug(f"Obtained Redis client for pool '{pool_name}'.")
         return client
     except ValueError as ve:
         logger.error(f"Error getting Redis client for pool '{pool_name}': {ve}")

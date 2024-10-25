@@ -3,9 +3,8 @@ from typing import List
 
 from fastapi import HTTPException
 
-from utils.mask_sensitive_data import mask_sensitive_data
 from core.exceptions import DatabaseException
-from core.database.models import UserModel
+from core.database.models import User
 from repositories.user_repository import UserRepository
 from routers.users.schemas.user import UserBaseSchema, UserCreateSchema, UserUpdateSchema
 
@@ -34,7 +33,7 @@ class UserService:
                 status_code=500, detail="Failed to fetch user"
             )
 
-    async def register_user(self, user: UserCreateSchema) -> UserModel:
+    async def register_user(self, user: UserCreateSchema) -> User:
         """
         Registers a new user by creating them in the repository.
         """
@@ -47,7 +46,7 @@ class UserService:
                     status_code=400, detail="User already registered")
 
             # Create new user
-            new_user = UserModel(
+            new_user = User(
                 auth0_id=user.auth0_id,
                 email=user.email,
                 phone_number=user.phone_number,
@@ -69,9 +68,9 @@ class UserService:
 
     async def update_user_profile(
         self,
-        user: UserModel,
+        user: User,
         user_data: UserUpdateSchema
-    ) -> UserModel:
+    ) -> User:
         """
         Updates a user's profile fully (PUT).
         """
@@ -134,9 +133,9 @@ class UserService:
 
     async def update_user_profile_partial(
         self,
-        user: UserModel,
+        user: User,
         user_data: UserUpdateSchema
-    ) -> UserModel:
+    ) -> User:
         """
         Partially updates a user's profile (PATCH).
         """
