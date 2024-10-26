@@ -18,6 +18,46 @@ class UserRepository(BaseRepository[User]):
     def __init__(self, db_session: AsyncSession):
         super().__init__(User, db_session)
 
+    async def get_by_id(self, id: str) -> Optional[User]:
+        """
+        Retrieves a user by their Auth0 ID.
+        """
+        try:
+            result = await self.db_session.execute(
+                select(User).filter(User.id == id)
+            )
+            user = result.scalars().first()
+            if not user:
+                logger.warning(f"User with ID {id} not found.")
+                raise NotFoundException(
+                    detail=f"User with ID {id} not found.")
+            return user
+        except SQLAlchemyError as e:
+            logger.error(
+                f"Failed to retrieve user with ID {id}: {e}")
+            raise DatabaseException(
+                detail=f"Failed to retrieve user with ID {id}.") from e
+
+    async def get_by_auth0_id(self, auth0_id: str) -> Optional[User]:
+        """
+        Retrieves a user by their Auth0 ID.
+        """
+        try:
+            result = await self.db_session.execute(
+                select(User).filter(User.auth0_id == auth0_id)
+            )
+            user = result.scalars().first()
+            if not user:
+                logger.warning(f"User with Auth0 ID {auth0_id} not found.")
+                raise NotFoundException(
+                    detail=f"User with Auth0 ID {auth0_id} not found.")
+            return user
+        except SQLAlchemyError as e:
+            logger.error(
+                f"Failed to retrieve user with Auth0 ID {auth0_id}: {e}")
+            raise DatabaseException(
+                detail=f"Failed to retrieve user with Auth0 ID {auth0_id}.") from e
+
     async def get_all_users(self, page: int = 1, page_size: int = 20) -> List[User]:
         """
         Retrieves all users from the database with pagination.
@@ -65,23 +105,3 @@ class UserRepository(BaseRepository[User]):
         """
         await self.delete(user)
         logger.info(f"Soft deleted user with ID {user.id}.")
-
-    async def get_by_auth0_id(self, auth0_id: str) -> Optional[User]:
-        """
-        Retrieves a user by their Auth0 ID.
-        """
-        try:
-            result = await self.db_session.execute(
-                select(User).filter(User.auth0_id == auth0_id)
-            )
-            user = result.scalars().first()
-            if not user:
-                logger.warning(f"User with Auth0 ID {auth0_id} not found.")
-                raise NotFoundException(
-                    detail=f"User with Auth0 ID {auth0_id} not found.")
-            return user
-        except SQLAlchemyError as e:
-            logger.error(
-                f"Failed to retrieve user with Auth0 ID {auth0_id}: {e}")
-            raise DatabaseException(
-                detail=f"Failed to retrieve user with Auth0 ID {auth0_id}.") from e
