@@ -87,20 +87,17 @@ async def get_team_users(
 
 @router.get("/{team_id}/areas", response_model=List[AreaRead])
 async def get_team_areas(team_id: UUID, team_service: TeamService = Depends(get_team_service)):
-
     areas = await team_service.get_areas(team_id)
     return areas
 
 
 @router.get("/{team_id}/waypoints", response_model=List[WaypointRead])
 async def get_team_waypoints(team_id: UUID, team_service: TeamService = Depends(get_team_service)):
-
     waypoints = await team_service.get_waypoints(team_id)
     return waypoints
 
 
 @router.get("/{team_id}/stand-numbers", response_model=List[StandNumberRead])
 async def get_team_stand_numbers(team_id: UUID, team_service: TeamService = Depends(get_team_service)):
-
     stand_numbers = await team_service.get_stand_numbers(team_id)
     return stand_numbers

@@ -4,13 +4,11 @@ from enum import Enum
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.security.schemas import APIKeyCreateResponseSchema, APIKeyCreateSchema, APIKeyReadSchema, APIKeyRevokeResponseSchema
 from core.security.auth import get_current_active_user
 from core.security.security_service import SecurityService
 from core.dependencies import get_security_service
-from core.dependencies import get_db_session
 from core.security.models import UserContext
 
 
@@ -33,7 +31,6 @@ async def get_api_keys(
     ),
     user_context: UserContext = Depends(get_current_active_user()),
     security_service: SecurityService = Depends(get_security_service),
-    db_session: AsyncSession = Depends(get_db_session)
 ):
     """
     Endpoint to get all API Key for the current user
@@ -50,8 +47,7 @@ async def get_api_keys(
 
     api_keys = await security_service.list_api_keys(
         user=current_user,
-        revoked=revoked_filter,
-        db_session=db_session
+        revoked=revoked_filter
     )
     return api_keys
 
@@ -60,8 +56,7 @@ async def get_api_keys(
 async def create_api_key(
     api_key_request: APIKeyCreateSchema,
     security_service: SecurityService = Depends(get_security_service),
-    current_user: UserContext = Depends(get_current_active_user()),
-    db_session: AsyncSession = Depends(get_db_session)
+    current_user: UserContext = Depends(get_current_active_user())
 ):
     """
     Endpoint to create a new API Key for the authenticated user.
@@ -71,7 +66,6 @@ async def create_api_key(
         user=current_user.user,
         permissions=api_key_request.permissions,
         expires_in=api_key_request.expires_in,
-        db_session=db_session
     )
 
     return APIKeyCreateResponseSchema(
@@ -85,14 +79,13 @@ async def create_api_key(
 async def revoked_api_key(
     id: UUID,
     user_context: UserContext = Depends(get_current_active_user()),
-    security_service: SecurityService = Depends(get_security_service),
-    db_session: AsyncSession = Depends(get_db_session)
+    security_service: SecurityService = Depends(get_security_service)
 ):
     """
     Endpoint to revoke (disable) an API Key for the authenticated user.
     """
 
-    revoked_api_key = await security_service.revoke_api_key(api_key_id=id, db_session=db_session)
+    revoked_api_key = await security_service.revoke_api_key(api_key_id=id)
 
     if not revoked_api_key:
         raise HTTPException(status_code=404, detail="API Key not found")
