@@ -20,6 +20,10 @@ class UserService:
         users = await self.user_repository.get_all_users(page=page, page_size=page_size)
         return [UserBaseSchema.model_validate(user) for user in users]
 
+    async def get_user_by_id(self, id: str) -> UserBaseSchema:
+        user = self.user_repository.read(id)
+        return user
+
     async def get_user_by_auth0_id(self, auth0_id: str) -> UserBaseSchema:
         try:
             user = await self.user_repository.get_by_auth0_id(auth0_id)

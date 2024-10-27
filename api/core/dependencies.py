@@ -7,11 +7,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from core.database.base import AsyncSessionLocal
 from core.security.security_repository import SecurityRepository
 from core.security.security_service import SecurityService
-from repositories.user_repository import UserRepository
-from repositories.team_repository import TeamRepository
-from repositories.user_team_assignment_repository import UserTeamAssignmentRepository
-from routers.users.services.user_service import UserService
-from routers.teams.services.team_services import TeamService
+from repositories import UserRepository, TeamRepository, UserTeamAssignmentRepository
+from services import UserService, TeamService, UserTeamAssignmentService
 
 
 logger = logging.getLogger(__name__)
@@ -50,6 +47,7 @@ async def get_security_repository(db_session: AsyncSession = Depends(get_db_sess
     logger.debug("get_security_repository")
     return SecurityRepository(db_session)
 
+
 async def get_user_team_assignment_repository(db_session: AsyncSession = Depends(get_db_session)) -> UserTeamAssignmentRepository:
     logger.debug("get_user_team_assignment_repository")
     return UserTeamAssignmentRepository(db_session)
@@ -67,7 +65,8 @@ async def get_user_service(
 
 async def get_team_service(
     team_repository: TeamRepository = Depends(get_team_repository),
-    user_team_assignment_repository: UserTeamAssignmentRepository = Depends(get_user_team_assignment_repository)
+    user_team_assignment_repository: UserTeamAssignmentRepository = Depends(
+        get_user_team_assignment_repository)
 ) -> TeamService:
     logger.debug("get_user_service")
     return TeamService(team_repository, user_team_assignment_repository)
@@ -80,3 +79,12 @@ def get_security_service(
     jwt_algorithm: str = "HS256"
 ) -> SecurityService:
     return SecurityService(security_repository, user_service, jwt_secret, jwt_algorithm)
+
+
+def get_user_team_assignment_service(
+    user_team_assignment_repository: UserTeamAssignmentRepository = Depends(
+        get_user_team_assignment_repository),
+    team_service: TeamService = Depends(get_team_service),
+    user_service: UserService = Depends(get_user_service)
+) -> UserTeamAssignmentService:
+    return UserTeamAssignmentService(user_team_assignment_repository, team_service, user_service)

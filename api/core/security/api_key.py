@@ -7,8 +7,8 @@ from typing import Optional
 
 from passlib.context import CryptContext
 
-from core.database.models.api import APIKeyModel
-from core.database.models.user import UserModel
+from core.database.models.api import APIKey
+from core.database.models.user import User
 from core.dependencies import get_db_session
 
 
@@ -40,17 +40,18 @@ def verify_api_key_with_passlib(provided_key: str, hashed_secret: str) -> bool:
     return pwd_context.verify(provided_key, hashed_secret)
 
 
-def create_api_key(db: get_db_session, user: UserModel, permissions: list, expires_in: timedelta = None) -> APIKeyModel:
+def create_api_key(db: get_db_session, user: User, permissions: list, expires_in: timedelta = None) -> APIKey:
     raw_api_key = generate_api_key()
     identifier = generate_api_key_identifier(raw_api_key)
     hashed_secret = hash_api_key(raw_api_key)
 
-    api_key = APIKeyModel(
+    api_key = APIKey(
         identifier=identifier,
         hashed_secret=hashed_secret,
         user_id=user.id,
         permissions=permissions,
-        expires_at=datetime.now(timezone.utc) + expires_in if expires_in else None
+        expires_at=datetime.now(timezone.utc) +
+        expires_in if expires_in else None
     )
 
     db.add(api_key)
@@ -60,10 +61,10 @@ def create_api_key(db: get_db_session, user: UserModel, permissions: list, expir
     return api_key, raw_api_key  # Return both; raw_api_key shown only once
 
 
-def verify_api_key(provided_key: str, db: get_db_session) -> Optional[UserModel]:
+def verify_api_key(provided_key: str, db: get_db_session) -> Optional[User]:
     identifier = generate_api_key_identifier(provided_key)
-    api_key_obj = db.query(APIKeyModel).filter(
-        APIKeyModel.identifier == identifier, APIKeyModel.revoked == False).first()
+    api_key_obj = db.query(APIKey).filter(
+        APIKey.identifier == identifier, APIKey.revoked == False).first()
 
     if not api_key_obj:
         return None  # No matching API key found

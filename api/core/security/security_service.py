@@ -6,10 +6,9 @@ from typing import Optional, Tuple, List
 
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.security.models import UserContext
-from routers.users.services.user_service import UserService
+from services.user_service import UserService
 from core.database.models.api import APIKey
 from core.database.models.user import User
 from core.security.security_repository import SecurityRepository

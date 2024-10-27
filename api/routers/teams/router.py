@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from .endpoints import (
     teams,
-    assignments
+    user_assignments
 )
 
 router = APIRouter(
@@ -12,4 +12,4 @@ router = APIRouter(
 
 # Include sub-routers for different user-related functionalities
 router.include_router(teams.router)
-router.include_router(assignments.router)
+router.include_router(user_assignments.router)

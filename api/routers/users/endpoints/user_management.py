@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query, Request
 from core.dependencies import get_user_service
 from core.security.auth import requires_scope
 from utils.rate_limiter import limiter
-from routers.users.services.user_service import UserService
+from services.user_service import UserService
 from routers.users.schemas.user import UserBaseSchema, UserCreateSchema
 
 
