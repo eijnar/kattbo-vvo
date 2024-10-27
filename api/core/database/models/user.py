@@ -5,9 +5,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from core.database.base import Base
+from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
 
-
-class User(Base):
+class User(Base, TrackingMixin, SoftDeleteMixin):
     __tablename__ = 'users'
     id = Column(UUID(as_uuid=True), primary_key=True,
                 default=uuid.uuid4, unique=True, nullable=False)
@@ -17,7 +17,6 @@ class User(Base):
     last_name = Column(String(255))
     phone_number = Column(String(255))
     profile_picture = Column(String(255), default='profile_pics/default.png')
-    disabled = Column(Boolean, default=True)
 
     api_keys = relationship("APIKey", back_populates="user")
     user_team_assignments = relationship('UserTeamAssignment', back_populates='user', cascade="all, delete-orphan")

@@ -11,3 +11,7 @@ class ConflictException(HTTPException):
 class DatabaseException(HTTPException):
     def __init__(self, detail: str = "Database operation failed"):
         super().__init__(status_code=500, detail=detail)
+        
+class ValidationException(HTTPException):
+    def __init__(self, detail: str = "Validation failed"):
+        super().__init__(status_code=400, detail=detail)

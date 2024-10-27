@@ -4,9 +4,9 @@ from sqlalchemy import Column, ForeignKey, UUID, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
 
 from core.database.base import Base
+from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
 
-
-class WaypointTask(Base):
+class WaypointTask(Base, TrackingMixin, SoftDeleteMixin):
     __tablename__ = 'waypoint_tasks'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -18,7 +18,6 @@ class WaypointTask(Base):
         'users.id'), nullable=False)
     fixed_by = Column(UUID(as_uuid=True), ForeignKey(
         'users.id'), nullable=True)
-    created_at = Column(DateTime(timezone=True), nullable=False)
     fixed_at = Column(DateTime(timezone=True), nullable=True)
 
     waypoint = relationship("Waypoint", back_populates="tasks")

@@ -1,42 +1,52 @@
 from uuid import UUID
+from typing import Optional
+from logging import getLogger
 
 from core.exceptions import NotFoundException, ConflictException, DatabaseException
 from repositories import UserTeamAssignmentRepository
 from core.database.models.assignments import UserTeamAssignment
 from services.user_service import UserService
 from services.team_services import TeamService
+from services.hunting_year_service import HuntingYearService
 
+
+logger = getLogger(__name__)
 class UserTeamAssignmentService:
     def __init__(
         self,
         user_team_assignment_repository: UserTeamAssignmentRepository,
         team_service: TeamService,
-        user_service: UserService
+        user_service: UserService,
+        hunting_year_service: HuntingYearService
     ):
-        self.user_team_assignemnt_repository = user_team_assignment_repository
+        self.user_team_assignment_repository = user_team_assignment_repository
         self.team_service = team_service
         self.user_service = user_service
-        
+        self.hunting_year_service = hunting_year_service
+
     async def assign_user_to_hunting_year(
-        self,
-        user_id: UUID,
-        team_id: UUID,
+        self, 
+        user_id: UUID, 
+        team_id: UUID, 
         hunting_year_id: UUID
     ) -> UserTeamAssignment:
+        # Verify user exists
+
+
         
-        await self.team_service.get_team(team_id)
-        await self.user_service.get_user_by_id(user_id)
-        return await self.user_team_assignemnt_repository.assign_user_to_team_year(user_id, team_id, hunting_year_id)
-    
-    async def move_user_to_new_team(
-        self,
-        user_id: UUID,
-        current_team_id: UUID,
-        new_team_id: UUID,
-        hunting_year_id: UUID
-    ) -> UserTeamAssignment:
-        
-        await self.team_service.get_team(new_team_id)
-        return await self.user_team_assignemnt_repository.move_user_to_team_year(
-            user_id, current_team_id, new_team_id, hunting_year_id
+        # Check if assignment already exists
+        existing_assignment = await self.user_team_assignment_repository.filter(
+            user_id=user_id,
+            team_id=team_id,
+            hunting_year_id=hunting_year_id
         )
+        if existing_assignment:
+            raise ConflictException(detail="User is already assigned to this team and hunting year.")
+        
+        # Create new assignment
+        assignment = await self.user_team_assignment_repository.create(
+            user_id=user_id,
+            team_id=team_id,
+            hunting_year_id=hunting_year_id
+        )
+        return assignment

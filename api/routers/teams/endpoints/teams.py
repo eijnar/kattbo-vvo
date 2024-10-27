@@ -6,6 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
 
 from core.exceptions import NotFoundException
 from core.dependencies import get_team_service
+from core.hunting_year_dependency import get_resolved_hunting_year
+from core.database.models import HuntingYear
 from services.team_services import TeamService
 from routers.teams.schemas.team_schemas import (
     TeamCreate,
@@ -77,11 +79,11 @@ async def delete_team(team_id: str, team_service: TeamService = Depends(get_team
 @router.get("/{team_id}/users", response_model=List[UserRead])
 async def get_team_users(
     team_id: UUID,
-    hunting_year_id: UUID,  # Accept hunting_year_id as a query parameter
+    hunting_year_id: HuntingYear = Depends(get_resolved_hunting_year),
     team_service: TeamService = Depends(get_team_service)
 ):
 
-    users = await team_service.get_users_for_hunting_year(team_id, hunting_year_id)
+    users = await team_service.get_users_for_hunting_year(team_id, hunting_year_id.id)
     return users
 
 

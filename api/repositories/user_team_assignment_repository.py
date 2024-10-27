@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +14,6 @@ class UserTeamAssignmentRepository(BaseRepository[UserTeamAssignment]):
         super().__init__(UserTeamAssignment, db_session)
 
     async def assign_user_to_team_year(self, user_id: UUID, team_id: UUID, hunting_year_id: UUID) -> UserTeamAssignment:
-        # Check if assignment already exists
         existing_assignment = await self.filter(
             user_id=user_id,
             team_id=team_id,
@@ -32,7 +31,6 @@ class UserTeamAssignmentRepository(BaseRepository[UserTeamAssignment]):
         return assignment
 
     async def move_user_to_new_team(self, user_id: UUID, current_team_id: UUID, new_team_id: UUID, hunting_year_id: UUID) -> UserTeamAssignment:
-
         current_assignment = await self.get_one(
             user_id=user_id,
             team_id=current_team_id,

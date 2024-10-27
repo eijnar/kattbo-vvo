@@ -57,7 +57,7 @@ class UserService:
                 disabled=False
             )
 
-            return await self.user_repository.create_user(new_user)
+            return await self.user_repository.create(new_user)
 
         except DatabaseException as e:
             logger.error(

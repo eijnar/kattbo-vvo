@@ -52,17 +52,16 @@ class BaseRepository(Generic[T]):
 
     async def list(self, limit: int = 100, offset: int = 0) -> List[T]:
         try:
-            result = await self.db_session.execute(
-                select(self.model).limit(limit).offset(offset)
-            )
+            query = select(self.model).where(
+                getattr(self.model, 'is_active', True) == True).limit(limit).offset(offset)
+            result = await self.db_session.execute(query)
             records = result.scalars().all()
-            logger.debug(
-                f"Listed {len(records)} {self.model.__name__}(s) with limit={limit} and offset={offset}.")
             return records
         except SQLAlchemyError as e:
             logger.error(f"Failed to list {self.model.__name__}s: {e}")
             raise DatabaseException(
-                detail=f"Failed to list {self.model.__name__}s.") from e
+                detail=f"Failed to list {self.model.__name__}s."
+            ) from e
 
     async def filter(self, **kwargs) -> List[T]:
         try:
@@ -101,7 +100,6 @@ class BaseRepository(Generic[T]):
     async def delete(self, instance: T):
         try:
             if hasattr(instance, 'is_active'):
-                # Soft delete: Set 'is_active' to False
                 setattr(instance, 'is_active', False)
                 logger.info(
                     f"Soft deleted {self.model.__name__} with ID {instance.id}.")
@@ -109,7 +107,6 @@ class BaseRepository(Generic[T]):
                 await self.db_session.commit()
                 await self.db_session.refresh(instance)
             else:
-                # Hard delete: Remove the instance from the session
                 await self.db_session.delete(instance)
                 logger.info(
                     f"Hard deleted {self.model.__name__} with ID {instance.id}.")
@@ -124,19 +121,6 @@ class BaseRepository(Generic[T]):
                 detail=f"Failed to {action} {self.model.__name__} with ID {instance.id}.") from e
 
     async def get_one(self, **kwargs) -> T:
-        """
-        Retrieves a single instance matching the given filter criteria.
-
-        Args:
-            **kwargs: Arbitrary keyword arguments to filter the query.
-
-        Returns:
-            T: The retrieved instance.
-
-        Raises:
-            NotFoundException: If no instance matches the criteria.
-            DatabaseException: If a database error occurs during retrieval.
-        """
         try:
             query = select(self.model).filter_by(**kwargs)
             result = await self.db_session.execute(query)

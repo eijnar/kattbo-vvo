@@ -7,8 +7,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from core.database.base import AsyncSessionLocal
 from core.security.security_repository import SecurityRepository
 from core.security.security_service import SecurityService
-from repositories import UserRepository, TeamRepository, UserTeamAssignmentRepository
-from services import UserService, TeamService, UserTeamAssignmentService
+from repositories import UserRepository, TeamRepository, UserTeamAssignmentRepository, HuntingYearRepository
+from services import UserService, TeamService, UserTeamAssignmentService, HuntingYearService
 
 
 logger = logging.getLogger(__name__)
@@ -53,6 +53,10 @@ async def get_user_team_assignment_repository(db_session: AsyncSession = Depends
     return UserTeamAssignmentRepository(db_session)
 
 
+async def get_hunting_year_repository(db_session: AsyncSession = Depends(get_db_session)) -> HuntingYearRepository:
+    logger.debug("get_hunting_year_repository")
+
+
 # Services
 
 
@@ -63,13 +67,22 @@ async def get_user_service(
     return UserService(user_repository)
 
 
+async def get_hunting_year_service(
+    db_session: AsyncSession = Depends(get_db_session)
+) -> HuntingYearService:
+    repository = HuntingYearRepository(db_session)
+    return HuntingYearService(repository)
+
+
 async def get_team_service(
     team_repository: TeamRepository = Depends(get_team_repository),
     user_team_assignment_repository: UserTeamAssignmentRepository = Depends(
-        get_user_team_assignment_repository)
+        get_user_team_assignment_repository),
+    hunting_year_service: HuntingYearService = Depends(
+        get_hunting_year_service),
 ) -> TeamService:
     logger.debug("get_user_service")
-    return TeamService(team_repository, user_team_assignment_repository)
+    return TeamService(team_repository, user_team_assignment_repository, hunting_year_service)
 
 
 def get_security_service(
@@ -85,6 +98,8 @@ def get_user_team_assignment_service(
     user_team_assignment_repository: UserTeamAssignmentRepository = Depends(
         get_user_team_assignment_repository),
     team_service: TeamService = Depends(get_team_service),
-    user_service: UserService = Depends(get_user_service)
+    user_service: UserService = Depends(get_user_service),
+    hunting_year_service: HuntingYearService = Depends(
+        get_hunting_year_service)
 ) -> UserTeamAssignmentService:
-    return UserTeamAssignmentService(user_team_assignment_repository, team_service, user_service)
+    return UserTeamAssignmentService(user_team_assignment_repository, team_service, user_service, hunting_year_service)
