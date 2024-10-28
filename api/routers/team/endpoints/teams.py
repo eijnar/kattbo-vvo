@@ -9,7 +9,7 @@ from core.dependencies import get_team_service
 from core.hunting_year_dependency import get_resolved_hunting_year
 from core.database.models import HuntingYear
 from services.team_services import TeamService
-from routers.teams.schemas.team_schemas import (
+from routers.team.schemas.team_schemas import (
     TeamCreate,
     TeamRead,
     TeamUpdate,

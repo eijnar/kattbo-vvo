@@ -30,11 +30,7 @@ class UserTeamAssignmentService:
         team_id: UUID, 
         hunting_year_id: UUID
     ) -> UserTeamAssignment:
-        # Verify user exists
 
-
-        
-        # Check if assignment already exists
         existing_assignment = await self.user_team_assignment_repository.filter(
             user_id=user_id,
             team_id=team_id,
@@ -43,7 +39,6 @@ class UserTeamAssignmentService:
         if existing_assignment:
             raise ConflictException(detail="User is already assigned to this team and hunting year.")
         
-        # Create new assignment
         assignment = await self.user_team_assignment_repository.create(
             user_id=user_id,
             team_id=team_id,

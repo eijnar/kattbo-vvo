@@ -5,6 +5,8 @@ from repositories.hunting_year_repository import HuntingYearRepository
 from core.database.models import HuntingYear
 from core.exceptions import NotFoundException, ConflictException, ValidationException
 from datetime import date
+
+from routers.hunting_year.schemas.hunting_year_schemas import HuntingYearCreate
 import re
 import logging
 
@@ -16,9 +18,9 @@ class HuntingYearService:
     def __init__(self, hunting_year_repository: HuntingYearRepository):
         self.hunting_year_repository = hunting_year_repository
 
-    async def create_hunting_year(self, start_year: int, is_current: bool = False, is_locked: bool = False) -> HuntingYear:
+    async def create_hunting_year(self, hunting_year: HuntingYearCreate) -> HuntingYear:
 
-        name = f"{start_year}/{start_year + 1}"
+        name = f"{hunting_year.start_year}/{hunting_year.start_year + 1}"
 
         if not re.match(r'^\d{4}/\d{4}$', name):
             logger.error("Invalid HuntingYear name format.")
@@ -38,25 +40,25 @@ class HuntingYearService:
             raise ConflictException(
                 detail=f"HuntingYear with name '{name}' already exists.")
 
-        if is_current:
+        if hunting_year.is_current:
             current_hunting_year = await self.hunting_year_repository.get_current_hunting_year()
             if current_hunting_year:
                 logger.error("There is already a current HuntingYear.")
                 raise ConflictException(
                     detail="There is already a current HuntingYear. Unset it before setting a new one as current.")
 
-        start_date = date(start_year, 7, 1)
-        end_date = date(start_year + 1, 6, 30)
+        start_date = date(hunting_year.start_year, 7, 1)
+        end_date = date(hunting_year.start_year + 1, 6, 30)
 
         hunting_year = await self.hunting_year_repository.create(
             name=name,
             start_date=start_date,
             end_date=end_date,
-            is_current=is_current,
-            is_locked=is_locked
+            is_current=hunting_year.is_current,
+            is_locked=hunting_year.is_locked
         )
 
-        if is_current and current_hunting_year:
+        if hunting_year.is_current and current_hunting_year:
             current_hunting_year.is_current = False
             await self.hunting_year_repository.update(current_hunting_year)
 

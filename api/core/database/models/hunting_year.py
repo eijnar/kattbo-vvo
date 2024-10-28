@@ -1,7 +1,6 @@
 import uuid
-from datetime import datetime, timezone
 
-from sqlalchemy import Column, UUID, String, Date, Boolean, DateTime
+from sqlalchemy import Column, UUID, String, Date, Boolean
 from sqlalchemy.orm import relationship, validates
 
 from core.database.base import Base
@@ -17,20 +16,31 @@ class HuntingYear(Base, TrackingMixin, SoftDeleteMixin, LockableMixin):
     end_date = Column(Date)
     is_current = Column(Boolean, default=False, nullable=False)
 
-    waypoint_stand_assignments = relationship('WaypointStandAssignment', back_populates='hunting_year')
-    user_stand_assignments = relationship('UserStandAssignment', back_populates='hunting_year')
-    user_team_assignments = relationship('UserTeamAssignment', back_populates='hunting_year')
+    tasks = relationship('Task', back_populates='hunting_year')
+    
+    waypoint_stand_assignments = relationship(
+        'WaypointStandAssignment', back_populates='hunting_year')
+    
+    user_stand_assignments = relationship(
+        'UserStandAssignment', back_populates='hunting_year')
+    
+    user_team_assignments = relationship(
+        'UserTeamAssignment', back_populates='hunting_year')
+    
+    hunting_year_tasks = relationship(
+        'HuntingYearTask', back_populates='hunting_year')
 
     @validates('name')
-    def validate_name(self, name):
+    def validate_name(self, key, name):
         import re
-        pattern = r'^(\d{4})/(\d{4})$' # YYYY/YYYY
+        pattern = r'^(\d{4})/(\d{4})$'  # YYYY/YYYY
         match = re.match(pattern, name)
         if not match:
             raise ValueError("Name must be in the format YYYY/YYYY")
-        
+
         start_year, end_year = map(int, match.groups())
-        if end_year != start_year +1:
-            raise ValueError("The second year must be exactly one greater than the first year")
-        
+        if end_year != start_year + 1:
+            raise ValueError(
+                "The second year must be exactly one greater than the first year")
+
         return name

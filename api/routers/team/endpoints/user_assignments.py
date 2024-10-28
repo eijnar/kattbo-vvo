@@ -5,7 +5,7 @@ from uuid import UUID
 
 from services.team_services import TeamService
 from services.hunting_year_service import HuntingYearService
-from routers.teams.schemas.assignment_schemas import UserTeamAssignmentCreate, UserTeamAssignmentRead
+from routers.team.schemas.assignment_schemas import UserTeamAssignmentCreate, UserTeamAssignmentRead
 from core.exceptions import NotFoundException, ConflictException
 from core.dependencies import get_user_team_assignment_service
 from services.user_team_assignemnt_service import UserTeamAssignmentService
