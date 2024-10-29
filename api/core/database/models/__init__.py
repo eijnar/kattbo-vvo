@@ -7,7 +7,6 @@ from .waypoint import Waypoint
 from .waypoint_area import waypoint_areas
 from .category import Category, WaypointCategoryMetadata
 from .stand_number import StandNumber
-from .assignments import WaypointStandAssignment, UserStandAssignment
 from .user_team_assignment import UserTeamAssignment
 from .waypoint_task import WaypointTask
 from .hunting_year_task import HuntingYearTask
@@ -15,3 +14,5 @@ from .user_hunting_year_task import UserHuntingYearTask
 from .task_template import TaskTemplate
 from .hunting_year_license import HuntingYearLicense
 from .user_hunting_year_assignment import UserHuntingYearAssignment
+from .waypoint_stand_assignment import WaypointStandAssignment
+from .user_stand_assignment import UserStandAssignment
