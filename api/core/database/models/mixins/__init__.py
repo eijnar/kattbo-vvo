@@ -1,2 +1,3 @@
-from core.database.models.mixins.crud_mixin import CRUDMixin
-from core.database.models.mixins.tracking_mixin import TrackingMixin
+from .tracking_mixin import TrackingMixin
+from .soft_delete_mixin import SoftDeleteMixin
+from .lockable_mixin import LockableMixin

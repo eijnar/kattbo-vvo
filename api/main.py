@@ -8,7 +8,7 @@ from slowapi.errors import RateLimitExceeded
 from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
-from core.logger.middleware import log_requests
+from core.logger.middleware import LoggingMiddleware
 from core.celery import make_celery
 from core.config import settings
 from core.database.base import create_tables
@@ -16,13 +16,11 @@ from core.logger.setup import setup_logging, apm_client
 from utils.rate_limiter import limiter
 from core.redis.factory import init_redis_pools
 from core.exceptions_handlers import (
-    not_found_exception_handler,
-    conflict_exception_handler,
-    database_exception_handler,
+    base_app_exception_handler,
     sqlalchemy_exception_handler,
     generic_exception_handler
 )
-from core.exceptions import NotFoundException, ConflictException, DatabaseException
+from core.exceptions import BaseAppException
 
 
 logger = getLogger(__name__)
@@ -31,13 +29,17 @@ logger = getLogger(__name__)
 def create_app() -> FastAPI:
     setup_logging()
 
-    app = FastAPI(title=settings.APP_NAME)
+    app = FastAPI(
+        title=settings.APP_NAME,
+        version="1.1"
+        )
 
-    app.middleware("http")(log_requests)
+    app.add_middleware(LoggingMiddleware)
 
     allowed_origins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173"
+        "http://0.0.0.0"
     ]
 
     app.add_middleware(SessionMiddleware,
@@ -56,9 +58,7 @@ def create_app() -> FastAPI:
         client=apm_client
     )
 
-    app.add_exception_handler(NotFoundException, not_found_exception_handler)
-    app.add_exception_handler(ConflictException, conflict_exception_handler)
-    app.add_exception_handler(DatabaseException, database_exception_handler)
+    app.add_exception_handler(BaseAppException, base_app_exception_handler)
     app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
     app.add_exception_handler(Exception, generic_exception_handler)
 

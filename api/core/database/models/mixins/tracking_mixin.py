@@ -1,6 +1,12 @@
-from sqlalchemy import Column, DateTime
-from sqlalchemy.sql import func
+from datetime import datetime, timezone
 
-class TrackingMixin:
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+from sqlalchemy.orm import declarative_mixin
+from sqlalchemy import Column, DateTime
+
+
+@declarative_mixin
+class TrackingMixin(object):
+    created_at = Column(DateTime(timezone=True),
+                        default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True),
+                        default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))

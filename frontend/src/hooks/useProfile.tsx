@@ -14,7 +14,7 @@ export const useProfile = () => {
     try {
       const token = await getAccessTokenSilently({
         authorizationParams: {
-          audience: config.audience, // Replace with your Auth0 audience
+          audience: config.audience,
         },
       });
       const updatedUser = await updateUserProfile(token, data);

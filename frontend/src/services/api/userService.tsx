@@ -5,7 +5,7 @@ import { API_BASE_URL } from '../../utils/constants';
 
 export const fetchUserProfile = async (token: string): Promise<UserProfile> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/users/profile/`, {
+    const response = await axios.get(`${API_BASE_URL}/users/me/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -19,7 +19,7 @@ export const fetchUserProfile = async (token: string): Promise<UserProfile> => {
 
 export const updateUserProfile = async (token: string, data: Partial<UserProfile>): Promise<UserProfile> => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/users/profile/`, data, {
+    const response = await axios.put(`${API_BASE_URL}/users/me/`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',

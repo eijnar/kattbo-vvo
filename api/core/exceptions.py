@@ -1,13 +1,31 @@
-from fastapi import HTTPException
+class BaseAppException(Exception):
+    """Base class for application-specific exceptions."""
+    status_code: int = 500
+    detail: str = "An unexpected error occurred."
+    extra: dict = {}
 
-class NotFoundException(HTTPException):
-    def __init__(self, detail: str = "Resource not found"):
-        super().__init__(status_code=404, detail=detail)
+    def __init__(self, detail: str = None, extra: dict = None):
+        if detail:
+            self.detail = detail
+        if extra:
+            self.extra = extra
 
-class ConflictException(HTTPException):
-    def __init__(self, detail: str = "Conflict occurred"):
-        super().__init__(status_code=409, detail=detail)
 
-class DatabaseException(HTTPException):
-    def __init__(self, detail: str = "Database operation failed"):
-        super().__init__(status_code=500, detail=detail)
+class NotFoundException(BaseAppException):
+    status_code = 404
+    detail = "Resource not found."
+
+
+class ConflictException(BaseAppException):
+    status_code = 409
+    detail = "Conflict occurred."
+
+
+class DatabaseException(BaseAppException):
+    status_code = 500
+    detail = "Database operation failed."
+
+
+class ValidationException(BaseAppException):
+    status_code = 400
+    detail = "Validation failed."
