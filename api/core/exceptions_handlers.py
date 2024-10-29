@@ -4,6 +4,10 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from .exceptions import NotFoundException, ConflictException, DatabaseException
 
+from logging import getLogger
+
+logger = getLogger(__name__)
+
 async def not_found_exception_handler(request: Request, exc: NotFoundException):
     return JSONResponse(
         status_code=exc.status_code,
@@ -30,7 +34,7 @@ async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
     )
 
 async def generic_exception_handler(request: Request, exc: Exception):
-    # Optionally, log the exception details
+    logger.exception(f"Unhandled error: {str(exc)}")
     return JSONResponse(
         status_code=500,
         content={"detail": "An unexpected error occurred."},
