@@ -1,3 +1,4 @@
+from logging import getLogger
 from uuid import UUID
 from typing import List, Optional
 
@@ -6,7 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from repositories.base_repository import BaseRepository
 from core.database.models import UserTeamAssignment
-from core.exceptions import NotFoundException
+from core.exceptions import NotFoundException, ConflictException
+
+
+logger = getLogger(__name__)
 
 
 class UserTeamAssignmentRepository(BaseRepository[UserTeamAssignment]):
@@ -14,20 +18,66 @@ class UserTeamAssignmentRepository(BaseRepository[UserTeamAssignment]):
         super().__init__(UserTeamAssignment, db_session)
 
     async def assign_user_to_team_year(self, user_id: UUID, team_id: UUID, hunting_year_id: UUID) -> UserTeamAssignment:
-        existing_assignment = await self.filter(
+
+        logger.debug(
+            "Checking existing assignments",
+            extra={
+                "user.id": str(user_id),
+                "resource": [
+                    {"type": "team", "id": str(team_id)},
+                    {"type": "hunting_year", "id": str(hunting_year_id)}
+                ]
+            }
+        )
+
+        existing_assignment = await self.exists(
             user_id=user_id,
             team_id=team_id,
             hunting_year_id=hunting_year_id
         )
         if existing_assignment:
-            raise ValueError(
+            logger.warning(
+                "Conflict: User is already assigned to this team and hunting year.",
+                extra={
+                    "user.id": str(user_id),
+                    "resource": [
+                        {"type": "team", "id": str(team_id)},
+                        {"type": "hunting_year", "id": str(hunting_year_id)}
+                    ]
+                }
+            )
+            raise ConflictException(
                 "User is already assigned to this team and hunting year.")
+
+        logger.debug(
+            "Creating new UserTeamAssignment",
+            extra={
+                "user.id": str(user_id),
+                "resource": [
+                    {"type": "team", "id": str(team_id)},
+                    {"type": "hunting_year", "id": str(hunting_year_id)}
+                ]
+            }
+        )
 
         assignment = await self.create(
             user_id=user_id,
             team_id=team_id,
             hunting_year_id=hunting_year_id
         )
+
+        logger.info(
+            "Created new UserTeamAssignment",
+            extra={
+                "user.id": str(user_id),
+                "resource": [
+                    {"type": "team", "id": str(team_id)},
+                    {"type": "hunting_year", "id": str(hunting_year_id)}
+                ],
+                "assignment.id": str(assignment.id)
+            }
+        )
+
         return assignment
 
     async def move_user_to_new_team(self, user_id: UUID, current_team_id: UUID, new_team_id: UUID, hunting_year_id: UUID) -> UserTeamAssignment:

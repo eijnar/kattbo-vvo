@@ -16,13 +16,11 @@ from core.logger.setup import setup_logging, apm_client
 from utils.rate_limiter import limiter
 from core.redis.factory import init_redis_pools
 from core.exceptions_handlers import (
-    not_found_exception_handler,
-    conflict_exception_handler,
-    database_exception_handler,
+    base_app_exception_handler,
     sqlalchemy_exception_handler,
     generic_exception_handler
 )
-from core.exceptions import NotFoundException, ConflictException, DatabaseException
+from core.exceptions import BaseAppException
 
 
 logger = getLogger(__name__)
@@ -60,9 +58,7 @@ def create_app() -> FastAPI:
         client=apm_client
     )
 
-    app.add_exception_handler(NotFoundException, not_found_exception_handler)
-    app.add_exception_handler(ConflictException, conflict_exception_handler)
-    app.add_exception_handler(DatabaseException, database_exception_handler)
+    app.add_exception_handler(BaseAppException, base_app_exception_handler)
     app.add_exception_handler(SQLAlchemyError, sqlalchemy_exception_handler)
     app.add_exception_handler(Exception, generic_exception_handler)
 

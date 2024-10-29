@@ -15,8 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 async def get_db_session():
-    logger.debug(
-        "get_db_session: Attempting to create a new database session.")
+    logger.debug("get_db_session: Attempting to create a new database session.")
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -24,9 +23,6 @@ async def get_db_session():
         except SQLAlchemyError as e:
             logger.error(f"Error during database session creation: {e}")
             await session.rollback()
-            raise
-        except Exception as e:
-            logger.error(f"get_db_session: {e}")
             raise
     logger.debug("get_db_session: Database session closed successfully.")
 

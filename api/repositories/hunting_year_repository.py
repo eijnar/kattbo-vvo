@@ -49,3 +49,5 @@ class HuntingYearRepository(BaseRepository[HuntingYear]):
             raise DatabaseException(
                 detail="Failed to list HuntingYears"
             )
+            
+    

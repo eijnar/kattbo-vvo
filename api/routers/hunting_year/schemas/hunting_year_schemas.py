@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Optional
 from uuid import UUID
 from datetime import datetime
 
@@ -15,5 +16,13 @@ class HuntingYearRead(BaseModel):
     is_current: bool
     is_locked: bool
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
+class HuntingYearUpdate(BaseModel):
+    is_current: Optional[bool] = Field(None, description="Set the hunting year as current")
+    is_locked: Optional[bool] = Field(None, description="Lock or unlock the hunting year")
+
+    model_config = {
+        "from_attributes": True
+    }

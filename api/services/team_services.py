@@ -17,7 +17,7 @@ class TeamService:
         self.hunting_year_service = hunting_year_service
 
     async def create_team(self, name: str) -> Team:
-        existing_teams = await self.team_repository.filter(name=name)
+        existing_teams = await self.team_repository.exists(name=name)
         if existing_teams:
             logger.error("Database conflict: Team already exists")
             raise ConflictException(f"Team with name '{name}' already exists.")
@@ -52,23 +52,20 @@ class TeamService:
                 detail=f"Team with ID {team_id} not found.")
         await self.team_repository.delete(team)
 
-    async def get_users_for_hunting_year(
+    async def get_users_for_hunting_team_and_year(
         self, 
         team_id: UUID, 
         hunting_year_id: Optional[UUID]
     ) -> Tuple[List[User], HuntingYear]:
+        
         if not hunting_year_id:
             current_year = await self.hunting_year_service.get_current_hunting_year()
-            if not current_year:
-                raise NotFoundException(detail="Current hunting year not found")
             hunting_year = current_year
             hunting_year_id = current_year.id
         else:
             hunting_year = await self.hunting_year_service.get_hunting_year(hunting_year_id)
-            if not hunting_year:
-                raise NotFoundException(detail="Specified hunting year not found")
 
-        users = await self.team_repository.get_users_for_hunting_year(team_id, hunting_year_id)
+        users = await self.team_repository.get_users_for_hunting_team_and_year(team_id, hunting_year_id)
         if not users:
             raise NotFoundException(detail="No users associated with team")
 

@@ -12,7 +12,7 @@ class TeamRepository(BaseRepository[Team]):
     def __init__(self, db_session):
         super().__init__(Team, db_session)
         
-    async def get_users_for_hunting_year(self, team_id: UUID, hunting_year_id: UUID) -> List[User]:
+    async def get_users_for_hunting_team_and_year(self, team_id: UUID, hunting_year_id: UUID) -> List[User]:
         query = select(User).join(UserTeamAssignment).where(
             UserTeamAssignment.team_id == team_id,
             UserTeamAssignment.hunting_year_id == hunting_year_id

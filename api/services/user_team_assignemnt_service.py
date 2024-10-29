@@ -11,6 +11,8 @@ from services.hunting_year_service import HuntingYearService
 
 
 logger = getLogger(__name__)
+
+
 class UserTeamAssignmentService:
     def __init__(
         self,
@@ -25,29 +27,41 @@ class UserTeamAssignmentService:
         self.hunting_year_service = hunting_year_service
 
     async def assign_user_to_team(
-        self, 
+        self,
         user_id: UUID,
-        team_id: UUID, 
+        team_id: UUID,
         hunting_year_id: Optional[UUID]
     ) -> UserTeamAssignment:
 
+        logger.info("Starting to assign the user to Team",            
+            extra={
+                "user.id": str(user_id),
+                "resource": [
+                    {"type": "team", "id": str(team_id)},
+                ]
+            })
+                
         if not hunting_year_id:
+            logger.debug("No hunting_year_id provided, fetching current_hunting_year", extra={"user_id": user_id})
             current_year = await self.hunting_year_service.get_current_hunting_year()
-            if not current_year:
-                raise NotFoundException(detail="Current hunting year not found")
             hunting_year_id = current_year.id
-            
-        existing_assignment = await self.user_team_assignment_repository.filter(
+            logger.debug(f"Fetched current hunting year: {current_year}", extra={"resource": [{"type": "team", "id": str(team_id)}]})
+
+        assignment = await self.user_team_assignment_repository.assign_user_to_team_year(
             user_id=user_id,
             team_id=team_id,
             hunting_year_id=hunting_year_id
         )
-        if existing_assignment:
-            raise ConflictException(detail="User is already assigned to this team and hunting year.")
         
-        assignment = await self.user_team_assignment_repository.create(
-            user_id=user_id,
-            team_id=team_id,
-            hunting_year_id=hunting_year_id
+        logger.info(
+            "User successfully assigned to Team",
+            extra={
+                "user.id": str(user_id),
+                "resource": [
+                    {"type": "team", "id": str(team_id)},
+                    {"type": "hunting_year", "id": str(hunting_year_id)}
+                ],
+                "assignment.id": str(assignment.id)
+            }
         )
         return assignment

@@ -23,4 +23,4 @@ class WaypointTask(Base, TrackingMixin, SoftDeleteMixin):
     waypoint = relationship("Waypoint", back_populates="tasks")
     created_by_user = relationship("User", foreign_keys=[created_by])
     fixed_by_user = relationship("User", foreign_keys=[fixed_by])
-    assignments = relationship("TaskAssignment", back_populates="task")
+    assignments = relationship("WaypointTaskAssignment", back_populates="task")

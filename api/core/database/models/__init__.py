@@ -15,4 +15,5 @@ from .task_template import TaskTemplate
 from .hunting_year_license import HuntingYearLicense
 from .user_hunting_year_assignment import UserHuntingYearAssignment
 from .waypoint_stand_assignment import WaypointStandAssignment
+from .waypoint_task_assignment import WaypointTaskAssignment
 from .user_stand_assignment import UserStandAssignment
