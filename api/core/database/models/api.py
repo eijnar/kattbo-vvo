@@ -12,7 +12,7 @@ class APIKey(Base):
     identifier = Column(String, unique=True, index=True, nullable=False)
     hashed_secret = Column(String, unique=True, index=True, nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=True)
-    created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     expires_at = Column(DateTime(timezone=True), nullable=True)
     revoked_at = Column(DateTime(timezone=True), nullable=True)
     permissions = Column(JSON, default=[])

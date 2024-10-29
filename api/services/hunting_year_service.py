@@ -1,10 +1,10 @@
 from uuid import UUID
-from typing import List, Optional
+from typing import List
+from datetime import timezone, datetime
 
 from repositories.hunting_year_repository import HuntingYearRepository
 from core.database.models import HuntingYear
 from core.exceptions import NotFoundException, ConflictException, ValidationException
-from datetime import date
 
 from routers.hunting_year.schemas.hunting_year_schemas import HuntingYearCreate
 import re
@@ -47,8 +47,8 @@ class HuntingYearService:
                 raise ConflictException(
                     detail="There is already a current HuntingYear. Unset it before setting a new one as current.")
 
-        start_date = date(hunting_year.start_year, 7, 1)
-        end_date = date(hunting_year.start_year + 1, 6, 30)
+        start_date = datetime(hunting_year.start_year, 7, 1, 0, 0, 0, tzinfo=timezone.utc)
+        end_date = datetime(hunting_year.start_year + 1, 6, 30, 23, 59, 59, tzinfo=timezone.utc)
 
         hunting_year = await self.hunting_year_repository.create(
             name=name,
@@ -136,16 +136,5 @@ class HuntingYearService:
         logger.info(f"Unlocked HuntingYear {hunting_year.name}.")
         return hunting_year
 
-    async def resolve_hunting_year(self, hunting_year_id: Optional[UUID] = None) -> HuntingYear:
-        
-        logger.info(f"resolve hunting year: {hunting_year_id} <-")
-        if hunting_year_id:
-            hunting_year = await self.get_hunting_year(hunting_year_id)
-            logger.info(hunting_year)
-            return hunting_year
-        else:
-            hunting_year = await self.hunting_year_repository.get_current_hunting_year()
-            if not hunting_year:
-                logger.error("No current Hunting year is set.")
-                raise NotFoundException(detail="No current HuntingYear is set.")
-            return hunting_year
+    async def get_current_hunting_year(self) -> HuntingYear:
+        return await self.hunting_year_repository.get_one(is_current=True)

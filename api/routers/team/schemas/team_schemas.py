@@ -13,23 +13,26 @@ class TeamUpdate(TeamBase):
 class TeamRead(TeamBase):
     id: UUID
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class UserRead(BaseModel):
     id: UUID
     first_name: str
     last_name: str
-
-    class Config:
-        from_attributes = True
+    
+    model_config = {
+        "from_attributes": True
+    }
 
 class AreaRead(BaseModel):
     id: UUID
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class WaypointRead(BaseModel):
     id: UUID
@@ -37,19 +40,22 @@ class WaypointRead(BaseModel):
     latitude: float
     longitude: float
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class StandNumberRead(BaseModel):
     id: UUID
     number: int
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class TeamRead(BaseModel):
     id: UUID
     name: str
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }

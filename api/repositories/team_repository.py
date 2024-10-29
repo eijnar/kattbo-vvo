@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 
 from repositories.base_repository import BaseRepository
 from core.database.models import Team, User, Area, Waypoint, StandNumber, User
-from core.database.models.assignments import UserTeamAssignment
+from core.database.models.user_team_assignment import UserTeamAssignment
 
 
 class TeamRepository(BaseRepository[Team]):

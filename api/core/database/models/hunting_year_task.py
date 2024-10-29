@@ -19,6 +19,6 @@ class HuntingYearTask(Base, TrackingMixin, SoftDeleteMixin):
     amount = Column(Integer, nullable=True)
     due_date = Column(DateTime(timezone=True), nullable=False)
 
-    hunting_year = relationship(
-        "HuntingYear", back_populates="hunting_year_tasks")
-    task_template = relationship("TaskTemplate")
+    hunting_year = relationship("HuntingYear", back_populates="hunting_year_tasks")
+    task_template = relationship("TaskTemplate", back_populates="hunting_year_tasks")
+    user_hunting_year_tasks = relationship("UserHuntingYearTask", back_populates="hunting_year_task", cascade="all, delete-orphan")

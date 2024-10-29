@@ -1,11 +1,12 @@
 import uuid
 
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Column, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from core.database.base import Base
 from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
+
 
 class User(Base, TrackingMixin, SoftDeleteMixin):
     __tablename__ = 'users'
@@ -19,9 +20,35 @@ class User(Base, TrackingMixin, SoftDeleteMixin):
     profile_picture = Column(String(255), default='profile_pics/default.png')
 
     api_keys = relationship("APIKey", back_populates="user")
-    user_team_assignments = relationship('UserTeamAssignment', back_populates='user', cascade="all, delete-orphan")
-    user_stand_assignments = relationship('UserStandAssignment', back_populates='user', cascade="all, delete-orphan")
-    # animals_shot = relationship('AnimalShot', backref='user', lazy=True)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    user_team_assignments = relationship(
+        'UserTeamAssignment',
+        back_populates='user',
+        cascade="all, delete-orphan"
+    )
+    
+    user_stand_assignments = relationship(
+        'UserStandAssignment',
+        back_populates='user',
+        cascade="all, delete-orphan"
+    )
+
+    hunting_year_assignments = relationship(
+        "UserHuntingYearAssignment",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    assigned_tasks = relationship(
+        "UserHuntingYearTask",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        foreign_keys="[UserHuntingYearTask.user_id]"
+    )
+
+    completed_tasks = relationship(
+        "UserHuntingYearTask",
+        back_populates="completed_by_user",
+        cascade="all, delete-orphan",
+        foreign_keys="[UserHuntingYearTask.completed_by]"
+    )

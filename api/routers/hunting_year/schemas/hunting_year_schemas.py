@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from uuid import UUID
-from datetime import date
+from datetime import datetime
 
 class HuntingYearCreate(BaseModel):
     start_year: int
@@ -10,8 +10,8 @@ class HuntingYearCreate(BaseModel):
 class HuntingYearRead(BaseModel):
     id: UUID
     name: str
-    start_date: date
-    end_date: date
+    start_date: datetime
+    end_date: datetime
     is_current: bool
     is_locked: bool
 

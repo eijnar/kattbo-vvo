@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import Column, UUID, String, Date, Boolean
+from sqlalchemy import Column, UUID, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, validates
 
 from core.database.base import Base
@@ -12,23 +12,33 @@ class HuntingYear(Base, TrackingMixin, SoftDeleteMixin, LockableMixin):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, unique=True, nullable=False)
-    start_date = Column(Date)
-    end_date = Column(Date)
+    start_date = Column(DateTime(timezone=True))
+    end_date = Column(DateTime(timezone=True))
     is_current = Column(Boolean, default=False, nullable=False)
 
-    tasks = relationship('Task', back_populates='hunting_year')
-    
     waypoint_stand_assignments = relationship(
         'WaypointStandAssignment', back_populates='hunting_year')
-    
+
     user_stand_assignments = relationship(
         'UserStandAssignment', back_populates='hunting_year')
-    
+
     user_team_assignments = relationship(
         'UserTeamAssignment', back_populates='hunting_year')
-    
+
     hunting_year_tasks = relationship(
-        'HuntingYearTask', back_populates='hunting_year')
+        'HuntingYearTask', back_populates='hunting_year', cascade="all, delete-orphan")
+
+    user_assignments = relationship(
+        'UserHuntingYearAssignment',
+        back_populates='hunting_year',
+        cascade="all, delete-orphan"
+    )
+
+    licenses = relationship(
+        'HuntingYearLicense',
+        back_populates='hunting_year',
+        cascade="all, delete-orphan"
+    )
 
     @validates('name')
     def validate_name(self, key, name):

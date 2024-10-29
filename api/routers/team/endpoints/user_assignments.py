@@ -1,16 +1,15 @@
 from logging import getLogger
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Optional
 from uuid import UUID
 
 from services.team_services import TeamService
-from services.hunting_year_service import HuntingYearService
+from services.user_team_assignemnt_service import UserTeamAssignmentService
+from routers.team.schemas.assignment_schemas import TeamUsersResponse
 from routers.team.schemas.assignment_schemas import UserTeamAssignmentCreate, UserTeamAssignmentRead
 from core.exceptions import NotFoundException, ConflictException
-from core.dependencies import get_user_team_assignment_service
-from services.user_team_assignemnt_service import UserTeamAssignmentService
-from core.database.models import HuntingYear
-from core.hunting_year_dependency import get_resolved_hunting_year
+from core.dependencies import get_user_team_assignment_service, get_team_service
+
 
 router = APIRouter(tags=["Assignments"])
 logger = getLogger(__name__)
@@ -19,7 +18,6 @@ logger = getLogger(__name__)
 async def assign_user_to_team_and_hunting_year(
     team_id: UUID,
     assignment_data: UserTeamAssignmentCreate,
-    hunting_year: HuntingYear = Depends(get_resolved_hunting_year),
     user_team_assignment_service: UserTeamAssignmentService = Depends(get_user_team_assignment_service),
 ):
     """
@@ -27,12 +25,11 @@ async def assign_user_to_team_and_hunting_year(
     If no hunting_year_id is provided, assigns to the current hunting year.
     """
     
-    logger.info(f"Route: {hunting_year.id}")
     try:
-        new_assignment = await user_team_assignment_service.assign_user_to_hunting_year(
+        new_assignment = await user_team_assignment_service.assign_user_to_team(
             user_id=assignment_data.user_id,
             team_id=team_id,
-            hunting_year_id=hunting_year.id
+            hunting_year_id=assignment_data.hunting_year_id
         )
         return new_assignment
     except NotFoundException as e:
@@ -48,8 +45,20 @@ async def assign_user_to_team_and_hunting_year(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(ve)
         ) from ve
     except Exception as e:
-        # Catch-all for unexpected errors
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred."
         ) from e
+        
+@router.get("/{team_id}/users", response_model=TeamUsersResponse)
+async def get_team_users(
+    team_id: UUID,
+    hunting_year_id: Optional[UUID] = Query(None, description="ID of the hunting year"),
+    team_service: TeamService = Depends(get_team_service)
+):
+
+    users, hunting_year = await team_service.get_users_for_hunting_year(team_id, hunting_year_id)
+    return TeamUsersResponse(
+        hunting_year=hunting_year,
+        users=users
+    )

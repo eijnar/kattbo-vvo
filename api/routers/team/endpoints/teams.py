@@ -76,17 +76,6 @@ async def delete_team(team_id: str, team_service: TeamService = Depends(get_team
             status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
-@router.get("/{team_id}/users", response_model=List[UserRead])
-async def get_team_users(
-    team_id: UUID,
-    hunting_year_id: HuntingYear = Depends(get_resolved_hunting_year),
-    team_service: TeamService = Depends(get_team_service)
-):
-
-    users = await team_service.get_users_for_hunting_year(team_id, hunting_year_id.id)
-    return users
-
-
 @router.get("/{team_id}/areas", response_model=List[AreaRead])
 async def get_team_areas(team_id: UUID, team_service: TeamService = Depends(get_team_service)):
     areas = await team_service.get_areas(team_id)

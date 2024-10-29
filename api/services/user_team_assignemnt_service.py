@@ -4,7 +4,7 @@ from logging import getLogger
 
 from core.exceptions import NotFoundException, ConflictException, DatabaseException
 from repositories import UserTeamAssignmentRepository
-from core.database.models.assignments import UserTeamAssignment
+from core.database.models.user_team_assignment import UserTeamAssignment
 from services.user_service import UserService
 from services.team_services import TeamService
 from services.hunting_year_service import HuntingYearService
@@ -24,13 +24,19 @@ class UserTeamAssignmentService:
         self.user_service = user_service
         self.hunting_year_service = hunting_year_service
 
-    async def assign_user_to_hunting_year(
+    async def assign_user_to_team(
         self, 
-        user_id: UUID, 
+        user_id: UUID,
         team_id: UUID, 
-        hunting_year_id: UUID
+        hunting_year_id: Optional[UUID]
     ) -> UserTeamAssignment:
 
+        if not hunting_year_id:
+            current_year = await self.hunting_year_service.get_current_hunting_year()
+            if not current_year:
+                raise NotFoundException(detail="Current hunting year not found")
+            hunting_year_id = current_year.id
+            
         existing_assignment = await self.user_team_assignment_repository.filter(
             user_id=user_id,
             team_id=team_id,

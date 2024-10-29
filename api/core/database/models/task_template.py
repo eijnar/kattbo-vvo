@@ -21,8 +21,4 @@ class TaskTemplate(Base, TrackingMixin, SoftDeleteMixin):
     is_default = Column(Boolean, default=False, nullable=False)
     task_type = Column(Enum(TaskType), nullable=False)
     
-    hunting_year_id = Column(UUID(as_uuid=True), ForeignKey('hunting_years.id'), nullable=True)
-    hunting_year = relationship('HuntingYear', back_populates='tasks')
-    
-    user_task_assignments = relationship('UserTaskAssignment', back_populates='task')
-    
+    hunting_year_tasks = relationship("HuntingYearTask", back_populates="task_template", cascade="all, delete-orphan")
