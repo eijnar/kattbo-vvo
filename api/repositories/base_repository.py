@@ -46,7 +46,7 @@ class BaseRepository(Generic[T]):
             raise DatabaseException(
                 detail=f"Failed to create {self.model.__name__}.") from e
 
-    async def read(self, id: int) -> T:
+    async def read(self, id: int, raise_if_not_found: bool = True) -> T:
         try:
             logger.debug(
                 "Reading instance",
@@ -59,10 +59,12 @@ class BaseRepository(Generic[T]):
             if not instance:
                 logger.debug(
                     f"{self.model.__name__} with ID {id} not found",
-                    extra={"resource.type": self.model.__name__, "resource.id": id}
+                    extra={"resource.type": self.model.__name__,
+                           "resource.id": id}
                 )
-                raise NotFoundException(
-                    detail=f"{self.model.__name__} with ID {id} not found.")
+                if raise_if_not_found:
+                    raise NotFoundException(
+                        detail=f"{self.model.__name__} with ID {id} not found.")
             logger.debug(
                 "Retrieved instance",
                 extra={
@@ -77,7 +79,7 @@ class BaseRepository(Generic[T]):
             raise DatabaseException(
                 detail=f"Failed to read {self.model.__name__} with ID {id}.") from e
 
-    async def list(self, limit: int = 100, offset: int = 0) -> List[T]:
+    async def list(self, limit: int = 100, offset: int = 0, raise_if_not_found: bool = False) -> List[T]:
         try:
             logger.debug(
                 "Listing instances",
@@ -91,22 +93,34 @@ class BaseRepository(Generic[T]):
                 getattr(self.model, 'is_active', True) == True).limit(limit).offset(offset)
             result = await self.db_session.execute(query)
             records = result.scalars().all()
-            logger.info(
-                f"Listed {len(records)} {self.model.__name__}(s)",
-                extra={
-                    "resource.type": self.model.__name__,
-                    "count": len(records)
-                }
-            )
+            if records:
+                logger.info(
+                    f"Listed {len(records)} {self.model.__name__}(s)",
+                    extra={
+                        "resource.type": self.model.__name__,
+                        "count": len(records)
+                    }
+                )
+            else: 
+                logger.info(
+                    f"No {self.model.__name__} records found",
+                    extra={
+                        "resource.type": self.model.__name__,
+                        "count": 0
+                    }
+                )
+                if raise_if_not_found:
+                    NotFoundException(detail="No records found")
+                    
             return records
-        
+
         except SQLAlchemyError as e:
             logger.error(f"Failed to list {self.model.__name__}s: {e}")
             raise DatabaseException(
                 detail=f"Failed to list {self.model.__name__}s."
             ) from e
 
-    async def filter(self, **kwargs) -> List[T]:
+    async def filter(self, raise_if_not_found: bool = False, **kwargs) -> List[T]:
         try:
             logger.debug(
                 "Filtering instances",
@@ -126,10 +140,11 @@ class BaseRepository(Generic[T]):
                         "criteria": kwargs
                     }
                 )
-                raise NotFoundException(
-                    detail=f"No {self.model.__name__}s found with criteria {kwargs}."
-                )
-                
+                if raise_if_not_found:
+                    raise NotFoundException(
+                        detail=f"No {self.model.__name__}s found with criteria {kwargs}."
+                    )
+
             logger.info(
                 f"Filtered {len(records)} {self.model.__name__}(s)",
                 extra={
@@ -139,7 +154,7 @@ class BaseRepository(Generic[T]):
                 }
             )
             return records
-        
+
         except SQLAlchemyError as e:
             logger.error(
                 f"Failed to filter {self.model.__name__}s with criteria {kwargs}: {e}")
@@ -220,7 +235,7 @@ class BaseRepository(Generic[T]):
                         "resource.id": instance.id
                     }
                 )
-                
+
         except SQLAlchemyError as e:
             action = "soft delete" if hasattr(
                 instance, 'is_active') else "hard delete"
@@ -230,16 +245,33 @@ class BaseRepository(Generic[T]):
                 detail=f"Failed to {action} {self.model.__name__} with ID {instance.id}.") from e
 
     async def get_one(self, **kwargs) -> T:
-        logger.info(f"get_one called from {self.model.__name__} with {kwargs}")
         try:
+            logger.debug(
+                "Fetching one instance based on criteria",
+                extra={
+                    "resource.type": self.model.__name__,
+                    "criteria": kwargs
+                }
+            )
             query = select(self.model).filter_by(**kwargs)
             result = await self.db_session.execute(query)
             instance = result.scalars().first()
             if not instance:
-                logger.info(
-                    f"No instance found when called from {self.model.__name__}")
-            logger.info(
-                f"Retrieved {self.model.__name__} matching criteria: {kwargs}")
+                logger.debug(
+                    f"No {self.model.__name__} found with criteria {kwargs}",
+                    extra={
+                        "resource.type": self.model.__name__,
+                        "criteria": kwargs
+                    }
+                )
+            logger.debug(
+                "Retrieved instance",
+                extra={
+                    "resource.type": self.model.__name__,
+                    "criteria": kwargs,
+                    "resource.id": getattr(instance, 'id', 'unknown')
+                }
+            )
             return instance
         except SQLAlchemyError as e:
             logger.error(
@@ -269,7 +301,7 @@ class BaseRepository(Generic[T]):
                 }
             )
             return exists
-        
+
         except SQLAlchemyError as e:
             raise DatabaseException(
                 detail=f"Failed to verify existence of {self.model.__name__} with criteria {kwargs}: {e}",

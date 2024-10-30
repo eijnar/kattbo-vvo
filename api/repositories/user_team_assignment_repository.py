@@ -81,7 +81,7 @@ class UserTeamAssignmentRepository(BaseRepository[UserTeamAssignment]):
         return assignment
 
     async def move_user_to_new_team(self, user_id: UUID, current_team_id: UUID, new_team_id: UUID, hunting_year_id: UUID) -> UserTeamAssignment:
-        current_assignment = await self.get_one(
+        current_assignment = await self.filter(
             user_id=user_id,
             team_id=current_team_id,
             hunting_year_id=hunting_year_id

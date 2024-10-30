@@ -20,22 +20,11 @@ class HuntingYearRepository(BaseRepository[HuntingYear]):
 
     async def get_current_hunting_year(self) -> Optional[HuntingYear]:
         """Retrieve the HuntingYear marked as current"""
-        logger.info("Getting current hunting year")
-        return await self.get_one(is_current=True)
+        logger.debug("Retrieving the current hunting year", extra={"resource.type": "HuntingYear"})
+        return await self.read(is_current=True, raise_if_not_found=False)
 
     async def get_by_name(self, name: str) -> Optional[HuntingYear]:
-        try:
-            result = await self.db_session.execute(
-                select(self.model).where(self.model.name == name)
-            )
-            hunting_year = result.scalars().first()
-            if not hunting_year:
-                return None
-            return hunting_year
-        except SQLAlchemyError as e:
-            logger.error(f"Error fetching HuntingYear by name '{name}': {e}")
-            raise DatabaseException(detail="Failed to fetch HuntingYear by name.") from e
-
+        return await self.read(name=name)
 
     async def list_hunting_years_descending(self, limit: int = 100, offset: int = 0) -> List[HuntingYear]:
         """List HuntingYears ordered by start_date descending"""
@@ -49,5 +38,3 @@ class HuntingYearRepository(BaseRepository[HuntingYear]):
             raise DatabaseException(
                 detail="Failed to list HuntingYears"
             )
-            
-    

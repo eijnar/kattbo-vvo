@@ -19,7 +19,28 @@ class HuntingYearService:
         self.hunting_year_repository = hunting_year_repository
 
     async def create_hunting_year(self, hunting_year: HuntingYearCreate) -> HuntingYear:
+        """
+        Create a new HuntingYear based on the provided start year.
 
+        This function calculates the name, start date, and end date for the
+        HuntingYear and ensures that the name follows the 'YYYY/YYYY' format
+        where the end year is exactly one greater than the start year. If the
+        HuntingYear is set as current, any existing current HuntingYear will be
+        unset.
+
+        Args:
+            hunting_year (HuntingYearCreate): The data required to create a new
+            HuntingYear, including the start year and whether it should be current.
+
+        Returns:
+            HuntingYear: The created HuntingYear object.
+
+        Raises:
+            ValidationException: If the HuntingYear name format is invalid or if
+            the end year is not exactly one greater than the start year.
+            ConflictException: If a HuntingYear with the same name already exists.
+        """
+        
         existing_hunting_years = await self.hunting_year_repository.list()
         is_current = len(existing_hunting_years) == 0 or hunting_year.is_current
 
@@ -151,7 +172,6 @@ class HuntingYearService:
 
         if hunting_year_update.is_current is not None:
             if hunting_year_update.is_current:
-                # If setting this HuntingYear as current, unset others
                 current_hunting_year = await self.hunting_year_repository.get_current_hunting_year()
                 if current_hunting_year and current_hunting_year.id != hunting_year_id:
                     current_hunting_year.is_current = False
@@ -172,7 +192,6 @@ class HuntingYearService:
         for field, value in update_data.items():
             setattr(hunting_year, field, value)
 
-        # Save the updated HuntingYear
         await self.hunting_year_repository.update(hunting_year)
         logger.info(f"Updated HuntingYear: {hunting_year.name}")
 
@@ -180,4 +199,4 @@ class HuntingYearService:
 
     async def get_current_hunting_year(self) -> HuntingYear:
         logger.info("get_current_hunting_year called")
-        return await self.hunting_year_repository.get_one(is_current=True)
+        return await self.hunting_year_repository.read(is_current=True)

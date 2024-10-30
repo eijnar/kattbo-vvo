@@ -2,7 +2,6 @@ from uuid import UUID
 from typing import Optional
 from logging import getLogger
 
-from core.exceptions import NotFoundException, ConflictException, DatabaseException
 from repositories import UserTeamAssignmentRepository
 from core.database.models.user_team_assignment import UserTeamAssignment
 from services.user_service import UserService
@@ -65,3 +64,7 @@ class UserTeamAssignmentService:
             }
         )
         return assignment
+    
+    async def move_user_to_team(
+        self
+    )
