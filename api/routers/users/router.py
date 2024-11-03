@@ -4,7 +4,8 @@ from fastapi import APIRouter
 from .endpoints import (
     me_api_key,
     me_profile,
-    user_management
+    user_management,
+    teams
 )
 
 router = APIRouter(
@@ -29,4 +30,9 @@ router.include_router(
     me_api_key.router,
     prefix="/me/api-keys",
     tags=["API Keys"]
+)
+
+router.include_router(
+    teams.router,
+    tags=["Team assignments"]
 )

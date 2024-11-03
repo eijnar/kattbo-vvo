@@ -13,7 +13,7 @@ class UserTeamAssignment(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     assigned_at = Column(DateTime(timezone=True),
-                         default=lambda: datetime.now(timezone.utc))
+                         default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'))
     team_id = Column(UUID(as_uuid=True), ForeignKey('teams.id'))
@@ -26,5 +26,5 @@ class UserTeamAssignment(Base):
         'HuntingYear', back_populates='user_team_assignments')
 
     __table_args__ = (
-        UniqueConstraint('user_id', 'team_id', 'hunting_year_id', name='_user_team_hyear_uc'),
+        UniqueConstraint('user_id', 'hunting_year_id', name='_user_team_hyear_uc'),
     )

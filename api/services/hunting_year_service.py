@@ -199,4 +199,4 @@ class HuntingYearService:
 
     async def get_current_hunting_year(self) -> HuntingYear:
         logger.info("get_current_hunting_year called")
-        return await self.hunting_year_repository.read(is_current=True)
+        return await self.hunting_year_repository.get_one(is_current=True)

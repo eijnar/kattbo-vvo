@@ -6,7 +6,7 @@ from schemas.hunting_year import HuntingYearRead
 from routers.team.schemas.team_schemas import UserRead
 
 class UserTeamAssignmentCreate(BaseModel):
-    user_id: UUID4 = Field(..., description="The UUID of the user to assign.")
+    team_id: UUID4 = Field(..., description="The UUID of the user to assign.")
     hunting_year_id: Optional[UUID4] = Field(
         None, description="The UUID of the hunting year. Defaults to the current hunting year if not provided."
     )

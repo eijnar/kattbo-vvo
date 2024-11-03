@@ -18,14 +18,6 @@ class HuntingYearRepository(BaseRepository[HuntingYear]):
     def __init__(self, db_session: AsyncSession):
         super().__init__(HuntingYear, db_session)
 
-    async def get_current_hunting_year(self) -> Optional[HuntingYear]:
-        """Retrieve the HuntingYear marked as current"""
-        logger.debug("Retrieving the current hunting year", extra={"resource.type": "HuntingYear"})
-        return await self.read(is_current=True, raise_if_not_found=False)
-
-    async def get_by_name(self, name: str) -> Optional[HuntingYear]:
-        return await self.read(name=name)
-
     async def list_hunting_years_descending(self, limit: int = 100, offset: int = 0) -> List[HuntingYear]:
         """List HuntingYears ordered by start_date descending"""
         try:

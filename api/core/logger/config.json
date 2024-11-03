@@ -19,7 +19,7 @@
     },
     "file_json": {
       "class": "logging.handlers.RotatingFileHandler",
-      "level": "INFO",
+      "level": "DEBUG",
       "filename": "../logs/api.log.jsonl",
       "maxBytes": 100000,
       "backupCount": 3
@@ -30,7 +30,14 @@
     }
   },
   "root": {
-    "level": "INFO",
+    "level": "DEBUG",
     "handlers": ["queue"]
+  },
+  "loggers": {
+    "urllib3.connectionpool": {
+      "level": "INFO",
+      "handlers": [],
+      "propagate": true
+    }
   }
 }

@@ -24,7 +24,7 @@ async def get_db_session():
             logger.error(f"Error during database session creation: {e}")
             await session.rollback()
             raise
-    logger.debug("get_db_session: Database session closed successfully.")
+    logger.debug("Database session closed successfully.")
 
 
 # Repositories

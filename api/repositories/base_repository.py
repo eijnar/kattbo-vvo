@@ -52,7 +52,7 @@ class BaseRepository(Generic[T]):
                 "Reading instance",
                 extra={
                     "resource.type": self.model.__name__,
-                    "resource.id": id
+                    "resource.id": str(id)
                 }
             )
             instance = await self.db_session.get(self.model, id)
@@ -60,7 +60,7 @@ class BaseRepository(Generic[T]):
                 logger.debug(
                     f"{self.model.__name__} with ID {id} not found",
                     extra={"resource.type": self.model.__name__,
-                           "resource.id": id}
+                           "resource.id": str(id)}
                 )
                 if raise_if_not_found:
                     raise NotFoundException(
@@ -69,7 +69,7 @@ class BaseRepository(Generic[T]):
                 "Retrieved instance",
                 extra={
                     "resource.type": self.model.__name__,
-                    "resource.id": id
+                    "resource.id": str(id)
                 }
             )
             return instance
@@ -269,7 +269,7 @@ class BaseRepository(Generic[T]):
                 extra={
                     "resource.type": self.model.__name__,
                     "criteria": kwargs,
-                    "resource.id": getattr(instance, 'id', 'unknown')
+                    "resource.id": str(instance.id)
                 }
             )
             return instance
