@@ -7,14 +7,14 @@ from core.dependencies import get_user_service
 from core.security.auth import requires_scope
 from utils.rate_limiter import limiter
 from services.user_service import UserService
-from schemas.user import UserBaseSchema, UserCreateSchema
+from schemas.user import UserBase, UserCreate
 
 
 logger = getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/", response_model=List[UserBaseSchema])
+@router.get("/", response_model=List[UserBase])
 async def get_users(
     page: int = Query(1, gt=0),
     page_size: int = Query(20, gt=0, le=100),
@@ -33,7 +33,7 @@ async def get_users(
 @limiter.limit("10/second")
 async def register_user(
     request: Request,
-    user: UserCreateSchema,
+    user: UserCreate,
     user_service: UserService = Depends(get_user_service),
 ):
     """

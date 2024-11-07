@@ -9,31 +9,37 @@ class TaskType(str, Enum):
     shooting_certificate = "shooting_certificate"
 
 
-class TaskTemplateCreate(BaseModel):
-    name: str = Field(..., example="Avgift 1")
-    description: Optional[str] = Field(None, example="Första betalningen")
-    is_mandatory: bool = Field(..., example=True)
-    task_type: TaskType
-    is_default: bool = Field(False, example=True)
-
-
-class TaskTemplateRead(BaseModel):
-    id: UUID
+class TaskTemplateBase(BaseModel):
     name: str
-    description: Optional[str]
-    is_mandatory: bool
+    description: Optional[str] = None
+    is_mandatory: bool = False
     task_type: TaskType
-    is_default: bool
+    is_default: bool = False
 
     model_config = {
         "from_attributes": True
     }
 
 
+class TaskTemplateCreate(TaskTemplateBase):
+    pass
+
+
 class TaskTemplateUpdate(BaseModel):
-    name: Optional[str] = Field(None, example="Avgift 1 updaterad")
-    description: Optional[str] = Field(
-        None, example="Uppdaterat beskrivningen")
-    is_mandatory: Optional[bool] = Field(None, example=False)
-    task_type: Optional[TaskType]
+    name: Optional[str] = Field(None, example="Updated Task Name")
+    description: Optional[str] = Field(None, example="Updated description")
+    is_mandatory: Optional[bool] = Field(None, example=True)
+    task_type: Optional[TaskType] = None
     is_default: Optional[bool] = Field(None, example=True)
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class TaskTemplateRead(TaskTemplateBase):
+    id: UUID
+
+    model_config = {
+        "from_attributes": True
+    }

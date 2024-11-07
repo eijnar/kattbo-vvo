@@ -2,7 +2,7 @@ from repositories.hunting_year_repository import HuntingYearRepository
 from repositories.user_repository import UserRepository
 from repositories.user_hunting_year_task_repository import UserHuntingYearTaskRepository
 from core.database.models.hunting_year_task import HuntingYearTask
-from schemas.user_hunting_year_assignment_schemas import AssignHuntingYear
+from schemas import AssignHuntingYear
 from core.exceptions import NotFoundException, ConflictException
 
 class UserHuntingYearAssignmentService:

@@ -1,3 +1,17 @@
+from .common import (
+    UserRead,
+    HuntingYearRead,
+    TeamRead,
+    AreaRead,
+    StandNumberRead,
+    WaypointRead
+)
+
+from .team import (
+    TeamCreate,
+    TeamUpdate,
+)
+
 from .hunting_year import (
     HuntingYearRead
 )
@@ -14,6 +28,13 @@ from .task_template import (
     TaskTemplateUpdate
 )
 
-from .user_team_assignment import (
-    UserTeamAssignmentRead
+from .user import (
+    UserCreate,
+    UserUpdate,
+    UserBase
+)
+
+from .assignment import (
+    UserTeamAssignmentRead,
+    UserTeamAssignmentCreate
 )

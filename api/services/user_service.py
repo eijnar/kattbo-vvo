@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from core.exceptions import DatabaseException
 from core.database.models import User
 from repositories.user_repository import UserRepository
-from schemas.user import UserBaseSchema, UserCreateSchema, UserUpdateSchema
+from schemas import UserBase, UserCreate, UserUpdate
 
 
 logger = getLogger(__name__)
@@ -16,15 +16,15 @@ class UserService:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
-    async def get_all_users(self, page: int, page_size: int) -> List[UserBaseSchema]:
+    async def get_all_users(self, page: int, page_size: int) -> List[UserBase]:
         users = await self.user_repository.get_all_users(page=page, page_size=page_size)
-        return [UserBaseSchema.model_validate(user) for user in users]
+        return [UserBase.model_validate(user) for user in users]
 
-    async def get_user_by_id(self, id: str) -> UserBaseSchema:
+    async def get_user_by_id(self, id: str) -> UserBase:
         user = self.user_repository.read(id)
         return user
 
-    async def get_user_by_auth0_id(self, auth0_id: str) -> UserBaseSchema:
+    async def get_user_by_auth0_id(self, auth0_id: str) -> UserBase:
         try:
             user = await self.user_repository.get_by_auth0_id(auth0_id)
             if user is None:
@@ -37,7 +37,7 @@ class UserService:
                 status_code=500, detail="Failed to fetch user"
             )
 
-    async def register_user(self, user: UserCreateSchema) -> User:
+    async def register_user(self, user: UserCreate) -> User:
         """
         Registers a new user by creating them in the repository.
         """
@@ -73,7 +73,7 @@ class UserService:
     async def update_user_profile(
         self,
         user: User,
-        user_data: UserUpdateSchema
+        user_data: UserUpdate
     ) -> User:
         """
         Updates a user's profile fully (PUT).
@@ -138,7 +138,7 @@ class UserService:
     async def update_user_profile_partial(
         self,
         user: User,
-        user_data: UserUpdateSchema
+        user_data: UserUpdate
     ) -> User:
         """
         Partially updates a user's profile (PATCH).

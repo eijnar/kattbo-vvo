@@ -1,12 +1,16 @@
-from pydantic import BaseModel
+# schemas/team.py
+from pydantic import BaseModel, Field
 from uuid import UUID
-from typing import List
-
-from schemas.hunting_year import HuntingYearRead
+from typing import List, Optional
+from schemas.common import UserRead, HuntingYearRead, WaypointRead
 
 
 class TeamBase(BaseModel):
     name: str
+
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class TeamCreate(TeamBase):
@@ -17,65 +21,10 @@ class TeamUpdate(TeamBase):
     pass
 
 
-class TeamRead(TeamBase):
-    id: UUID
-
-    model_config = {
-        "from_attributes": True
-    }
-
-
-class UserRead(BaseModel):
-    id: UUID
-    first_name: str
-    last_name: str
-
-    model_config = {
-        "from_attributes": True
-    }
-
 
 class TeamUsersResponse(BaseModel):
     hunting_year: HuntingYearRead
     users: List[UserRead]
-
-    model_config = {
-        "from_attributes": True
-    }
-
-
-class AreaRead(BaseModel):
-    id: UUID
-    name: str
-
-    model_config = {
-        "from_attributes": True
-    }
-
-
-class WaypointRead(BaseModel):
-    id: UUID
-    name: str
-    latitude: float
-    longitude: float
-
-    model_config = {
-        "from_attributes": True
-    }
-
-
-class StandNumberRead(BaseModel):
-    id: UUID
-    number: int
-
-    model_config = {
-        "from_attributes": True
-    }
-
-
-class TeamRead(BaseModel):
-    id: UUID
-    name: str
 
     model_config = {
         "from_attributes": True

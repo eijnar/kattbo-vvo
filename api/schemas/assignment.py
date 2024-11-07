@@ -1,17 +1,15 @@
 from pydantic import BaseModel, Field, UUID4
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 
-from schemas.hunting_year import HuntingYearRead
-from schemas.team import UserRead
 
 class UserTeamAssignmentCreate(BaseModel):
-    team_id: UUID4 = Field(..., description="The UUID of the user to assign.")
+    user_id: UUID4 = Field(..., description="The UUID of the user to assign")
+    team_id: UUID4 = Field(..., description="The UUID of the team to assign the user to.")
     hunting_year_id: Optional[UUID4] = Field(
         None, description="The UUID of the hunting year. Defaults to the current hunting year if not provided."
     )
 
-# schemas/user_team_assignment.py
 
 class UserTeamAssignmentRead(BaseModel):
     id: UUID4
@@ -23,5 +21,3 @@ class UserTeamAssignmentRead(BaseModel):
     model_config = {
         "from_attributes": True
     }
-
-

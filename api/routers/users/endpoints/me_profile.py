@@ -6,7 +6,7 @@ from core.database.models import User
 from core.security.auth import get_current_active_user
 from core.security.models import UserContext
 from core.dependencies import get_user_service
-from schemas.user import UserBaseSchema, UserUpdateSchema
+from schemas import UserBase, UserUpdate
 from services.user_service import UserService
 
 
@@ -14,7 +14,7 @@ logger = getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/", response_model=UserBaseSchema)
+@router.get("/", response_model=UserBase)
 async def get_self_profile(
     request: Request,
     user_context: UserContext = Depends(
@@ -33,10 +33,10 @@ async def get_self_profile(
     return current_user
 
 
-@router.put("/", response_model=UserBaseSchema)
+@router.put("/", response_model=UserBase)
 async def update_profile(
     request: Request,
-    user_data: UserUpdateSchema,
+    user_data: UserUpdate,
     user_context: UserContext = Depends(get_current_active_user()),
     user_service: UserService = Depends(get_user_service)
 ):
@@ -52,10 +52,10 @@ async def update_profile(
     return updated_user
 
 
-@router.patch("/", response_model=UserBaseSchema)
+@router.patch("/", response_model=UserBase)
 async def partial_update_profile(
     request: Request,
-    user_data: UserUpdateSchema,
+    user_data: UserUpdate,
     current_user: User = Depends(get_current_active_user),
     user_service: UserService = Depends(get_user_service)
 ):
