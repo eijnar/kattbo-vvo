@@ -13,5 +13,5 @@ class EventCategory(Base, TrackingMixin, SoftDeleteMixin):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
     name = Column(String, nullable=False)
     
-    events = relationship('Event', backref='event_category', lazy=True)
+    events = relationship('Event', back_populates='event_category', lazy=True)
     

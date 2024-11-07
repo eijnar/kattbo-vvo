@@ -15,10 +15,10 @@ class EventDayGatheringPlaces(Base, TrackingMixin):
     event_day_id = Column(UUID(as_uuid=True), ForeignKey('event_days.id'))
     gathering_place_id = Column(UUID(as_uuid=True), ForeignKey('waypoints.id'))
     team_id = Column(UUID(as_uuid=True), ForeignKey('teams.id'))
-    
-    event_day = relationship('EventDay', backref=(
-        'event_day_gathering_places'), lazy='selectin', cascade='all, delete-orphan')
-    gathering_place = relationship('Waypoint', backref=(
-        'event_day_gathering_places'), lazy='selectin', cascade='all, delete-orphan')
-    team = relationship('Team', backref=(
-        'event_day_gathering_places'), lazy='selectin', cascade='all, delete-orphan')
+
+    event_day = relationship('EventDay', back_populates=(
+        'event_day_gathering_places'), lazy='selectin')
+    gathering_place = relationship('Waypoint', back_populates=(
+        'event_day_gathering_places'), lazy='selectin')
+    team = relationship('Team', back_populates=(
+        'event_day_gathering_places'), lazy='selectin')

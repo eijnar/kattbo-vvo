@@ -20,6 +20,12 @@ class EventDay(Base, TrackingMixin, SoftDeleteMixin):
     # Relationships
     event_id = Column(UUID(as_uuid=True), ForeignKey('events.id', ondelete='CASCADE'), nullable=False)
     
-    events = relationship('Event', back_populates='event_days')
-    users_events = relationship('UserEvent', back_populates='event_days')
     
+    events = relationship('Event', back_populates='event_days')
+    user_events = relationship('UserEventRegistration', back_populates='event_day')
+    
+    event_day_gathering_places = relationship(
+        'EventDayGatheringPlaces',
+        back_populates='event_day',
+        cascade='all, delete-orphan'
+    )

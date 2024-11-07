@@ -14,11 +14,11 @@ class Waypoint(Base, TrackingMixin, SoftDeleteMixin):
     name = Column(String, nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
-    category_id = Column(UUID(as_uuid=True), ForeignKey('categories.id'), nullable=True)
+    category_id = Column(UUID(as_uuid=True), ForeignKey('waypoint_categories.id'), nullable=True)
     team_id = Column(UUID(as_uuid=True), ForeignKey('teams.id'), nullable=False)
 
     # Relationships
-    category = relationship('Category', back_populates='waypoints')
+    category = relationship('WaypointCategory', back_populates='waypoints', lazy='selectin')
     team = relationship('Team', back_populates='waypoints')
     areas = relationship(
         'Area',
@@ -27,3 +27,4 @@ class Waypoint(Base, TrackingMixin, SoftDeleteMixin):
     )
     stand_assignments = relationship('WaypointStandAssignment', back_populates='waypoint', cascade="all, delete-orphan")
     tasks = relationship('WaypointTask', back_populates='waypoint', cascade="all, delete-orphan")
+    event_day_gathering_places = relationship('EventDayGatheringPlaces', back_populates='gathering_place', cascade="all, delete-orphan")

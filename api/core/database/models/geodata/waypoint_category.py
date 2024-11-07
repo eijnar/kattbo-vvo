@@ -10,14 +10,33 @@ from core.database.mixins import TrackingMixin, SoftDeleteMixin
 class WaypointCategory(Base, TrackingMixin, SoftDeleteMixin):
     __tablename__ = 'waypoint_categories'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
     name = Column(String, nullable=False)
-    context = Column(String, nullable=False)
-    icon = Column(String, nullable=True)
 
+    # Self-referential Foreign Key
     parent_id = Column(UUID(as_uuid=True), ForeignKey(
         'waypoint_categories.id'), nullable=True)
-    parent = relationship('WaypointCategory', remote_side=[
-                          id], backref='subcategories')
 
-    waypoints = relationship('Waypoint', back_populates='category')
+    # Relationship to Parent
+    parent = relationship(
+        'WaypointCategory',
+        remote_side=[id],
+        back_populates='subcategories',
+        lazy='selectin'
+    )
+
+    # Relationship to Subcategories
+    subcategories = relationship(
+        'WaypointCategory',
+        back_populates='parent',
+        cascade='all, delete-orphan',
+        lazy='selectin'
+    )
+
+    # Relationship to Waypoints
+    waypoints = relationship(
+        'Waypoint',
+        back_populates='category',
+        cascade='all, delete-orphan',
+        lazy='selectin'
+    )

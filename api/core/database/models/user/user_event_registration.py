@@ -21,4 +21,4 @@ class UserEventRegistration(Base, TrackingMixin):
     event_day_id = Column(UUID(as_uuid=True), ForeignKey('event_days.id', ondelete='CASCADE'), nullable=False)
     
     user = relationship('User', back_populates='user_events')
-    days = relationship('EventDay', back_populates='user_events')
+    event_day = relationship('EventDay', back_populates='user_events')

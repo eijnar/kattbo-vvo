@@ -16,3 +16,4 @@ class Team(Base, TrackingMixin, SoftDeleteMixin):
     areas = relationship('Area', back_populates='team')
     waypoints = relationship('Waypoint', back_populates='team')
     stand_numbers = relationship('StandNumber', back_populates='team')
+    event_day_gathering_places = relationship('EventDayGatheringPlaces', back_populates='team', cascade="all, delete-orphan")
