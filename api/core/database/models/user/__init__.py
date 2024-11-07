@@ -1,0 +1,6 @@
+from .user import User
+from .user_event_registration import UserEventRegistration
+from .user_hunting_year_assignment import UserHuntingYearAssignment
+from .user_hunting_year_task import UserHuntingYearTask
+from .user_stand_assignment import UserStandAssignment
+from .user_team_assignment import UserTeamAssignment

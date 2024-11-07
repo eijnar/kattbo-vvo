@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 
 from core.security.models import UserContext
 from services.user_service import UserService
-from core.database.models.api import APIKey
+from core.database.models.security.api import APIKey
 from core.database.models.user import User
 from core.security.security_repository import SecurityRepository
 from core.security.jwt import decode_and_validate_token
@@ -30,11 +30,7 @@ class SecurityService:
         self,
         security_repository: SecurityRepository,
         user_service: UserService,
-        jwt_secret: str,
-        jwt_algorithm: str = "HS256"
     ):
-        self.jwt_secret = jwt_secret
-        self.jwt_algorithm = jwt_algorithm
         self.security_repository = security_repository
         self.user_service = user_service
 
@@ -62,7 +58,6 @@ class SecurityService:
 
         expires_at = datetime.now(timezone.utc) + \
             expires_in if expires_in else None
-
 
         created_api_key = await self.security_repository.create(
             identifier=identifier,

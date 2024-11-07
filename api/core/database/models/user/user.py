@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from core.database.base import Base
-from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
+from core.database.mixins import TrackingMixin, SoftDeleteMixin
 
 
 class User(Base, TrackingMixin, SoftDeleteMixin):

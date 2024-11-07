@@ -1,10 +1,10 @@
 import uuid
 
-from sqlalchemy import Column, UUID, String, Boolean
+from sqlalchemy import Column, UUID, String
 from sqlalchemy.orm import relationship
 
 from core.database.base import Base
-from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
+from core.database.mixins import TrackingMixin, SoftDeleteMixin
 
 class Team(Base, TrackingMixin, SoftDeleteMixin):
     __tablename__ = 'teams'

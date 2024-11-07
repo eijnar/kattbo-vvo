@@ -4,7 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from services.user_team_assignment_service import UserTeamAssignmentService
-from routers.team.schemas.assignment_schemas import UserTeamAssignmentCreate, UserTeamAssignmentRead
+from schemas.assignment import UserTeamAssignmentCreate, UserTeamAssignmentRead
 from core.dependencies import get_user_team_assignment_service
 
 

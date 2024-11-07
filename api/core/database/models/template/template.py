@@ -3,7 +3,7 @@ from uuid import uuid4
 from sqlalchemy import Column, String, Text, UUID
 
 from core.database.base import Base
-from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
+from core.database.mixins import TrackingMixin, SoftDeleteMixin
 
 
 class Template(Base, TrackingMixin, SoftDeleteMixin):

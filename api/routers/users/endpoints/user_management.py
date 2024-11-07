@@ -7,7 +7,7 @@ from core.dependencies import get_user_service
 from core.security.auth import requires_scope
 from utils.rate_limiter import limiter
 from services.user_service import UserService
-from routers.users.schemas.user import UserBaseSchema, UserCreateSchema
+from schemas.user import UserBaseSchema, UserCreateSchema
 
 
 logger = getLogger(__name__)

@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import SQLAlchemyError
 
 from repositories.base_repository import BaseRepository
-from core.database.models.api import APIKey
+from core.database.models.security.api import APIKey
 from core.database.models.user import User
 from core.exceptions import DatabaseException
 

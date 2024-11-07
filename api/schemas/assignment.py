@@ -3,7 +3,7 @@ from typing import Optional, List
 from datetime import datetime
 
 from schemas.hunting_year import HuntingYearRead
-from routers.team.schemas.team_schemas import UserRead
+from schemas.team import UserRead
 
 class UserTeamAssignmentCreate(BaseModel):
     team_id: UUID4 = Field(..., description="The UUID of the user to assign.")
@@ -25,10 +25,3 @@ class UserTeamAssignmentRead(BaseModel):
     }
 
 
-class TeamUsersResponse(BaseModel):
-    hunting_year: HuntingYearRead
-    users: List[UserRead]
-    
-    model_config = {
-        "from_attributes": True
-    }

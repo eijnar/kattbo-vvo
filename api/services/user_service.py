@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from core.exceptions import DatabaseException
 from core.database.models import User
 from repositories.user_repository import UserRepository
-from routers.users.schemas.user import UserBaseSchema, UserCreateSchema, UserUpdateSchema
+from schemas.user import UserBaseSchema, UserCreateSchema, UserUpdateSchema
 
 
 logger = getLogger(__name__)

@@ -6,7 +6,7 @@ from repositories.hunting_year_repository import HuntingYearRepository
 from core.database.models import HuntingYear
 from core.exceptions import NotFoundException, ConflictException, ValidationException
 
-from routers.hunting_year.schemas.hunting_year_schemas import HuntingYearCreate, HuntingYearUpdate
+from schemas.hunting_year import HuntingYearCreate, HuntingYearUpdate
 import re
 import logging
 

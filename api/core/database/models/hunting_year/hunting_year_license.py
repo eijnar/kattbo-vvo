@@ -6,8 +6,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from core.database.base import Base
-from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
-from core.database.models.enum.licence_type import LicenseType
+from core.database.mixins import TrackingMixin, SoftDeleteMixin
+from core.database.enum.licence_type import LicenseType
 
 class HuntingYearLicense(Base, TrackingMixin, SoftDeleteMixin):
     __tablename__ = 'hunting_year_licenses'

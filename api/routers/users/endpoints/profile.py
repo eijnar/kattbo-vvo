@@ -2,11 +2,11 @@ from logging import getLogger
 
 from fastapi import APIRouter, Depends, Request
 
-from core.database.models import UserModel
+from core.database.models import User
 from core.security.auth import get_current_active_user
 from core.security.models import UserContext
 from core.dependencies import get_user_service
-from routers.users.schemas.user import UserBaseSchema, UserUpdateSchema
+from schemas.user import UserBaseSchema, UserUpdateSchema
 from services.user_service import UserService
 from utils.rate_limiter import limiter
 
@@ -56,7 +56,7 @@ async def update_profile(
 async def partial_update_profile(
     request: Request,
     user_data: UserUpdateSchema,
-    current_user: UserModel = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_active_user),
     user_service: UserService = Depends(get_user_service)
 ):
     logger.info(

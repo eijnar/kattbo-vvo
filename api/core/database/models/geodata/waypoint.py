@@ -4,8 +4,8 @@ from sqlalchemy import Column, UUID, String, Float, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
 from core.database.base import Base
-from core.database.models.waypoint_area import waypoint_areas
-from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
+from core.database.models.geodata.waypoint_area import waypoint_areas
+from core.database.mixins import TrackingMixin, SoftDeleteMixin
 
 class Waypoint(Base, TrackingMixin, SoftDeleteMixin):
     __tablename__ = 'waypoints'

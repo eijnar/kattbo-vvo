@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     SQL_DATABASE_URL: str
     
     # Eleasticsearch APM client settings
-    APM_SERVICE_NAME: str = 'vvo-api'
-    APM_ENVIRONMENT: str = 'dev'
+    APM_SERVICE_NAME: str
+    APM_ENVIRONMENT: str
     APM_SERVER_URL: str
     APM_SECRET_TOKEN: str
     

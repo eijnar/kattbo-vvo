@@ -1,11 +1,11 @@
 import uuid
 
-from sqlalchemy import Column, Boolean, UUID, String, ForeignKey
+from sqlalchemy import Column, UUID, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from core.database.base import Base
-from core.database.models.waypoint_area import waypoint_areas
-from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
+from core.database.models.geodata.waypoint_area import waypoint_areas
+from core.database.mixins import TrackingMixin, SoftDeleteMixin
 
 
 class Area(Base, TrackingMixin, SoftDeleteMixin):

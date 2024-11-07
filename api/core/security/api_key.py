@@ -7,7 +7,7 @@ from typing import Optional
 
 from passlib.context import CryptContext
 
-from core.database.models.api import APIKey
+from core.database.models.security.api import APIKey
 from core.database.models.user import User
 from core.dependencies import get_db_session
 

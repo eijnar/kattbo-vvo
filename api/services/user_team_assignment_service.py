@@ -2,12 +2,12 @@ from uuid import UUID
 from typing import Optional
 from logging import getLogger
 
+from core.exceptions import NotFoundException, ConflictException
 from repositories import UserTeamAssignmentRepository
-from core.database.models.user_team_assignment import UserTeamAssignment
 from services.user_service import UserService
 from services.team_services import TeamService
 from services.hunting_year_service import HuntingYearService
-from core.exceptions import NotFoundException, ConflictException
+from schemas import UserTeamAssignmentRead
 
 
 logger = getLogger(__name__)
@@ -31,7 +31,7 @@ class UserTeamAssignmentService:
         user_id: UUID,
         team_id: UUID,
         hunting_year_id: Optional[UUID]
-    ) -> UserTeamAssignment:
+    ) -> UserTeamAssignmentRead:
 
         logger.info("Starting assign process for User to Team and Year",
                     extra={

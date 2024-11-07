@@ -4,7 +4,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from core.database.base import Base
-from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
+from core.database.mixins import TrackingMixin, SoftDeleteMixin
 
 
 class HuntingYearTask(Base, TrackingMixin, SoftDeleteMixin):

@@ -1,14 +1,21 @@
 from pydantic import BaseModel
 from uuid import UUID
+from typing import List
+
+from schemas.hunting_year import HuntingYearRead
+
 
 class TeamBase(BaseModel):
     name: str
 
+
 class TeamCreate(TeamBase):
     pass
 
+
 class TeamUpdate(TeamBase):
     pass
+
 
 class TeamRead(TeamBase):
     id: UUID
@@ -17,14 +24,25 @@ class TeamRead(TeamBase):
         "from_attributes": True
     }
 
+
 class UserRead(BaseModel):
     id: UUID
     first_name: str
     last_name: str
-    
+
     model_config = {
         "from_attributes": True
     }
+
+
+class TeamUsersResponse(BaseModel):
+    hunting_year: HuntingYearRead
+    users: List[UserRead]
+
+    model_config = {
+        "from_attributes": True
+    }
+
 
 class AreaRead(BaseModel):
     id: UUID
@@ -33,6 +51,7 @@ class AreaRead(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
 
 class WaypointRead(BaseModel):
     id: UUID
@@ -44,6 +63,7 @@ class WaypointRead(BaseModel):
         "from_attributes": True
     }
 
+
 class StandNumberRead(BaseModel):
     id: UUID
     number: int
@@ -51,6 +71,7 @@ class StandNumberRead(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
 
 class TeamRead(BaseModel):
     id: UUID

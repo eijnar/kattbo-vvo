@@ -84,10 +84,8 @@ async def get_team_service(
 def get_security_service(
     security_repository: SecurityRepository = Depends(get_security_repository),
     user_service: UserService = Depends(get_user_service),
-    jwt_secret: str = "your_jwt_secret",
-    jwt_algorithm: str = "HS256"
 ) -> SecurityService:
-    return SecurityService(security_repository, user_service, jwt_secret, jwt_algorithm)
+    return SecurityService(security_repository, user_service)
 
 
 def get_user_team_assignment_service(

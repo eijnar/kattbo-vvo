@@ -6,7 +6,7 @@ from core.database.models import User
 from core.security.auth import get_current_active_user
 from core.security.models import UserContext
 from core.dependencies import get_user_service
-from routers.users.schemas.user import UserBaseSchema, UserUpdateSchema
+from schemas.user import UserBaseSchema, UserUpdateSchema
 from services.user_service import UserService
 
 

@@ -4,7 +4,7 @@ from typing import List
 
 from services.hunting_year_service import HuntingYearService
 from core.dependencies import get_hunting_year_service
-from routers.hunting_year.schemas.hunting_year_schemas import HuntingYearCreate, HuntingYearRead, HuntingYearUpdate
+from schemas.hunting_year import HuntingYearCreate, HuntingYearRead, HuntingYearUpdate
 
 router = APIRouter()
 

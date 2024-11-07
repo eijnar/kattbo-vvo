@@ -4,7 +4,7 @@ from sqlalchemy import Column, UUID, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, validates
 
 from core.database.base import Base
-from core.database.models.mixins import TrackingMixin, SoftDeleteMixin, LockableMixin
+from core.database.mixins import TrackingMixin, SoftDeleteMixin, LockableMixin
 
 
 class HuntingYear(Base, TrackingMixin, SoftDeleteMixin, LockableMixin):

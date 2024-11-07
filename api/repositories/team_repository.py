@@ -4,8 +4,15 @@ from typing import List
 from sqlalchemy.future import select
 
 from repositories.base_repository import BaseRepository
-from core.database.models import Team, User, Area, Waypoint, StandNumber, User
-from core.database.models.user_team_assignment import UserTeamAssignment
+from core.database.models import (
+    Team, 
+    User, 
+    Area, 
+    Waypoint, 
+    StandNumber, 
+    User, 
+    UserTeamAssignment
+)
 
 
 class TeamRepository(BaseRepository[Team]):
@@ -21,7 +28,7 @@ class TeamRepository(BaseRepository[Team]):
         return result.scalars().all()
 
     async def get_areas(self, team_id: UUID) -> List[Area]:
-        from core.database.models.area import Area
+        from core.database.models.geodata.area import Area
 
         query = select(Area).where(Area.team_id == team_id)
         result = await self.db_session.execute(query)
@@ -35,7 +42,7 @@ class TeamRepository(BaseRepository[Team]):
         return result.scalars().all()
 
     async def get_stand_numbers(self, team_id: UUID) -> List[StandNumber]:
-        from core.database.models.stand_number import StandNumber
+        from core.database.models.geodata.stand_number import StandNumber
 
         query = select(StandNumber).where(StandNumber.team_id == team_id)
         result = await self.db_session.execute(query)

@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
 from core.exceptions import NotFoundException
 from core.dependencies import get_team_service
 from services.team_services import TeamService
-from routers.team.schemas.team_schemas import (
+from schemas.team import (
     TeamCreate,
     TeamRead,
     TeamUpdate,

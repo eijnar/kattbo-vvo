@@ -8,7 +8,7 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 
-from core.database.models.api import APIKeyModel
+from core.database.models.security.api import APIKeyModel
 from core.database.models.user import UserModel
 from core.security.security_repository import APIKeyRepository
 from core.security.jwt import decode_and_validate_token

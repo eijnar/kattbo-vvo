@@ -4,7 +4,7 @@ from sqlalchemy import Column, ForeignKey, UUID, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
 
 from core.database.base import Base
-from core.database.models.mixins import TrackingMixin, SoftDeleteMixin
+from core.database.mixins import TrackingMixin, SoftDeleteMixin
 
 class WaypointTask(Base, TrackingMixin, SoftDeleteMixin):
     __tablename__ = 'waypoint_tasks'
