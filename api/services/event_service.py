@@ -27,4 +27,6 @@ class EventService:
         
     async def get_event(self, id: str) -> EventResponse:
         event = await self.event_repository.read(id)
+        days = await self.event_day_repository.filter(event_id=event.id)
+        return event, days
         

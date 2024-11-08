@@ -19,7 +19,7 @@ class EventDayBase(BaseModel):
     date: date
     start_time: time
     end_time: time
-    is_cancelled: bool
+    cancelled: bool
 
     model_config = {
         "from_attributes": True
