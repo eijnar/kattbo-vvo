@@ -7,15 +7,29 @@ from sqlalchemy.exc import SQLAlchemyError
 from core.database.base import AsyncSessionLocal
 from core.security.security_repository import SecurityRepository
 from core.security.security_service import SecurityService
-from repositories import UserRepository, TeamRepository, UserTeamAssignmentRepository, HuntingYearRepository
-from services import UserService, TeamService, UserTeamAssignmentService, HuntingYearService
+from repositories import (
+    UserRepository,
+    TeamRepository,
+    UserTeamAssignmentRepository,
+    HuntingYearRepository,
+    EventRepository,
+    EventDayRepository
+)
+from services import (
+    UserService,
+    TeamService,
+    UserTeamAssignmentService,
+    HuntingYearService,
+    EventService
+)
 
 
 logger = logging.getLogger(__name__)
 
 
 async def get_db_session():
-    logger.debug("get_db_session: Attempting to create a new database session.")
+    logger.debug(
+        "get_db_session: Attempting to create a new database session.")
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -51,9 +65,19 @@ async def get_user_team_assignment_repository(db_session: AsyncSession = Depends
 
 async def get_hunting_year_repository(db_session: AsyncSession = Depends(get_db_session)) -> HuntingYearRepository:
     logger.debug("get_hunting_year_repository")
+    return HuntingYearRepository(db_session)
 
 
-# Services
+async def get_event_repository(db_session: AsyncSession = Depends(get_db_session)) -> EventRepository:
+    logger.debug("get_event_repository")
+    return EventRepository(db_session)
+
+
+async def get_event_day_repository(db_session: AsyncSession = Depends(get_db_session)) -> EventDayRepository:
+    logger.debug("get_event_day_repository")
+    return EventDayRepository(db_session)
+
+    # Services
 
 
 async def get_user_service(
@@ -97,3 +121,9 @@ def get_user_team_assignment_service(
         get_hunting_year_service)
 ) -> UserTeamAssignmentService:
     return UserTeamAssignmentService(user_team_assignment_repository, team_service, user_service, hunting_year_service)
+
+def get_event_service(
+    event_repository: EventRepository = Depends(get_event_repository),
+    event_day_repository: EventDayRepository = Depends(get_event_day_repository)
+) -> EventService:
+    return EventService(event_repository, event_day_repository)

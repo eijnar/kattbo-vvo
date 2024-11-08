@@ -1,7 +1,7 @@
 from .event.event import Event
 from .event.event_category import EventCategory
 from .event.event_day import EventDay
-from .event.event_day_gathering_places import EventDayGatheringPlaces
+from .event.event_day_gathering_place import EventDayGatheringPlace
 
 from .geodata.area import Area
 from .geodata.stand_number import StandNumber

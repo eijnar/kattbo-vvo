@@ -7,7 +7,7 @@ from core.database.base import Base
 from core.database.mixins import TrackingMixin
 
 
-class EventDayGatheringPlaces(Base, TrackingMixin):
+class EventDayGatheringPlace(Base, TrackingMixin):
     __tablename__ = 'event_day_gathering_places'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())

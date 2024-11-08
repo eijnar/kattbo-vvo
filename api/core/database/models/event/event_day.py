@@ -25,7 +25,7 @@ class EventDay(Base, TrackingMixin, SoftDeleteMixin):
     user_events = relationship('UserEventRegistration', back_populates='event_day')
     
     event_day_gathering_places = relationship(
-        'EventDayGatheringPlaces',
+        'EventDayGatheringPlace',
         back_populates='event_day',
         cascade='all, delete-orphan'
     )

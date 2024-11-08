@@ -2,3 +2,8 @@ from .team_repository import TeamRepository
 from .user_repository import UserRepository
 from .user_team_assignment_repository import UserTeamAssignmentRepository
 from .hunting_year_repository import HuntingYearRepository
+
+from .event.event_category_repository import EventCategoryRepository
+from .event.event_day_gathering_place_repository import EventDayGatheringRepository
+from .event.event_day_repository import EventDayRepository
+from .event.event_repository import EventRepository

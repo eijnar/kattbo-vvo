@@ -1,7 +1,9 @@
 from fastapi import APIRouter
-from .users.router import router as users_router
-from .team.router import router as teams_router
+
+from routers.users.router import router as users_router
+from routers.team.router import router as teams_router
 from routers.hunting_year.router import router as hunting_years_router
+from routers.event.router import router as event_router
 
 api_router = APIRouter()
 
@@ -9,3 +11,4 @@ api_router = APIRouter()
 api_router.include_router(users_router)
 api_router.include_router(teams_router)
 api_router.include_router(hunting_years_router)
+api_router.include_router(event_router)

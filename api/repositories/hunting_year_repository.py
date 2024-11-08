@@ -1,13 +1,12 @@
-from uuid import UUID
 from logging import getLogger
-from typing import Optional, List
+from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
 
 from core.database.models import HuntingYear
-from core.exceptions import DatabaseException, NotFoundException
+from core.exceptions import DatabaseException
 from repositories.base_repository import BaseRepository
 
 

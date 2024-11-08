@@ -16,7 +16,3 @@ class HuntingYearTaskRepository(BaseRepository[HuntingYearTask]):
     
     def __init__(self, db_session: AsyncSession):
         super().__init__(HuntingYearTask, db_session)
-        
-    async def get_tasks_by_hunting_year(self, hunting_year_id: UUID):
-        
-    
