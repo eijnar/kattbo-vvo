@@ -1,7 +1,8 @@
 import uuid
 
-from sqlalchemy import Column, UUID, String, Float, ForeignKey, Boolean
+from sqlalchemy import Index, Column, UUID, String, ForeignKey
 from sqlalchemy.orm import relationship
+from geoalchemy2 import Geometry
 
 from core.database.base import Base
 from core.database.models.geodata.waypoint_area import waypoint_areas
@@ -12,8 +13,7 @@ class Waypoint(Base, TrackingMixin, SoftDeleteMixin):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
+    location = Column(Geometry(geometry_type='POINT', srid=4326, nullable=False))
     category_id = Column(UUID(as_uuid=True), ForeignKey('waypoint_categories.id'), nullable=True)
     team_id = Column(UUID(as_uuid=True), ForeignKey('teams.id'), nullable=False)
 
@@ -28,3 +28,7 @@ class Waypoint(Base, TrackingMixin, SoftDeleteMixin):
     stand_assignments = relationship('WaypointStandAssignment', back_populates='waypoint', cascade="all, delete-orphan")
     tasks = relationship('WaypointTask', back_populates='waypoint', cascade="all, delete-orphan")
     event_day_gathering_places = relationship('EventDayGatheringPlaces', back_populates='gathering_place', cascade="all, delete-orphan")
+
+    __table_args__ = (
+        Index('idx_waypoints_location_v2', 'location', postgresql_using='gist'),
+    )

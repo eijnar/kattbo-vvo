@@ -13,8 +13,6 @@ class Event(Base, TrackingMixin, SoftDeleteMixin):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
     name = Column(String, unique=True)
     
-    # Relationships
-    
     creator_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
     event_category_id = Column(UUID(as_uuid=True), ForeignKey('event_categories.id'), nullable=False)
     

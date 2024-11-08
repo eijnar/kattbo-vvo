@@ -1,23 +1,23 @@
 from logging import getLogger
-from fastapi import APIRouter, Depends, status, Query
-from typing import List, Optional
 from uuid import UUID
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Query
 
 from services.team_services import TeamService
-from services.user_team_assignment_service import UserTeamAssignmentService
 from schemas.team import TeamUsersResponse
-from schemas.assignment import UserTeamAssignmentCreate, UserTeamAssignmentRead
-from core.dependencies import get_user_team_assignment_service, get_team_service
+from core.dependencies import get_team_service
 
 
 router = APIRouter(tags=["Assignments"])
 logger = getLogger(__name__)
 
-        
+
 @router.get("/{team_id}/users", response_model=TeamUsersResponse, tags=["Get Assignments"])
 async def get_team_users(
     team_id: UUID,
-    hunting_year_id: Optional[UUID] = Query(None, description="ID of the hunting year"),
+    hunting_year_id: Optional[UUID] = Query(
+        None, description="ID of the hunting year"),
     team_service: TeamService = Depends(get_team_service)
 ):
 

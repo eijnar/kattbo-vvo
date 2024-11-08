@@ -13,11 +13,13 @@ from .team import (
 )
 
 from .hunting_year import (
-    HuntingYearRead
+    HuntingYearBase, 
+    HuntingYearCreate, 
+    HuntingYearUpdate
 )
 
 from .notification import (
-    NotificationContext, 
+    NotificationContext,
     NotificationRequest
 )
 

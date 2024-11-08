@@ -19,7 +19,7 @@ class User(Base, TrackingMixin, SoftDeleteMixin):
     phone_number = Column(String(255))
     profile_picture = Column(String(255), default='profile_pics/default.png')
 
-    user_events = relationship("UserEventRegistration", back_populates='user')
+    user_events = relationship("UserEventRegistration", back_populates='')
 
     api_keys = relationship("APIKey", back_populates="user")
 

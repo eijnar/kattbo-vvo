@@ -1,5 +1,6 @@
 # schemas/common.py
 from pydantic import BaseModel
+from datetime import datetime
 from uuid import UUID
 from typing import Optional
 
@@ -44,6 +45,14 @@ class TeamRead(BaseModel):
 class HuntingYearRead(BaseModel):
     id: UUID
     name: str
+    start_date: datetime
+    end_date: datetime
+    is_current: bool
+    is_locked: bool
+
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class StandNumberRead(BaseModel):
