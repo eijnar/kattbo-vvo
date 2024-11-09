@@ -22,6 +22,8 @@ class User(Base, TrackingMixin, SoftDeleteMixin):
     user_events = relationship("UserEventRegistration", back_populates='')
 
     api_keys = relationship("APIKey", back_populates="user")
+    
+    events = relationship("Event", back_populates="creator")
 
     user_team_assignments = relationship(
         'UserTeamAssignment',

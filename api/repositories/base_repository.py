@@ -1,7 +1,7 @@
 # core/database/repositories/base_repository.py
 
 import logging
-from typing import Generic, Type, TypeVar, List
+from typing import Generic, Type, TypeVar, List, Optional, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -79,7 +79,12 @@ class BaseRepository(Generic[T]):
             raise DatabaseException(
                 detail=f"Failed to read {self.model.__name__} with ID {id}.") from e
 
-    async def list(self, limit: int = 100, offset: int = 0, raise_if_not_found: bool = False) -> List[T]:
+    async def list(
+        self, 
+        limit: int = 100, 
+        offset: int = 0,
+        raise_if_not_found: bool = False
+    ) -> List[T]:
         try:
             logger.debug(
                 "Listing instances",
@@ -91,6 +96,7 @@ class BaseRepository(Generic[T]):
             )
             query = select(self.model).where(
                 getattr(self.model, 'is_active', True) == True).limit(limit).offset(offset)
+
             result = await self.db_session.execute(query)
             records = result.scalars().all()
             if records:
@@ -120,7 +126,7 @@ class BaseRepository(Generic[T]):
                 detail=f"Failed to list {self.model.__name__}s."
             ) from e
 
-    async def filter(self, raise_if_not_found: bool = False, **kwargs) -> List[T]:
+    async def filter(self, raise_if_not_found: bool = False, order_by: Optional[List[Any]] = None, **kwargs) -> List[T]:
         try:
             logger.debug(
                 "Filtering instances",
@@ -129,7 +135,11 @@ class BaseRepository(Generic[T]):
                     "criteria": kwargs
                 }
             )
+            
+            
             query = select(self.model).filter_by(**kwargs)
+            if order_by:
+                query = query.order_by(order_by)
             result = await self.db_session.execute(query)
             records = result.scalars().all()
             if not records:
