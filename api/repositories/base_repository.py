@@ -136,10 +136,11 @@ class BaseRepository(Generic[T]):
                 }
             )
             
-            
             query = select(self.model).filter_by(**kwargs)
+            
             if order_by:
                 query = query.order_by(order_by)
+                
             result = await self.db_session.execute(query)
             records = result.scalars().all()
             if not records:
@@ -150,6 +151,7 @@ class BaseRepository(Generic[T]):
                         "criteria": kwargs
                     }
                 )
+                
                 if raise_if_not_found:
                     raise NotFoundException(
                         detail=f"No {self.model.__name__}s found with criteria {kwargs}."

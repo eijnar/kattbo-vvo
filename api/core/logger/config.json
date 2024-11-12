@@ -21,7 +21,7 @@
       "class": "logging.handlers.RotatingFileHandler",
       "level": "DEBUG",
       "filename": "../logs/api.log.jsonl",
-      "maxBytes": 100000,
+      "maxBytes": 1000000,
       "backupCount": 3
     },
     "queue": {

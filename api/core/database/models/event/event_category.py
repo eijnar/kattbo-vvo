@@ -10,7 +10,7 @@ from core.database.mixins import TrackingMixin, SoftDeleteMixin
 class EventCategory(Base, TrackingMixin, SoftDeleteMixin):
     __tablename__ = 'event_categories'
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     name = Column(String, nullable=False)
     
     events = relationship('Event', back_populates='event_category', lazy=True)

@@ -11,7 +11,7 @@ from core.database.mixins import TrackingMixin
 class UserEventRegistration(Base, TrackingMixin):
     __tablename__ = 'user_event_registrations'
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     half_day = Column(Boolean, default=False)
     registered_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     

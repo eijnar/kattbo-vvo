@@ -13,7 +13,7 @@ class TaskTemplate(Base, TrackingMixin, SoftDeleteMixin):
     __tablename__ = "task_templates"
 
     id = Column(UUID(as_uuid=True), primary_key=True,
-                default=uuid4(), unique=True, nullable=False)
+                default=uuid4, unique=True, nullable=False)
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
     is_mandatory = Column(Boolean, default=False, nullable=False)

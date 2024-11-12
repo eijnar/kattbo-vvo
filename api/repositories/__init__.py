@@ -7,3 +7,5 @@ from .event.event_category_repository import EventCategoryRepository
 from .event.event_day_gathering_place_repository import EventDayGatheringRepository
 from .event.event_day_repository import EventDayRepository
 from .event.event_repository import EventRepository
+
+from .waypoint_repository import WaypointRepository

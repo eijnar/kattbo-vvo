@@ -13,14 +13,17 @@ from repositories import (
     UserTeamAssignmentRepository,
     HuntingYearRepository,
     EventRepository,
-    EventDayRepository
+    EventDayRepository,
+    EventDayGatheringRepository,
+    WaypointRepository
 )
 from services import (
     UserService,
     TeamService,
     UserTeamAssignmentService,
     HuntingYearService,
-    EventService
+    EventService,
+    WaypointService
 )
 
 
@@ -77,14 +80,31 @@ async def get_event_day_repository(db_session: AsyncSession = Depends(get_db_ses
     logger.debug("get_event_day_repository")
     return EventDayRepository(db_session)
 
-    # Services
 
+async def get_event_day_gathering_repository(db_session: AsyncSession = Depends(get_db_session)) -> EventDayGatheringRepository:
+    logger.debug("get_event_day_gathering_repository")
+    return EventDayGatheringRepository(db_session)
+
+
+async def get_waypoint_repository(db_session: AsyncSession = Depends(get_db_session)) -> WaypointRepository:
+    logger.debug("get_waypoint_repository")
+    return WaypointRepository(db_session)
+
+
+# Services
 
 async def get_user_service(
     user_repository: UserRepository = Depends(get_user_repository)
 ) -> UserService:
     logger.debug("get_user_service")
     return UserService(user_repository)
+
+
+def get_waypoint_service(
+    waypoint_repository: WaypointRepository = Depends(get_waypoint_repository)
+) -> WaypointService:
+    logger.debug("get_waypoint_service")
+    return WaypointService(waypoint_repository)
 
 
 async def get_hunting_year_service(
@@ -122,8 +142,13 @@ def get_user_team_assignment_service(
 ) -> UserTeamAssignmentService:
     return UserTeamAssignmentService(user_team_assignment_repository, team_service, user_service, hunting_year_service)
 
+
 def get_event_service(
     event_repository: EventRepository = Depends(get_event_repository),
-    event_day_repository: EventDayRepository = Depends(get_event_day_repository)
+    event_day_repository: EventDayRepository = Depends(
+        get_event_day_repository),
+    event_day_gathering_repository: EventDayGatheringRepository = Depends(
+        get_event_day_gathering_repository),
+    team_repository: TeamRepository = Depends(get_team_repository)
 ) -> EventService:
-    return EventService(event_repository, event_day_repository)
+    return EventService(event_repository, event_day_repository, event_day_gathering_repository, team_repository)

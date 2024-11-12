@@ -1,8 +1,10 @@
 import uuid
+from typing import Optional
 
 from sqlalchemy import Index, Column, UUID, String, ForeignKey
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
+from geoalchemy2.shape import to_shape
 
 from core.database.base import Base
 from core.database.models.geodata.waypoint_area import waypoint_areas
@@ -32,3 +34,17 @@ class Waypoint(Base, TrackingMixin, SoftDeleteMixin):
     __table_args__ = (
         Index('idx_waypoints_location_v2', 'location', postgresql_using='gist'),
     )
+    
+    @property
+    def latitude(self) -> Optional[float]:
+        if self.location:
+            point = to_shape(self.location)
+            return point.y
+        return None
+
+    @property
+    def longitude(self) -> Optional[float]:
+        if self.location:
+            point = to_shape(self.location)
+            return point.x
+        return None
