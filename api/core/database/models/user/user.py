@@ -19,40 +19,40 @@ class User(Base, TrackingMixin, SoftDeleteMixin):
     phone_number = Column(String(255))
     profile_picture = Column(String(255), default='profile_pics/default.png')
 
-    user_events = relationship("UserEventRegistration", back_populates='')
+    user_events = relationship('UserEventRegistration', back_populates='')
 
-    api_keys = relationship("APIKey", back_populates="user")
+    api_keys = relationship('APIKey', back_populates='user')
     
-    events = relationship("Event", back_populates="creator")
+    events = relationship('Event', back_populates='creator')
 
     user_team_assignments = relationship(
         'UserTeamAssignment',
         back_populates='user',
-        cascade="all, delete-orphan"
+        cascade='all, delete-orphan'
     )
     
     user_stand_assignments = relationship(
         'UserStandAssignment',
         back_populates='user',
-        cascade="all, delete-orphan"
+        cascade='all, delete-orphan'
     )
 
     hunting_year_assignments = relationship(
-        "UserHuntingYearAssignment",
-        back_populates="user",
-        cascade="all, delete-orphan"
+        'UserHuntingYearAssignment',
+        back_populates='user',
+        cascade='all, delete-orphan'
     )
 
     assigned_tasks = relationship(
-        "UserHuntingYearTask",
-        back_populates="user",
-        cascade="all, delete-orphan",
-        foreign_keys="[UserHuntingYearTask.user_id]"
+        'UserHuntingYearTask',
+        back_populates='user',
+        cascade='all, delete-orphan',
+        foreign_keys='[UserHuntingYearTask.user_id]'
     )
 
     completed_tasks = relationship(
-        "UserHuntingYearTask",
-        back_populates="completed_by_user",
-        cascade="all, delete-orphan",
-        foreign_keys="[UserHuntingYearTask.completed_by]"
+        'UserHuntingYearTask',
+        back_populates='completed_by_user',
+        cascade='all, delete-orphan',
+        foreign_keys='[UserHuntingYearTask.completed_by]'
     )

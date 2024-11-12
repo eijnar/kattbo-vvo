@@ -12,8 +12,8 @@ class Team(Base, TrackingMixin, SoftDeleteMixin):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, unique=True)
     
-    user_team_assignments = relationship('UserTeamAssignment', back_populates='team', cascade="all, delete-orphan") 
+    user_team_assignments = relationship('UserTeamAssignment', back_populates='team', cascade='all, delete-orphan') 
     areas = relationship('Area', back_populates='team')
     waypoints = relationship('Waypoint', back_populates='team')
     stand_numbers = relationship('StandNumber', back_populates='team')
-    event_day_gathering_places = relationship('EventDayGatheringPlace', back_populates='team', cascade="all, delete-orphan")
+    event_day_gathering_places = relationship('EventDayGatheringPlace', back_populates='team', cascade='all, delete-orphan')

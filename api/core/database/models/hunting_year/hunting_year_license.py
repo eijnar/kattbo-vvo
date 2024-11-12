@@ -17,7 +17,7 @@ class HuntingYearLicense(Base, TrackingMixin, SoftDeleteMixin):
     license_type = Column(Enum(LicenseType), nullable=False)
     cost = Column(Integer, nullable=False)
 
-    hunting_year = relationship("HuntingYear", back_populates="licenses")
+    hunting_year = relationship('HuntingYear', back_populates='licenses')
 
     __table_args__ = (
         UniqueConstraint('hunting_year_id', 'license_type', name='_hyear_license_uc'),

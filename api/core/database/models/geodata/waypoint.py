@@ -27,9 +27,9 @@ class Waypoint(Base, TrackingMixin, SoftDeleteMixin):
         secondary=waypoint_areas,
         back_populates='waypoints'
     )
-    stand_assignments = relationship('WaypointStandAssignment', back_populates='waypoint', cascade="all, delete-orphan")
-    tasks = relationship('WaypointTask', back_populates='waypoint', cascade="all, delete-orphan")
-    event_day_gathering_places = relationship('EventDayGatheringPlace', back_populates='gathering_place', cascade="all, delete-orphan")
+    stand_assignments = relationship('WaypointStandAssignment', back_populates='waypoint', cascade='all, delete-orphan')
+    tasks = relationship('WaypointTask', back_populates='waypoint', cascade='all, delete-orphan')
+    event_day_gathering_places = relationship('EventDayGatheringPlace', back_populates='gathering_place', cascade='all, delete-orphan')
 
     __table_args__ = (
         Index('idx_waypoints_location_v2', 'location', postgresql_using='gist'),

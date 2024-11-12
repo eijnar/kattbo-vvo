@@ -20,5 +20,5 @@ class WaypointTaskAssignment(Base):
 
     assigned_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
-    task = relationship("WaypointTask", back_populates="assignments")
-    assigned_to_user = relationship("User", foreign_keys=[assigned_to])
+    task = relationship('WaypointTask', back_populates='assignments')
+    assigned_to_user = relationship('User', foreign_keys=[assigned_to])

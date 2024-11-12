@@ -23,14 +23,14 @@ class UserHuntingYearTask(Base):
                           ForeignKey('users.id'), nullable=False)
 
     user = relationship(
-        "User",
-        back_populates="assigned_tasks",
+        'User',
+        back_populates='assigned_tasks',
         foreign_keys=[user_id]
     )
     completed_by_user = relationship(
-        "User",
-        back_populates="completed_tasks",
+        'User',
+        back_populates='completed_tasks',
         foreign_keys=[completed_by]
     )
     hunting_year_task = relationship(
-        "HuntingYearTask", back_populates="user_hunting_year_tasks")
+        'HuntingYearTask', back_populates='user_hunting_year_tasks')

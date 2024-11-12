@@ -20,7 +20,7 @@ class WaypointTask(Base, TrackingMixin, SoftDeleteMixin):
         'users.id'), nullable=True)
     fixed_at = Column(DateTime(timezone=True), nullable=True)
 
-    waypoint = relationship("Waypoint", back_populates="tasks")
-    created_by_user = relationship("User", foreign_keys=[created_by])
-    fixed_by_user = relationship("User", foreign_keys=[fixed_by])
-    assignments = relationship("WaypointTaskAssignment", back_populates="task")
+    waypoint = relationship('Waypoint', back_populates='tasks')
+    created_by_user = relationship('User', foreign_keys=[created_by])
+    fixed_by_user = relationship('User', foreign_keys=[fixed_by])
+    assignments = relationship('WaypointTaskAssignment', back_populates='task')

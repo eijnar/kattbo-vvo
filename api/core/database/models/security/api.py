@@ -18,4 +18,4 @@ class APIKey(Base):
     permissions = Column(JSON, default=[])
     revoked = Column(Boolean, default=False)
 
-    user = relationship("User", back_populates="api_keys")
+    user = relationship('User', back_populates='api_keys')

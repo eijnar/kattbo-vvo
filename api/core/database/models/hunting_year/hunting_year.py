@@ -26,18 +26,18 @@ class HuntingYear(Base, TrackingMixin, SoftDeleteMixin, LockableMixin):
         'UserTeamAssignment', back_populates='hunting_year')
 
     hunting_year_tasks = relationship(
-        'HuntingYearTask', back_populates='hunting_year', cascade="all, delete-orphan")
+        'HuntingYearTask', back_populates='hunting_year', cascade='all, delete-orphan')
 
     user_assignments = relationship(
         'UserHuntingYearAssignment',
         back_populates='hunting_year',
-        cascade="all, delete-orphan"
+        cascade='all, delete-orphan'
     )
 
     licenses = relationship(
         'HuntingYearLicense',
         back_populates='hunting_year',
-        cascade="all, delete-orphan"
+        cascade='all, delete-orphan'
     )
 
     @validates('name')
@@ -46,11 +46,11 @@ class HuntingYear(Base, TrackingMixin, SoftDeleteMixin, LockableMixin):
         pattern = r'^(\d{4})/(\d{4})$'  # YYYY/YYYY
         match = re.match(pattern, name)
         if not match:
-            raise ValueError("Name must be in the format YYYY/YYYY")
+            raise ValueError('Name must be in the format YYYY/YYYY')
 
         start_year, end_year = map(int, match.groups())
         if end_year != start_year + 1:
             raise ValueError(
-                "The second year must be exactly one greater than the first year")
+                'The second year must be exactly one greater than the first year')
 
         return name
