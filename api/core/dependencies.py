@@ -15,7 +15,8 @@ from repositories import (
     EventRepository,
     EventDayRepository,
     EventDayGatheringRepository,
-    WaypointRepository
+    EventCategoryRepository,
+    WaypointRepository,
 )
 from services import (
     UserService,
@@ -86,6 +87,11 @@ async def get_event_day_gathering_repository(db_session: AsyncSession = Depends(
     return EventDayGatheringRepository(db_session)
 
 
+async def get_event_category_repository(db_session: AsyncSession = Depends(get_db_session)) -> EventCategoryRepository:
+    logger.debug("get_event_category_repository")
+    return EventCategoryRepository(db_session)
+
+
 async def get_waypoint_repository(db_session: AsyncSession = Depends(get_db_session)) -> WaypointRepository:
     logger.debug("get_waypoint_repository")
     return WaypointRepository(db_session)
@@ -149,6 +155,19 @@ def get_event_service(
         get_event_day_repository),
     event_day_gathering_repository: EventDayGatheringRepository = Depends(
         get_event_day_gathering_repository),
-    team_repository: TeamRepository = Depends(get_team_repository)
+    event_category_repository: EventCategoryRepository = Depends(
+        get_event_category_repository),
+    user_repository: UserRepository = Depends(get_user_repository),
+    team_repository: TeamRepository = Depends(get_team_repository),
+    waypoint_repository: WaypointRepository = Depends(get_waypoint_repository),
 ) -> EventService:
-    return EventService(event_repository, event_day_repository, event_day_gathering_repository, team_repository)
+    
+    return EventService(
+        event_repository,
+        event_day_repository,
+        event_day_gathering_repository,
+        event_category_repository,
+        user_repository,
+        team_repository,
+        waypoint_repository
+    )

@@ -24,7 +24,6 @@ class EventRepository(BaseRepository[Event]):
             await self.db_session.flush()
             await self.db_session.commit()
 
-            # Re-query the event with all necessary relationships loaded
             query = select(Event).options(
                 selectinload(Event.event_days).selectinload(EventDay.event_day_gathering_places)
             ).where(Event.id == event_data.id)

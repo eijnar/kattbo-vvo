@@ -25,5 +25,5 @@ class EventDayGatheringRepository(BaseRepository[EventDayGatheringPlace]):
             result = await self.db_session.execute(query)
             return result.scalars().all()
         except SQLAlchemyError as e:
-            logger.error(f"Failed to retrieve teams: {e}")
-            raise DatabaseException(detail="Failed to retrieve teams.") from e
+            logger.error(f"Failed to retrieve EventDayGatherings: {e}")
+            raise DatabaseException(detail="Failed to retrieve EventDayGatherings.") from e
