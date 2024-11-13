@@ -14,10 +14,10 @@ async def get_events(limit: int = 100, offset: int = 0, event_service: EventServ
     events = await event_service.get_all_events(limit=limit, offset=offset)
     return events
 
-@router.get("/{event_id}", response_model=EventResponse)
+@router.get("/{event_id}", response_model=EventCreateResponse)
 async def get_event_by_id(event_id: UUID, event_service: EventService = Depends(get_event_service)):
     event, days = await event_service.get_event(event_id)
-    return EventResponse(event=event, days=days)
+    return EventCreateResponse(event=event, days=days)
 
 @router.post("/", response_model=EventCreateResponse, status_code=status.HTTP_201_CREATED)
 async def create_event(
