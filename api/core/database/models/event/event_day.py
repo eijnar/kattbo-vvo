@@ -22,7 +22,7 @@ class EventDay(Base, TrackingMixin, SoftDeleteMixin):
 
     event = relationship('Event', back_populates='event_days', lazy='selectin')
     user_events = relationship(
-        'UserEventRegistration', back_populates='event_day')
+        'UserEventRegistration', back_populates='event_day', lazy='selectin')
 
     event_day_gathering_places = relationship(
         'EventDayGatheringPlace', back_populates='event_day', lazy='selectin', cascade='all, delete-orphan')

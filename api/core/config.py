@@ -1,6 +1,9 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    SERVICE_NAME: str = 'Kattbo_VVO-API'
+    ENVIRONMENT: str
+    
     # General site settings
     SITE_URL: str = 'localhost:8000' # Without any http:// or https://
     HTTP_PROTOCOL: str = 'http'

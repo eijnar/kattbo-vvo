@@ -70,8 +70,8 @@ def get_log_handlers(config):
 
 
 apm_client = make_apm_client({
-    'SERVICE_NAME': settings.APM_SERVICE_NAME,
-    'ENVIRONMENT': settings.APM_ENVIRONMENT,
+    'SERVICE_NAME': settings.SERVICE_NAME,
+    'ENVIRONMENT': settings.ENVIRONMENT,
     'SERVER_URL': settings.APM_SERVER_URL,
     'SECRET_TOKEN': settings.APM_SECRET_TOKEN,
     'LOG_LEVEL': 'off'
