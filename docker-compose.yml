@@ -17,14 +17,14 @@ services:
 
   filebeat:
     container_name: kattbo-vvo-filebeat.${ENVIRONMENT}
-    image: docker.elastic.co/beats/filebeat:latest
-  volumes: 
-    - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-    - kattbo_vvo_api_logs:/var/log/api:ro
-  restart: always
+    image: docker.elastic.co/beats/filebeat:8.15.4
+    volumes: 
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - kattbo_vvo_api_logs:/var/log/api:ro
+    restart: always
 
-  depends_on:
-    - api
+    depends_on:
+      - api
 
 volumes:
   kattbo_vvo_api_logs:
