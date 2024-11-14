@@ -7,10 +7,10 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-      target: api
-    ports: 8000:8000
+    ports: 
+      - 8000:8000
     volumes:
-      - apilogs:/app/logs
+      - kattbo_vvo_api_logs:/app/logs
     env_file:
       - .env
     restart: always
@@ -20,8 +20,11 @@ services:
     image: docker.elastic.co/beats/filebeat:latest
   volumes: 
     - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-    - api_logs:/var/log/api:ro
+    - kattbo_vvo_api_logs:/var/log/api:ro
   restart: always
 
+  depends_on:
+    - api
+
 volumes:
-  api_logs:
+  kattbo_vvo_api_logs:
