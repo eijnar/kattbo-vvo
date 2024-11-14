@@ -1,43 +1,27 @@
 version: '3.8'
 
 services:
-  web:
-    container_name: web-${FLASK_ENV}
-    user: "1000:1000"
+  api:
+    container_name: kattbo-vvo-api.${ENVIRONMENT}
+    user: "appuser"
     build:
-      context: .
-      dockerfile: ./web/Dockerfile
-      target: web
-    ports: 
-      - "${GUNICORN_PORT}:5000"
+      context: ./api
+      dockerfile: Dockerfile
+      target: api
+    ports: 8000:8000
     volumes:
-    - /srv/kattbo-vvo/uploads:/usr/src/kattbo-vvo/uploads
-    - /srv/kattbo-vvo/logs:/usr/src/kattbo-vvo/logs
+      - apilogs:/app/logs
     env_file:
       - .env
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    restart: always
 
-  web_celery_worker:
-    container_name: web_celery_worker-${FLASK_ENV}
-    user: "1000:1000"
-    build:
-      context: .
-      dockerfile: ./web/Dockerfile
-      target: web_celery_worker
-    volumes:
-      - /srv/kattbo-vvo/logs:/usr/src/kattbo-vvo/logs
-    env_file:
-      - .env
-    depends_on:
-      - web
-    healthcheck:
-      test: ["CMD-SHELL", "celery -A make_celery.celery inspect ping"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+  filebeat:
+    container_name: kattbo-vvo-filebeat.${ENVIRONMENT}
+    image: docker.elastic.co/beats/filebeat:latest
+  volumes: 
+    - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+    - api_logs:/var/log/api:ro
+  restart: always
 
+volumes:
+  api_logs:
