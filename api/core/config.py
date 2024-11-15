@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     # Eleasticsearch APM client settings
     APM_SERVER_URL: str
     APM_SECRET_TOKEN: str
+    APM_API_KEY: str
     
     # Messaging settings
     SMTP_SERVER: str
