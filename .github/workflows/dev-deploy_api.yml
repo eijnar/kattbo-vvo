@@ -18,7 +18,8 @@ jobs:
   build-and-deploy:
     runs-on: self-hosted
     if: github.ref == 'refs/heads/development'
-
+    env:
+      ENVIRONMENT: ${{ vars.ENVIRONMENT }}
     steps:
       - uses: actions/checkout@v2
 
