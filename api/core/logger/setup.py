@@ -27,6 +27,13 @@ def setup_logging():
     except json.JSONDecodeError as e:
         raise ValueError("Failed to parse logging configuration file") from e
 
+    if settings.ENVIRONMENT == 'development':
+        config['root']['level'] = 'DEBUG'
+        config['handlers']['file_json']['level'] = 'DEBUG'
+    elif settings.ENVIRONMENT == 'production':
+        config['root']['level'] = 'INFO'
+        config['handlers']['file_json']['level'] = 'INFO'
+
     logging.config.dictConfig(config)
     file_json_handler_config = config['handlers']['file_json']
 
