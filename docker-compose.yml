@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   api:
     container_name: kattbo-vvo-api.${ENVIRONMENT}
@@ -11,7 +9,7 @@ services:
     volumes:
       - kattbo_vvo_api_logs:/app/logs
     env_file:
-      - .env
+      - api/.env
     restart: always
 
   filebeat:
