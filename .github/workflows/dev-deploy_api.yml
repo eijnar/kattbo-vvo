@@ -27,7 +27,7 @@ jobs:
 
       - name: Debug ENVIRONMENT Variable
         run: |
-          echo "ENVIRONMENT is set to: $ENVIRONMENT"
+          echo "ENVIRONMENT is set to: ${{env.ENVIRONMENT}}"
 
       - name: Creating the API .env file
         run: |
