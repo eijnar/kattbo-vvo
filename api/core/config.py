@@ -35,19 +35,19 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str
     TELEGRAM_BOT_TOKEN: str
     
-    # RabbitMQ settings
-    RABBITMQ_USERNAME: str
-    RABBITMQ_PASSWORD: str
-    RABBITMQ_HOSTNAME: str = 'localhost'
-    RABBITMQ_PORT: int = 5672
-    RABBITMQ_VHOST: str
+    # # RabbitMQ settings
+    # RABBITMQ_USERNAME: str
+    # RABBITMQ_PASSWORD: str
+    # RABBITMQ_HOSTNAME: str = 'localhost'
+    # RABBITMQ_PORT: int = 5672
+    # RABBITMQ_VHOST: str
     
-    # Redis settings
-    REDIS_HOSTNAME: str = 'localhost'
-    REDIS_PORT: int = 6379
-    REDIS_PASSWORD: str = ''
-    REDIS_SSL: bool = False
-    REDIS_CELERY_DB: int = 1
+    # # Redis settings
+    # REDIS_HOSTNAME: str = 'localhost'
+    # REDIS_PORT: int = 6379
+    # REDIS_PASSWORD: str = ''
+    # REDIS_SSL: bool = False
+    # REDIS_CELERY_DB: int = 1
     
     class Config:
         env_file = '.env'

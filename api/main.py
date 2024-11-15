@@ -9,12 +9,12 @@ from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
 from core.logger.middleware import LoggingMiddleware
-from core.celery import make_celery
+# from core.celery import make_celery
 from core.config import settings
 from core.database.base import create_tables
 from core.logger.setup import setup_logging, apm_client
 from utils.rate_limiter import limiter
-from core.redis.factory import init_redis_pools
+#from core.redis.factory import init_redis_pools
 from core.exceptions_handlers import (
     base_app_exception_handler,
     sqlalchemy_exception_handler,
@@ -75,11 +75,11 @@ def create_app() -> FastAPI:
     # celery_app = make_celery(app)
     # app.celery_app = celery_app
 
-    @app.on_event("startup")
-    async def startup_event():
-        # Create database tables
-        await create_tables()
-        await init_redis_pools()
+    # @app.on_event("startup")
+    # async def startup_event():
+    #     # Create database tables
+    #     await create_tables()
+    #     await init_redis_pools()
 
     return app
 

@@ -1,5 +1,3 @@
-# core/redis/factory.py
-
 import logging
 from redis import asyncio as aioredis
 from core.redis.config import REDIS_SETTINGS, REDIS_DBS
