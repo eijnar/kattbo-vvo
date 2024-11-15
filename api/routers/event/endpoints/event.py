@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 from logging import getLogger
 
-from fastapi import APIRouter, Depends, status, Response
+from fastapi import APIRouter, Depends, status, Response, Request
 from icalendar import Calendar, Event as ICalEvent, vCalAddress, vText, vGeo, vRecur
 from shapely.geometry import Point
 
@@ -32,11 +32,15 @@ async def get_events_json(
     return event_days
 
 
-@router.get("/ical")
+@router.get("/ical.ics")
 async def generate_ical_route(
+    request: Request,
     user_id: UUID,
     event_service: EventService = Depends(get_event_service)
 ):
+    
+    logger.info(f"Request URL: {request.url}")
+    logger.info(f"Headers: {request.headers}")
     events = await event_service.get_all_event_days(limit=None, offset=None)
     ical_data = await generate_ical(events)
 
