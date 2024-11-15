@@ -1,4 +1,4 @@
-name: Kättbo VVO API CD/CI - Development
+name: API CD/CI - Development
 
 on: 
   push:
@@ -19,8 +19,14 @@ jobs:
     runs-on: self-hosted
     if: github.ref == 'refs/heads/development'
 
+    env:
+      ENVIRONMENT: ${{ vars.ENVIRONMENT }}
     steps:
       - uses: actions/checkout@v2
+
+      - name: Debug ENVIRONMENT Variable
+        run: |
+          echo "ENVIRONMENT is set to: $ENVIRONMENT"
 
       - name: Creating the API .env file
         run: |
@@ -41,8 +47,6 @@ jobs:
           echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> api/.env
 
       - name: Building API containers
-        env:
-          ENVIRONMENT: ${{ vars.ENVIRONMENT }}
         run: |
           docker-compose -f docker-compose.yml build api
 
