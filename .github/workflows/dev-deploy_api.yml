@@ -1,0 +1,51 @@
+name: Kättbo VVO API CD/CI - Development
+
+on: 
+  push:
+    branches:
+      - development
+    paths:
+      - .github/workflows/*.yml
+      - 'docker-compose.yml'
+      - 'api/**'
+  pull_request:
+    paths:
+      - .github/workflows/*.yml
+      - 'docker-compose.yml'
+      - 'api/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    if: github.ref == 'refs/heads/development'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Creating the API .env file
+        run: |
+          echo "SERVICE_NAME=Kattbo_VVO-API" >> api/.env
+          echo "ENVIRONMENT=development" >> api/.env
+          echo "SQL_DATABASE_URL=${{ secrets.SQL_DATABASE_URL }}" >> api/.env
+          echo "SESSION_SECRET_KEY=${{ secrets.SESSION_SECRET_KEY }}" >> api/.env
+          echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> api/.env
+          echo "API_AUDIENCE=${{ secrets.API_AUDIENCE }}" >> api/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> api/.env
+          echo "JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}" >> api/.env
+          echo "APM_SERVER_URL=${{ secrets.APM_SERVER_URL }}" >> api/.env
+          echo "APM_SECRET_TOKEN=${{ secrets.APM_SECRET_TOKEN }}" >> api/.env
+          echo "APM_API_KEY=${{ secrets.APM_API_KEY }}" >> api/.env
+          echo "SMTP_SERVER=${{ secrets.SMTP_SERVER }}" >> api/.env
+          echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> api/.env
+          echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> api/.env
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> api/.env
+
+      - name: Building API containers
+        run: |
+          docker-compose -f docker-compose.yml build api
+
+      - name: Deploying API
+        run: |
+          docker-compose down api --remove-orphans
+          docker-compose up api -d
+
