@@ -29,7 +29,7 @@ jobs:
 
       - name: Generating the CA file
         run: |
-          echo ${{ secrets.CERTIFICATE_AUTHORITY }} >> ca.cer   
+          echo "${{ secrets.CERTIFICATE_AUTHORITY }}" >> ca.cer   
 
       - name: Pulling filebeat image from Docker.io
         run: |

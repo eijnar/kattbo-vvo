@@ -5,12 +5,12 @@ on:
     branches:
       - development
     paths:
-      - .github/workflows/*.yml
+      - .github/workflows/dev-deploy_api.yml
       - 'docker-compose.yml'
       - 'api/**'
   pull_request:
     paths:
-      - .github/workflows/*.yml
+      - .github/workflows/dev-deploy_api.yml
       - 'docker-compose.yml'
       - 'api/**'
 
