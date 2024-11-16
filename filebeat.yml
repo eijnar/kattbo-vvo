@@ -1,0 +1,25 @@
+filebeat.inputs:
+- type: filestream
+  enabled: true
+  paths:
+    - /var/log/api/*.log.jsonl
+  fields:
+    log_type: api_log
+  json.keys_under_root: true
+  json.add_error_key: true
+  json.overwrite_keys: true
+  processors:
+  - decode_json_fields:
+      fields: ["message"]
+      target: ""
+      overwrite_keys: true
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+output.elasticsearch:
+  hosts: [$ES_HOSTS]
+  protocol: "https"
+  ssl.certificate_authorities: ["ca.cer"]
+  api_key: $FILEBEAT_API_KEY

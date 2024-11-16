@@ -1,9 +1,0 @@
-{% macro render_tag_icon(tag) %}
-    {% if tag.name == 'shooter' %}
-        <span class="badge badge-success">Jakt</span><span class="badge badge-primary">Primary</span>
-    {% elif tag.name == 'doghandler' %}
-        <i class="icon-for-tag2"></i> 
-    {% else %}
-        {{ tag.name }}
-    {% endif %}
-{% endmacro %}
