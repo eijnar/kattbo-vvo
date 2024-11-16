@@ -15,7 +15,7 @@ on:
       - 'api/**'
 
 env:
-  ENVIRONMENT: ${{ vars.ENVIRONMENT }}
+  ENVIRONMENT: development
 
 jobs:
   build-and-deploy:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Debug ENVIRONMENT Variable
         run: |
-          echo "ENVIRONMENT is set to: ${{env.ENVIRONMENT}}"
+          echo "ENVIRONMENT is set to: $ENVIRONMENT"
 
       - name: Creating the API .env file
         run: |
