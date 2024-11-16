@@ -8,12 +8,10 @@ services:
       - 8000:8000
     volumes:
       - kattbo_vvo_api_logs:/app/logs
-    env_file:
-      - api/.env
     restart: always
 
   filebeat:
-    container_name: kattbo-vvo-filebeat.${ENVIRONMENT}
+    container_name: kattbo-vvo-filebeat
     image: docker.elastic.co/beats/filebeat:8.15.4
     volumes: 
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
