@@ -1,6 +1,8 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict()
+    
     SERVICE_NAME: str = 'Kattbo_VVO-API'
     ENVIRONMENT: str
     
@@ -49,9 +51,5 @@ class Settings(BaseSettings):
     # REDIS_PASSWORD: str = ''
     # REDIS_SSL: bool = False
     # REDIS_CELERY_DB: int = 1
-    
-    class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
 
 settings = Settings()
