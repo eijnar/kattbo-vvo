@@ -30,9 +30,6 @@ RUN chown -R appuser:appuser /app
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Expose port
-EXPOSE 8000
-
 # Set the entrypoint
 ENTRYPOINT [ "/entrypoint.sh" ]
 
