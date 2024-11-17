@@ -32,6 +32,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download .env
+        uses: actions/download-artifact@v3
+        with:
+          name: env-files
+          path: .
+
+      - name: Download certificate authority
+        uses: actions/download-artifact@v3
+        with:
+          name: ca-file
+          path: .
+
       - name: Pulling filebeat image from Docker.io
         run: |
           docker-compose -f docker-compose.yml pull filebeat

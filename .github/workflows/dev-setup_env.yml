@@ -35,10 +35,10 @@ on:
         required: true
         
 jobs:
-  setup:
+  env:
     runs-on: ubuntu-latest
     steps:
-      - name: Creating files .env and ca.cer
+      - name: creating the .env file
         run: |
           echo "SERVICE_NAME=Kattbo_VVO-API" >> .env
           echo "ENVIRONMENT=development" >> .env
@@ -58,3 +58,28 @@ jobs:
           echo "ES_HOSTS=${{ secrets.ES_HOSTS }}" >> .env
           echo "FILEBEAT_API_KEY=${{ secrets.FILEBEAT_API_KEY }}" >> .env
           echo "${{ secrets.CERTIFICATE_AUTHORITY }}" >> ca.cer
+
+      - name: Upload .env as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-file
+          path: .env
+
+  ca:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Creating certificate authority file
+        run: |
+          echo "${{ secrets.CERTIFICATE_AUTHORITY }}" >> ca.cer
+
+      - name: Upload .env as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-file
+          path: .env
+
+      - name: Upload ca.cer as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ca-file
+          path: ca.cer
