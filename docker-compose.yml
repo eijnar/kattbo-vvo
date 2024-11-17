@@ -9,8 +9,8 @@ services:
       - 8000:8000
     volumes:
       - kattbo_vvo_api_logs:/app/logs
-    environment:
-      - ENVIRONMENT=$ENVIRONMENT
+    env_file:
+      - .env
 
   filebeat:
     container_name: kattbo-vvo-filebeat
@@ -21,8 +21,8 @@ services:
       - kattbo_vvo_api_logs:/var/log/api/:ro
     depends_on:
       - api
-    environment:
-      - ENVIRONMENT=$ENVIRONMENT
+    env_file:
+      - .env
 
 volumes:
   kattbo_vvo_api_logs:
