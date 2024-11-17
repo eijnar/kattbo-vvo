@@ -20,15 +20,16 @@ env:
   FILEBEAT_API_KEY: ${{ secrets.FILEBEAT_API_KEY }}
 
 jobs:
+  setup-env:
+    uses: eijnar/kattbo-vvo-web/.github/workflows/dev-setup_env.yml@development
+  
   build-and-deploy:
+    needs: setup-env
     runs-on: self-hosted
     if: github.ref == 'refs/heads/development'
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup environment variables
-        uses: eijnar/kattbo-vvo-web/.github/workflows/dev-setup_env.yml@development
 
       - name: Pulling filebeat image from Docker.io
         run: |
