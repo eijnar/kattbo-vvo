@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Creating the API .env file
+      - name: Creating files .env and ca.cer
         run: |
           echo "SERVICE_NAME=Kattbo_VVO-API" >> .env
           echo "ENVIRONMENT=development" >> .env
@@ -42,8 +42,10 @@ jobs:
           echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> .env
           echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> .env
           echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
+          echo "ES_HOSTS=${{ secrets.ES_HOSTS }}" >> .env
+          echo "FILEBEAT_API_KEY=${{ secrets.FILEBEAT_API_KEY }}" >> .env
           echo "${{ secrets.CERTIFICATE_AUTHORITY }}" >> ca.cer
-          
+
       - name: Building API containers
         run: |
           docker-compose -f docker-compose.yml build api
