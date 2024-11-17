@@ -57,7 +57,6 @@ jobs:
           echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
           echo "ES_HOSTS=${{ secrets.ES_HOSTS }}" >> .env
           echo "FILEBEAT_API_KEY=${{ secrets.FILEBEAT_API_KEY }}" >> .env
-          echo "${{ secrets.CERTIFICATE_AUTHORITY }}" >> ca.cer
 
       - name: Upload .env as artifacts
         uses: actions/upload-artifact@v4
@@ -71,12 +70,6 @@ jobs:
       - name: Creating certificate authority file
         run: |
           echo "${{ secrets.CERTIFICATE_AUTHORITY }}" >> ca.cer
-
-      - name: Upload .env as artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: env-file
-          path: .env
 
       - name: Upload ca.cer as artifacts
         uses: actions/upload-artifact@v4
