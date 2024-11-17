@@ -18,6 +18,7 @@ services:
     restart: always
     volumes: 
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./ca.cer:/usr/share/filebeat/ca.cer:ro
       - kattbo_vvo_api_logs:/var/log/api/:ro
     depends_on:
       - api
