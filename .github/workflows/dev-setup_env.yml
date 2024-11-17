@@ -1,6 +1,38 @@
 on:
   workflow_call:
     secrets:
+      SQL_DATABASE_URL:
+        required: true
+      SESSION_SECRET_KEY:
+        required: true
+      AUTH0_DOMAIN:
+        required: true
+      API_AUDIENCE:
+        required: true
+      JWT_SECRET:
+        required: true
+      JWT_ALGORITHM:
+        required: true
+      APM_SERVER_URL:
+        required: true
+      APM_SECRET_TOKEN:
+        required: true
+      APM_API_KEY:
+        required: true
+      SMTP_SERVER:
+        required: true
+      SMTP_USERNAME:
+        required: true
+      SMTP_PASSWORD:
+        required: true
+      TELEGRAM_BOT_TOKEN:
+        required: true
+      ES_HOSTS:
+        required: true
+      FILEBEAT_API_KEY:
+        required: true
+      CERTIFICATE_AUTHORITY:
+        required: true
         
 jobs:
   setup:

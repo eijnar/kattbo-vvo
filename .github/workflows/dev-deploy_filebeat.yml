@@ -22,6 +22,7 @@ env:
 jobs:
   setup-env:
     uses: eijnar/kattbo-vvo-web/.github/workflows/dev-setup_env.yml@development
+    secrets: inherit
   
   build-and-deploy:
     needs: setup-env
