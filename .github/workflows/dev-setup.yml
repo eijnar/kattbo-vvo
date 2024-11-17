@@ -58,6 +58,9 @@ jobs:
           echo "ES_HOSTS=${{ secrets.ES_HOSTS }}" >> .env
           echo "FILEBEAT_API_KEY=${{ secrets.FILEBEAT_API_KEY }}" >> .env
 
+      - name: List files in the workspace
+        run: ls -la
+
       - name: Upload .env as artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -70,6 +73,9 @@ jobs:
       - name: Creating certificate authority file
         run: |
           echo "${{ secrets.CERTIFICATE_AUTHORITY }}" >> ca.cer
+
+      - name: List files in the workspace
+        run: ls -la
 
       - name: Upload ca.cer as artifacts
         uses: actions/upload-artifact@v4
