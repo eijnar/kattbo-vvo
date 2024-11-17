@@ -81,6 +81,6 @@ apm_client = make_apm_client({
     'ENVIRONMENT': settings.ENVIRONMENT,
     'SERVER_URL': settings.APM_SERVER_URL,
     'SECRET_TOKEN': settings.APM_SECRET_TOKEN,
-    'API_KEY': settings.APM_API_KEY,
+    'ELASTIC_APM_API_KEY': settings.APM_API_KEY,
     'LOG_LEVEL': 'off'
 })
