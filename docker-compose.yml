@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - kattbo_vvo_logs:/app/logs
-      - /tmp/kattbo-vvo-api-uvicorn.sock:./kattbo-vvo-api-uvicorn.sock
+      - /tmp/kattbo-vvo-api-uvicorn.sock:/app/kattbo-vvo-api-uvicorn.sock
     env_file:
       - ~/kattbo-vvo/secrets/.env
     healthcheck:
