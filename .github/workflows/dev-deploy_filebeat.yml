@@ -14,15 +14,7 @@ on:
       - 'docker-compose.yml'
       - 'filebeat.yml'
 
-env:
-  ENVIRONMENT: development
-  ES_HOSTS: ${{ secrets.ES_HOSTS }}
-  FILEBEAT_API_KEY: ${{ secrets.FILEBEAT_API_KEY }}
-
 jobs:
-  setup:
-    uses: eijnar/kattbo-vvo-web/.github/workflows/dev-setup.yml@development
-    secrets: inherit
   
   build-and-deploy:
     needs: setup
@@ -31,18 +23,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Download .env
-        uses: actions/download-artifact@v3
-        with:
-          name: env-files
-          path: .
-
-      - name: Download certificate authority
-        uses: actions/download-artifact@v3
-        with:
-          name: ca-file
-          path: .
 
       - name: Pulling filebeat image from Docker.io
         run: |
