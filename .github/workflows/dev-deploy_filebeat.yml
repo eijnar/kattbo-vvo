@@ -21,11 +21,11 @@ env:
 
 jobs:
   setup:
-    uses: eijnar/kattbo-vvo-web/.github/workflows/dev-setup_env.yml@development
+    uses: eijnar/kattbo-vvo-web/.github/workflows/dev-setup.yml@development
     secrets: inherit
   
   build-and-deploy:
-    needs: setup-env
+    needs: setup
     runs-on: self-hosted
     if: github.ref == 'refs/heads/development'
 
