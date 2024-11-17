@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup environment variables
-        uses: ./.github/workflows/dev-setup.env.yml@development
+        uses: ./.github/workflows/dev-setup_env.yml@development
 
       - name: Pulling filebeat image from Docker.io
         run: |
