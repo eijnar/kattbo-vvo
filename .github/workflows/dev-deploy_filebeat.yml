@@ -17,7 +17,6 @@ on:
 jobs:
   
   build-and-deploy:
-    needs: setup
     runs-on: self-hosted
     if: github.ref == 'refs/heads/development'
 
