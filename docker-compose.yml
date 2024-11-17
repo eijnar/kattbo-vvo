@@ -5,10 +5,9 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    ports: 
-      - 8000:8000
     volumes:
-      - kattbo_vvo_logs:/app/logs:z
+      - kattbo_vvo_logs:/app/logs
+      - /run/kattbo-vvo-api-uvicorn.sock:/run/kattbo-vvo-api-uvicorn.sock
     env_file:
       - ~/kattbo-vvo/secrets/.env
     healthcheck:
@@ -26,7 +25,7 @@ services:
     volumes:
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,z
       - ~/kattbo-vvo/secrets/ca.cer:/usr/share/filebeat/ca.cer:ro,z
-      - kattbo_vvo_logs:/var/log/api/:ro,z
+      - kattbo_vvo_logs:/var/log/api/:ro
     env_file:
       - ~/kattbo-vvo/secrets/.env
     healthcheck:

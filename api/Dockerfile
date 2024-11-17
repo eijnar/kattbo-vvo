@@ -12,6 +12,10 @@ RUN set -eux; \
 # Set working directory
 WORKDIR /app/api
 
+# Set env variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
 # Copy requirements and install deps
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -33,4 +37,4 @@ EXPOSE 8000
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 # Start the application, currently using uvicorn
-CMD ["uvicorn", "main:create_app", "--host", "127.0.0.1", "--port", "8000"]
+CMD ["uvicorn", "main:create_app", "--uds", "/run/uvicorn.sock", "--factory"]
