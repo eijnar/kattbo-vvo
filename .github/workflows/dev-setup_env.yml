@@ -1,4 +1,7 @@
-       
+on:
+  workflow_call:
+    secrets:
+        
 jobs:
   setup:
     runs-on: ubuntu-latest
