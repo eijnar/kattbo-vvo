@@ -39,7 +39,6 @@ def create_app() -> FastAPI:
     allowed_origins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173"
-        "http://0.0.0.0"
     ]
 
     app.add_middleware(SessionMiddleware,
@@ -83,14 +82,5 @@ def create_app() -> FastAPI:
 
     return app
 
-
-def main():
-    app = create_app()
-
-    import uvicorn
-    uvicorn.run("main:create_app", host="127.0.0.1",
-                port=8000, reload=True, factory=True)
-
-
 if __name__ == "__main__":
-    main()
+    print("This is meant to be run by a unicorn of uv light...")
