@@ -14,9 +14,11 @@ on:
       - 'docker-compose.yml'
       - 'filebeat.yml'
 
+env:
+  ENVIRONMENT: development
+
 jobs:
-  
-  build-and-deploy:
+  pull-and-deploy:
     runs-on: self-hosted
     if: github.ref == 'refs/heads/development'
 
