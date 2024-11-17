@@ -37,4 +37,4 @@ EXPOSE 8000
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 # Start the application, currently using uvicorn
-CMD ["uvicorn", "main:create_app", "--uds", "/tmp/kattbo-vvo-api-uvicorn.sock", "--factory"]
+CMD ["uvicorn", "main:create_app", "--uds", "./kattbo-vvo-api-uvicorn.sock", "--factory"]
