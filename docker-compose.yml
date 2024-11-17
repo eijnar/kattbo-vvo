@@ -1,6 +1,7 @@
 services:
   api:
     container_name: kattbo-vvo-api.${ENVIRONMENT}
+    restart: always
     build:
       context: ./api
       dockerfile: Dockerfile
@@ -8,18 +9,20 @@ services:
       - 8000:8000
     volumes:
       - kattbo_vvo_api_logs:/app/logs
-    restart: always
+    environment:
+      - ENVIRONMENT=$ENVIRONMENT
 
   filebeat:
     container_name: kattbo-vvo-filebeat
     image: docker.elastic.co/beats/filebeat:8.15.4
+    restart: always
     volumes: 
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - kattbo_vvo_api_logs:/var/log/api/:ro
-    restart: always
-
     depends_on:
       - api
+    environment:
+      - ENVIRONMENT=$ENVIRONMENT
 
 volumes:
   kattbo_vvo_api_logs:
