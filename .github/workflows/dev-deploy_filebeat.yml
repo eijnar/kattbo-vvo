@@ -25,10 +25,10 @@ jobs:
     if: github.ref == 'refs/heads/development'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup environment variables
-        uses: ./.github/workflows/dev-setup.env.yml
+        uses: ./.github/workflows/dev-setup.env.yml@development
 
       - name: Pulling filebeat image from Docker.io
         run: |
