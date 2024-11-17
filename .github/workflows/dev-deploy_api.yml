@@ -25,23 +25,27 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Debug ENVIRONMENT Variable
+        run: |
+          echo "ENVIRONMENT is set to: $ENVIRONMENT"
+
       - name: Creating the API .env file
         run: |
-          echo SERVICE_NAME=Kattbo_VVO-API" >> .env
-          echo ENVIRONMENT=development" >> .env
-          echo SQL_DATABASE_URL=${{ secrets.SQL_DATABASE_URL }}" >> .env
-          echo SESSION_SECRET_KEY=${{ secrets.SESSION_SECRET_KEY }}" >> .env
-          echo AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> .env
-          echo API_AUDIENCE=${{ secrets.API_AUDIENCE }}" >> .env
-          echo JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}" >> .env
-          echo APM_SERVER_URL=${{ secrets.APM_SERVER_URL }}" >> .env
-          echo APM_SECRET_TOKEN=${{ secrets.APM_SECRET_TOKEN }}" >> .env
-          echo APM_API_KEY=${{ secrets.APM_API_KEY }}" >> .env
-          echo SMTP_SERVER=${{ secrets.SMTP_SERVER }}" >> .env
-          echo SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> .env
-          echo SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> .env
-          echo TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> .env
+          echo "SERVICE_NAME=Kattbo_VVO-API" >> api/.env
+          echo "ENVIRONMENT=development" >> api/.env
+          echo "SQL_DATABASE_URL=${{ secrets.SQL_DATABASE_URL }}" >> api/.env
+          echo "SESSION_SECRET_KEY=${{ secrets.SESSION_SECRET_KEY }}" >> api/.env
+          echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> api/.env
+          echo "API_AUDIENCE=${{ secrets.API_AUDIENCE }}" >> api/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> api/.env
+          echo "JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }}" >> api/.env
+          echo "APM_SERVER_URL=${{ secrets.APM_SERVER_URL }}" >> api/.env
+          echo "APM_SECRET_TOKEN=${{ secrets.APM_SECRET_TOKEN }}" >> api/.env
+          echo "APM_API_KEY=${{ secrets.APM_API_KEY }}" >> api/.env
+          echo "SMTP_SERVER=${{ secrets.SMTP_SERVER }}" >> api/.env
+          echo "SMTP_USERNAME=${{ secrets.SMTP_USERNAME }}" >> api/.env
+          echo "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> api/.env
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" >> api/.env
 
       - name: Building API containers
         run: |
