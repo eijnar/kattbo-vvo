@@ -19,7 +19,7 @@ filebeat.config.modules:
   reload.enabled: false
 
 output.elasticsearch:
-  hosts: [$FILEBEAT_ES_HOSTS]
+  hosts: ${FILEBEAT_ES_HOSTS}
   protocol: "https"
-  ssl.certificate_authorities: ["ca.cer"]
-  api_key: $FILEBEAT_API_KEY
+  ssl.certificate_authorities: ["/usr/share/filebeat/ca.cer"]
+  api_key: ${FILEBEAT_API_KEY}

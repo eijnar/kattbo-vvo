@@ -8,7 +8,7 @@ services:
     ports: 
       - 8000:8000
     volumes:
-      - kattbo_vvo_logs:/app/logs
+      - kattbo_vvo_logs:/app/logs:z
     env_file:
       - ~/kattbo-vvo/secrets/.env
     healthcheck:
@@ -20,14 +20,13 @@ services:
 
   filebeat:
     container_name: kattbo-vvo-filebeat.${ENVIRONMENT}
-    image: docker.elastic.co/beats/filebeat:8.15.4
+    image: docker.elastic.co/beats/filebeat:8.13.4
+    entrypoint: "filebeat -e -strict.perms=false"
     restart: always
-    volumes: 
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ~/kattbo-vvo/secrets/ca.cer:/usr/share/filebeat/ca.cer:ro
-      - kattbo_vvo_logs:/var/log/api/:ro
-    depends_on:
-      - api
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,z
+      - ~/kattbo-vvo/secrets/ca.cer:/usr/share/filebeat/ca.cer:ro,z
+      - kattbo_vvo_logs:/var/log/api/:ro,z
     env_file:
       - ~/kattbo-vvo/secrets/.env
     healthcheck:
