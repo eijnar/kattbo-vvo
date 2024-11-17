@@ -30,8 +30,11 @@ RUN chown -R appuser:appuser /app
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# Expose port
+EXPOSE 8000
+
 # Set the entrypoint
 ENTRYPOINT [ "/entrypoint.sh" ]
 
 # Start the application, currently using uvicorn
-CMD ["uvicorn", "main:create_app", "--uds", "/app/socket/kattbo-vvo-api-uvicorn.sock", "--factory"]
+CMD ["uvicorn", "main:create_app", "--host", "127.0.0.1", "--port", "8000"]
