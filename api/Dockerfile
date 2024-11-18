@@ -12,16 +12,14 @@ RUN set -eux; \
 # Set working directory
 WORKDIR /app/api
 
-# Set env variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
 # Copy requirements and install deps
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
+COPY /etc/pki/tls/private/kattbo-vvo-api.* ../
+
 
 # Change ownership of application files
 RUN chown -R appuser:appuser /app
@@ -34,7 +32,10 @@ RUN chmod +x /entrypoint.sh
 EXPOSE 8000
 
 # Set the entrypoint
-ENTRYPOINT [ "/entrypoint.sh" ]
+#ENTRYPOINT [ "/entrypoint.sh" ]
+
+ENTRYPOINT ["tail"]
+CMD ["-f","/dev/null"]
 
 # Start the application, currently using uvicorn
-CMD ["uvicorn", "main:create_app", "--host", "0.0.0.0", "--port", "8000"]
+#CMD ["uvicorn", "main:create_app", "--host", "0.0.0.0", "--port", "8000"]
