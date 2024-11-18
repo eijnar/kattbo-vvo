@@ -8,7 +8,7 @@ services:
     volumes:
       - kattbo_vvo_logs:/app/logs
     ports:
-      - 127.0.0.1:8000:8000
+      - 8000:8000
     env_file:
       - ~/kattbo-vvo/secrets/.env
     healthcheck:
