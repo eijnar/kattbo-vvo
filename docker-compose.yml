@@ -5,25 +5,35 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    ports: 
-      - 8000:8000
     volumes:
-      - kattbo_vvo_api_logs:/app/logs
+      - kattbo_vvo_logs:/app/logs
+    ports:
+      - 8000:8000
     env_file:
-      - .env
+      - ~/kattbo-vvo/secrets/.env
+    healthcheck:
+      test: curl --fail http://localhost:8000/ || exit 1
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 60s
 
   filebeat:
-    container_name: kattbo-vvo-filebeat
-    image: docker.elastic.co/beats/filebeat:8.15.4
+    container_name: kattbo-vvo-filebeat.${ENVIRONMENT}
+    image: docker.elastic.co/beats/filebeat:8.13.4
+    entrypoint: "filebeat -e -strict.perms=false"
     restart: always
-    volumes: 
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-      - ./ca.cer:/usr/share/filebeat/ca.cer:ro
-      - kattbo_vvo_api_logs:/var/log/api/:ro
-    depends_on:
-      - api
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,z
+      - ~/kattbo-vvo/secrets/ca.cer:/usr/share/filebeat/ca.cer:ro,z
+      - kattbo_vvo_logs:/var/log/api/:ro
     env_file:
-      - .env
+      - ~/kattbo-vvo/secrets/.env
+    healthcheck:
+      test: filebeat test config
+      interval: 30s
+      timeout: 15s
+      retries: 5
 
 volumes:
-  kattbo_vvo_api_logs:
+  kattbo_vvo_logs:
