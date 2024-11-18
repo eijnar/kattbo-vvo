@@ -18,8 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
-COPY /etc/pki/tls/private/kattbo-vvo-api.* ../
-
 
 # Change ownership of application files
 RUN chown -R appuser:appuser /app
