@@ -57,12 +57,12 @@ class UserService:
         """
         
         existing_user = await self.user_repository.get_by_auth0_id(user_data.auth0_id)
+        
         if existing_user:
             logger.info("User alread registered", extra={
                         'user.id': str(existing_user.id)})
             raise ConflictError(f"User with auth0_id {user_data.auth0_id} already registered.")
 
-        # Create new user
         new_user = User(
             auth0_id=user_data.auth0_id,
             email=user_data.email,
