@@ -14,9 +14,9 @@ services:
     env_file:
       - ~/kattbo-vvo/secrets/.env
     healthcheck:
-      test: curl --fail http://localhost:8000/ || exit 1
-      interval: 40s
-      timeout: 30s
+      test: curl --fail https://localhost:8000/ || exit 1
+      interval: 10s
+      timeout: 5s
       retries: 3
       start_period: 60s
 
