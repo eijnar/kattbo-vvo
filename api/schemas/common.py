@@ -10,7 +10,7 @@ class UserRead(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone_number: Optional[str] = None
-    disabled: Optional[bool] = None
+    is_active: Optional[bool] = None
 
     model_config = {
         "from_attributes": True

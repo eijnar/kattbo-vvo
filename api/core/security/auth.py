@@ -74,8 +74,8 @@ def get_current_active_user(required_scope: Optional[str] = None):
         logger.debug("get_current_active_user called")
         user = user_context.user
 
-        # Check if user is active (not disabled)
-        if user.disabled:
+        # Check if user is active (not is_active)
+        if user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
             )
