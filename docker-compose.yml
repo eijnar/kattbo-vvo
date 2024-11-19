@@ -8,7 +8,7 @@ services:
     volumes:
       - kattbo_vvo_logs:/app/logs
       - ~/kattbo-vvo/secrets/kattbo_vvo_api.crt:/app/secrets/certfile.crt:ro,z
-      - ~/kattbo-vvo/secrets/kattbo_vvo_api.crt:/app/secrets/keyfile.key:ro,z
+      - ~/kattbo-vvo/secrets/kattbo_vvo_api.key:/app/secrets/keyfile.key:ro,z
     ports:
       - 8000:8000
     env_file:
