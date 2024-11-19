@@ -46,7 +46,7 @@ def decode_jwt(token: str):
         )
         return payload
     except JWTError:
-        logger.debug("Failure to decode token")
+        logger.debug(f"Failure to decode token {e}")
         raise HTTPException(
             status_code=401,
             detail="Invalid token"
