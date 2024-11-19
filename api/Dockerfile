@@ -30,10 +30,10 @@ RUN chmod +x /entrypoint.sh
 EXPOSE 8000
 
 # Set the entrypoint
-ENTRYPOINT [ "/entrypoint.sh" ]
+#ENTRYPOINT [ "/entrypoint.sh" ]
 
-# ENTRYPOINT ["tail"]
-# CMD ["-f","/dev/null"]
+ENTRYPOINT ["tail"]
+CMD ["-f","/dev/null"]
 
 # Start the application, currently using uvicorn
-CMD ["uvicorn", "main:create_app", "--host", "0.0.0.0", "--port", "8000", "--ssl-certfile", "/app/secrets/certfile.crt", "--ssl-keyfile", "/app/secrets/keyfile.key"]
+#CMD ["uvicorn", "main:create_app", "--host", "0.0.0.0", "--port", "8000", "--ssl-certfile", "/app/secrets/certfile.crt", "--ssl-keyfile", "/app/secrets/keyfile.key"]
