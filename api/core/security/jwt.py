@@ -23,6 +23,11 @@ def get_public_key():
 def decode_jwt(token: str):
     jwks = get_public_key()
     unverified_header = jwt.get_unverified_header(token)
+    unverified_payload = jwt.decode(
+        token,
+        options={"verify_signature": False}
+    )
+    logger.debug(f"Unverified token payload: {unverified_payload}")
     rsa_key = {}
     for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
@@ -46,7 +51,7 @@ def decode_jwt(token: str):
         )
         return payload
     except JWTError as e:
-        logger.debug(f"Failure to decode token {e}")
+        logger.error(f"Failure to decode token: {e}")
         raise HTTPException(
             status_code=401,
             detail="Invalid token"
