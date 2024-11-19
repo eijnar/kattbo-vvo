@@ -25,6 +25,8 @@ def decode_jwt(token: str):
     unverified_header = jwt.get_unverified_header(token)
     unverified_payload = jwt.decode(
         token,
+        key=None,  # Key is None since we're not verifying the signature
+        algorithms=settings.ALGORITHMS,
         options={"verify_signature": False}
     )
     logger.debug(f"Unverified token payload: {unverified_payload}")
