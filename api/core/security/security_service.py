@@ -103,6 +103,7 @@ class SecurityService:
         payload = await decode_and_validate_token(token)
         auth0_id: Optional[str] = payload.get("sub")
         if auth0_id is None:
+            logger.debug("auth0_id is None")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized"
             )
