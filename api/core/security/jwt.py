@@ -23,13 +23,6 @@ def get_public_key():
 def decode_jwt(token: str):
     jwks = get_public_key()
     unverified_header = jwt.get_unverified_header(token)
-    unverified_payload = jwt.decode(
-        token,
-        key=None,  # Key is None since we're not verifying the signature
-        algorithms=settings.ALGORITHMS,
-        options={"verify_signature": False}
-    )
-    logger.debug(f"Unverified token payload: {unverified_payload}")
     rsa_key = {}
     for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
@@ -44,6 +37,13 @@ def decode_jwt(token: str):
         raise HTTPException(
             status_code=401, detail="Unable to find appropriate key")
     try:
+        unverified_payload = jwt.decode(
+            token,
+            key=None,  # Key is None since we're not verifying the signature
+            algorithms=settings.ALGORITHMS,
+            options={"verify_signature": False}
+        )
+        logger.debug(f"Unverified token payload: {unverified_payload}")
         payload = jwt.decode(
             token,
             rsa_key,
