@@ -37,12 +37,6 @@ def decode_jwt(token: str):
         raise HTTPException(
             status_code=401, detail="Unable to find appropriate key")
     try:
-        unverified_payload = jwt.decode(
-            token,
-            key=None,  # Key is None since we're not verifying the signature
-            algorithms=settings.ALGORITHMS,
-            options={"verify_signature": False}
-        )
         payload = jwt.decode(
             token,
             rsa_key,
@@ -52,6 +46,12 @@ def decode_jwt(token: str):
         )
         return payload
     except JWTError as e:
+        unverified_payload = jwt.decode(
+            token,
+            key=None,  # Key is None since we're not verifying the signature
+            algorithms=settings.ALGORITHMS,
+            options={"verify_signature": False}
+        )
         logger.error(f"Failure to decode token: {e}")
         logger.debug(f"Unverified token payload: {unverified_payload}")
         raise HTTPException(
