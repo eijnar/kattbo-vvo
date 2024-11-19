@@ -67,7 +67,7 @@ class UserService:
             auth0_id=user_data.auth0_id,
             email=user_data.email,
             phone_number=user_data.phone_number,
-            disabled=False
+            is_active=False
         )
 
         created_user = await self.user_repository.create(new_user)
