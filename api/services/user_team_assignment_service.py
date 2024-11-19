@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import Optional
 from logging import getLogger
 
-from core.exceptions import NotFoundException, ConflictException
+from core.exceptions import NotFoundError, ConflictError
 from repositories import UserTeamAssignmentRepository
 from services.user_service import UserService
 from services.team_services import TeamService
@@ -52,7 +52,7 @@ class UserTeamAssignmentService:
         team = await self.team_service.get_team(team_id)
         if not team:
             logger.error(f"Team with id {team_id} not found.")
-            raise NotFoundException(
+            raise NotFoundError(
                 detail=f"Team with ID {team_id} not found.")
 
         existing_assignment = await self.user_team_assignment_repository.get_assignment(
@@ -66,7 +66,7 @@ class UserTeamAssignmentService:
             if existing_assignment.team_id == team_id:
                 logger.error(
                     f"User {user_id} is already assigned to team {team_id} for {hunting_year_id}")
-                raise ConflictException(
+                raise ConflictError(
                     detail=f"User is already assigned to team."
                 )
             else:

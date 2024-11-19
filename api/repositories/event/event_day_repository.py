@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
 
-from core.exceptions import DatabaseException, NotFoundException
+from core.exceptions import DatabaseError, NotFoundError
 from repositories.base_repository import BaseRepository
 from core.database.models import EventDay
 
@@ -59,12 +59,12 @@ class EventDayRepository(BaseRepository[EventDay]):
                     extra={"count": 0}
                 )
                 if raise_if_not_found:
-                    raise NotFoundException(detail="No records found")
+                    raise NotFoundError(detail="No records found")
 
             return records
 
         except SQLAlchemyError as e:
             logger.error(f"Failed to list EventDays: {e}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail="Failed to list EventDays."
             ) from e

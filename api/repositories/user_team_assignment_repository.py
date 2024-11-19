@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from repositories.base_repository import BaseRepository
 from core.database.models import UserTeamAssignment
-from core.exceptions import DatabaseException
+from core.exceptions import DatabaseError
 
 
 logger = getLogger(__name__)
@@ -61,7 +61,7 @@ class UserTeamAssignmentRepository(BaseRepository[UserTeamAssignment]):
             )
         except SQLAlchemyError as e:
             logger.error(f"Failed to create assignment: {e}")
-            raise DatabaseException(f"Failed to create assignment: {e}")
+            raise DatabaseError(f"Failed to create assignment: {e}")
         
         return new_assignment
 
@@ -72,7 +72,7 @@ class UserTeamAssignmentRepository(BaseRepository[UserTeamAssignment]):
             await self.db_session.refresh(assignment)
         except SQLAlchemyError as e:
             logger.error(f"Failed to update assignment: {e}")
-            raise DatabaseException(f"Failed to update assignment: {e}")
+            raise DatabaseError(f"Failed to update assignment: {e}")
         return assignment
         
     async def get_assignments_by_user(self, user_id: UUID) -> List[UserTeamAssignment]:

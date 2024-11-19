@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 
-from core.exceptions import DatabaseException
+from core.exceptions import DatabaseError
 from core.database.models import EventDayGatheringPlace
 from repositories.base_repository import BaseRepository
 
@@ -26,4 +26,4 @@ class EventDayGatheringRepository(BaseRepository[EventDayGatheringPlace]):
             return result.scalars().all()
         except SQLAlchemyError as e:
             logger.error(f"Failed to retrieve EventDayGatherings: {e}")
-            raise DatabaseException(detail="Failed to retrieve EventDayGatherings.") from e
+            raise DatabaseError(detail="Failed to retrieve EventDayGatherings.") from e

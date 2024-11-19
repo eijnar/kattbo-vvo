@@ -6,7 +6,7 @@ from logging import getLogger
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 
-from core.exceptions import DatabaseException
+from core.exceptions import DatabaseError
 from repositories.base_repository import BaseRepository
 from core.database.models import (
     Team,
@@ -59,4 +59,4 @@ class TeamRepository(BaseRepository[Team]):
             return result.scalars().all()
         except SQLAlchemyError as e:
             logger.error(f"Failed to retrieve teams: {e}")
-            raise DatabaseException(detail="Failed to retrieve teams.") from e
+            raise DatabaseError(detail="Failed to retrieve teams.") from e

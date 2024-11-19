@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from repositories.base_repository import BaseRepository
 from core.database.models import User
-from core.exceptions import NotFoundException, DatabaseException
+from core.exceptions import NotFoundError, DatabaseError
 
 
 logger = getLogger(__name__)
@@ -29,33 +29,32 @@ class UserRepository(BaseRepository[User]):
             user = result.scalars().first()
             if not user:
                 logger.warning(f"User with ID {id} not found.")
-                raise NotFoundException(
+                raise NotFoundError(
                     detail=f"User with ID {id} not found.")
             return user
         except SQLAlchemyError as e:
             logger.error(
                 f"Failed to retrieve user with ID {id}: {e}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail=f"Failed to retrieve user with ID {id}.") from e
 
     async def get_by_auth0_id(self, auth0_id: str) -> Optional[User]:
-        """
-        Retrieves a user by their Auth0 ID.
+        """sumary_line
+        
+        Keyword arguments:
+        auth0_id -- The Auth0 ID of the user
+        Return: User object or None if not found
         """
         try:
             result = await self.db_session.execute(
                 select(User).filter(User.auth0_id == auth0_id)
             )
             user = result.scalars().first()
-            if not user:
-                logger.warning(f"User with Auth0 ID {auth0_id} not found.")
-                raise NotFoundException(
-                    detail=f"User with Auth0 ID {auth0_id} not found.")
             return user
         except SQLAlchemyError as e:
             logger.error(
                 f"Failed to retrieve user with Auth0 ID {auth0_id}: {e}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail=f"Failed to retrieve user with Auth0 ID {auth0_id}.") from e
 
     async def get_all_users(self, page: int = 1, page_size: int = 20) -> List[User]:

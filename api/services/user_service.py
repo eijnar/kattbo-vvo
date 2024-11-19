@@ -3,7 +3,7 @@ from typing import List
 
 from fastapi import HTTPException
 
-from core.exceptions import DatabaseException
+from core.exceptions import DatabaseError, NotFoundError
 from core.database.models import User
 from repositories.user_repository import UserRepository
 from schemas import UserBase, UserCreate, UserUpdate
@@ -24,25 +24,28 @@ class UserService:
         user = self.user_repository.read(id)
         return user
 
-    async def get_user_by_auth0_id(self, auth0_id: str) -> UserBase:
-        try:
-            user = await self.user_repository.get_by_auth0_id(auth0_id)
-            if user is None:
-                raise HTTPException(status_code=404, detail="User not found")
-            return user
-        except Exception as e:
-            logger.error(
-                f"Failed to fetch user by auth0_id: {auth0_id}. Error: {e}")
-            raise HTTPException(
-                status_code=500, detail="Failed to fetch user"
-            )
+    async def get_user_by_auth0_id(self, auth0_id: str, raise_if_none: bool = False) -> UserBase:
+        """
+        Retrieves a user by auth0_id
+        
+        Keyword arguments:
+        auth0_id -- The Auth0 ID of the user.
+        raise_if_found -- If True, raises NotFoundError when user is not found.
+        Return: UserBase or None
+        """
+        
+        user = await self.user_repository.get_by_auth0_id(auth0_id)
+        if not user and raise_if_none:
+            raise NotFoundError(f"User with auth0_id {auth0_id} not found.")
+        return user
+
 
     async def register_user(self, user: UserCreate) -> User:
         """
         Registers a new user by creating them in the repository.
         """
         try:
-            existing_user = await self.user_repository.get_by_auth0_id(user.auth0_id)
+            existing_user = await self.user_repository.exists(user.auth0_id)
             if existing_user:
                 logger.info("User alread registered", extra={
                             'user.id': str(existing_user.id)})
@@ -59,7 +62,7 @@ class UserService:
 
             return await self.user_repository.create(new_user)
 
-        except DatabaseException as e:
+        except DatabaseError as e:
             logger.error(
                 f"Failed to register user due to a database error: {str(e)}")
             raise HTTPException(
@@ -110,7 +113,7 @@ class UserService:
                         extra={'user.id': str(updated_user.id)})
             return updated_user
 
-        except DatabaseException as e:
+        except DatabaseError as e:
             logger.error(
                 f"Database error occurred while updating user {user.id}: {str(e)}",
                 extra={'user.id': str(user.id)}
@@ -176,7 +179,7 @@ class UserService:
                         extra={'user.id': str(updated_user.id)})
             return updated_user
 
-        except DatabaseException as e:
+        except DatabaseError as e:
             logger.error(
                 f"Database error occurred while updating user {user.id}: {str(e)}",
                 extra={'user.id': str(user.id)}

@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.future import select
 
 from core.database.models import HuntingYear
-from core.exceptions import DatabaseException
+from core.exceptions import DatabaseError
 from repositories.base_repository import BaseRepository
 
 
@@ -26,6 +26,6 @@ class HuntingYearRepository(BaseRepository[HuntingYear]):
             hunting_years = result.scalars().all()
             return hunting_years
         except SQLAlchemyError as e:
-            raise DatabaseException(
+            raise DatabaseError(
                 detail="Failed to list HuntingYears"
             )

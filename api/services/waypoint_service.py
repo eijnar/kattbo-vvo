@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from repositories.waypoint_repository import WaypointRepository
 from core.database.models import Waypoint
 from schemas.geodata.waypoint import WaypointCreate, WaypointUpdate  # Assuming these schemas exist
-from core.exceptions import NotFoundException
+from core.exceptions import NotFoundError
 
 logger = getLogger(__name__)
 
@@ -20,7 +20,7 @@ class WaypointService:
     async def get_waypoint(self, waypoint_id: UUID) -> Waypoint:
         waypoint = await self.waypoint_repository.read(waypoint_id)
         if not waypoint:
-            raise NotFoundException(detail="Waypoint not found.")
+            raise NotFoundError(detail="Waypoint not found.")
         return waypoint
 
     async def get_all_waypoints(self) -> List[Waypoint]:

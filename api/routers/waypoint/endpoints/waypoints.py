@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 from uuid import UUID
 
-from core.exceptions import NotFoundException
+from core.exceptions import NotFoundError
 from core.dependencies import get_waypoint_service
 from schemas.geodata.waypoint import WaypointCreate, WaypointUpdate, WaypointResponse
 from services.waypoint_service import WaypointService
@@ -26,7 +26,7 @@ async def get_waypoint(
 ):
     try:
         return await waypoint_service.get_waypoint(waypoint_id)
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -39,7 +39,7 @@ async def update_waypoint(
 ):
     try:
         return await waypoint_service.update_waypoint(waypoint_id, waypoint_update)
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -51,6 +51,6 @@ async def delete_waypoint(
 ):
     try:
         await waypoint_service.delete_waypoint(waypoint_id)
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

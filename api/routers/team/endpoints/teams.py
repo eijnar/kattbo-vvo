@@ -4,7 +4,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
 
 
-from core.exceptions import NotFoundException
+from core.exceptions import NotFoundError
 from core.dependencies import get_team_service
 from services.team_services import TeamService
 from schemas import (
@@ -31,7 +31,7 @@ async def create_team(team: TeamCreate, request: Request, response: Response, te
         
         return created_team
     
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
         )
@@ -49,7 +49,7 @@ async def get_team(team_id: str, team_service: TeamService = Depends(get_team_se
     try:
         team = await team_service.get_team(team_id)
         return team
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -59,7 +59,7 @@ async def update_team(team_id: str, team_update: TeamUpdate, team_service: TeamS
     try:
         updated_team = await team_service.update_team(team_id, name=team_update.name)
         return updated_team
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -69,7 +69,7 @@ async def delete_team(team_id: str, team_service: TeamService = Depends(get_team
 
     try:
         await team_service.delete_team(team_id)
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 

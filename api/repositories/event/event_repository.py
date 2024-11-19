@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import selectinload
 from sqlalchemy.future import select
 
-from core.exceptions import DatabaseException
+from core.exceptions import DatabaseError
 from repositories.base_repository import BaseRepository
 from core.database.models import Event, EventDay
 
@@ -37,4 +37,4 @@ class EventRepository(BaseRepository[Event]):
         except SQLAlchemyError as e:
             await self.db_session.rollback()
             logger.error(f"Failed to create event and days: {e}", exc_info=True)
-            raise DatabaseException(detail="Failed to create event and associated days.") from e
+            raise DatabaseError(detail="Failed to create event and associated days.") from e

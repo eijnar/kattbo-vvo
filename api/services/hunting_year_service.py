@@ -4,7 +4,7 @@ from datetime import timezone, datetime
 
 from repositories.hunting_year_repository import HuntingYearRepository
 from core.database.models import HuntingYear
-from core.exceptions import NotFoundException, ConflictException, ValidationException
+from core.exceptions import NotFoundError, ConflictError, ValidationError
 
 from schemas.hunting_year import HuntingYearCreate, HuntingYearUpdate
 import re
@@ -36,9 +36,9 @@ class HuntingYearService:
             HuntingYear: The created HuntingYear object.
 
         Raises:
-            ValidationException: If the HuntingYear name format is invalid or if
+            ValidationError: If the HuntingYear name format is invalid or if
             the end year is not exactly one greater than the start year.
-            ConflictException: If a HuntingYear with the same name already exists.
+            ConflictError: If a HuntingYear with the same name already exists.
         """
         
         existing_hunting_years = await self.hunting_year_repository.list()
@@ -48,20 +48,20 @@ class HuntingYearService:
 
         if not re.match(r'^\d{4}/\d{4}$', name):
             logger.error("Invalid HuntingYear name format.")
-            raise ValidationException(
+            raise ValidationError(
                 detail="Name must be in the format 'YYYY/YYYY'.")
 
         start_year_parsed, end_year_parsed = map(int, name.split('/'))
         if end_year_parsed != start_year_parsed + 1:
             logger.error(
                 "End year is not exactly one greater than start year.")
-            raise ValidationException(
+            raise ValidationError(
                 detail="The second year must be exactly one greater than the first year.")
 
         existing = await self.hunting_year_repository.get_by_name(name)
         if existing:
             logger.error(f"HuntingYear with name '{name}' already exists.")
-            raise ConflictException(
+            raise ConflictError(
                 detail=f"HuntingYear with name '{name}' already exists.")
 
         if is_current:
@@ -91,7 +91,7 @@ class HuntingYearService:
         hunting_year = await self.hunting_year_repository.read(hunting_year_id)
         if not hunting_year:
             logger.error(f"HuntingYear with ID {hunting_year_id} not found")
-            raise NotFoundException(
+            raise NotFoundError(
                 detail=f"HuntingYear with ID {hunting_year_id} not found")
         return hunting_year
 
@@ -99,14 +99,14 @@ class HuntingYearService:
         hunting_years = await self.hunting_year_repository.list_hunting_years_descending(limit=limit, offset=offset)
         if not hunting_years:
             logger.error(f"No HuntingYears found.")
-            raise NotFoundException(detail="No HuntingYears found.")
+            raise NotFoundError(detail="No HuntingYears found.")
         return hunting_years
 
     async def set_current_hunting_year(self, hunting_year_id: UUID) -> HuntingYear:
         hunting_year = await self.hunting_year_repository.read(hunting_year_id)
         if not hunting_year:
             logger.error(f"HuntingYear with ID {hunting_year_id} not found.")
-            raise NotFoundException(
+            raise NotFoundError(
                 detail=f"HuntingYear with ID {hunting_year_id} not found.")
 
         if hunting_year.is_current:
@@ -129,7 +129,7 @@ class HuntingYearService:
         hunting_year = await self.hunting_year_repository.read(hunting_year_id)
         if not hunting_year:
             logger.error(f"HuntingYear with ID {hunting_year_id} not found.")
-            raise NotFoundException(
+            raise NotFoundError(
                 detail=f"HuntingYear with ID {hunting_year_id} not found.")
 
         if hunting_year.is_locked:
@@ -145,7 +145,7 @@ class HuntingYearService:
         hunting_year = await self.hunting_year_repository.read(hunting_year_id)
         if not hunting_year:
             logger.error(f"HuntingYear with ID {hunting_year_id} not found.")
-            raise NotFoundException(
+            raise NotFoundError(
                 detail=f"HuntingYear with ID {hunting_year_id} not found.")
 
         if not hunting_year.is_locked:
@@ -166,7 +166,7 @@ class HuntingYearService:
         hunting_year = await self.hunting_year_repository.read(hunting_year_id)
         if not hunting_year:
             logger.error(f"HuntingYear with ID {hunting_year_id} not found.")
-            raise NotFoundException(
+            raise NotFoundError(
                 detail=f"HuntingYear with ID {hunting_year_id} not found."
             )
 

@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from repositories.base_repository import BaseRepository
 from core.database.models.security.api import APIKey
 from core.database.models.user import User
-from core.exceptions import DatabaseException
+from core.exceptions import DatabaseError
 
 
 logger = getLogger(__name__)
@@ -37,7 +37,7 @@ class SecurityRepository(BaseRepository[APIKey]):
             return api_key
         except SQLAlchemyError as e:
             logger.error(f"Failed to fetch API key by identifier {identifier}: {e}")
-            raise DatabaseException(detail="Failed to fetch API key.") from e
+            raise DatabaseError(detail="Failed to fetch API key.") from e
 
     async def list_by_user(self, user_id: str, revoked: Optional[bool] = None) -> List[APIKey]:
         try:
@@ -50,7 +50,7 @@ class SecurityRepository(BaseRepository[APIKey]):
             return api_keys
         except SQLAlchemyError as e:
             logger.error(f"Failed to list API keys for user {user_id}: {e}")
-            raise DatabaseException(detail="Failed to list API keys.") from e
+            raise DatabaseError(detail="Failed to list API keys.") from e
 
     async def revoke_api_key(self, api_key: APIKey) -> APIKey:
         try:
@@ -60,7 +60,7 @@ class SecurityRepository(BaseRepository[APIKey]):
             return api_key
         except SQLAlchemyError as e:
             logger.error(f"Failed to revoke API key {api_key.identifier}: {e}")
-            raise DatabaseException(detail="Failed to revoke API key.") from e
+            raise DatabaseError(detail="Failed to revoke API key.") from e
 
     async def get_user_by_auth0_id(self, auth0_id: str) -> Optional[User]:
         result = await self.db_session.execute(select(User).filter(User.auth0_id == auth0_id))

@@ -8,7 +8,7 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import inspect
 
-from core.exceptions import NotFoundException, DatabaseException
+from core.exceptions import NotFoundError, DatabaseError
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class BaseRepository(Generic[T]):
             return instance
         except SQLAlchemyError as e:
             logger.error(f"Failed to create {self.model.__name__}: {e}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail=f"Failed to create {self.model.__name__}.") from e
 
     async def read(self, id: int, raise_if_not_found: bool = True) -> T:
@@ -63,7 +63,7 @@ class BaseRepository(Generic[T]):
                            "resource.id": str(id)}
                 )
                 if raise_if_not_found:
-                    raise NotFoundException(
+                    raise NotFoundError(
                         detail=f"{self.model.__name__} with ID {id} not found.")
             logger.debug(
                 "Retrieved instance",
@@ -76,7 +76,7 @@ class BaseRepository(Generic[T]):
         except SQLAlchemyError as e:
             logger.error(
                 f"Failed to read {self.model.__name__} with ID {id}: {e}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail=f"Failed to read {self.model.__name__} with ID {id}.") from e
 
     async def list(
@@ -116,13 +116,13 @@ class BaseRepository(Generic[T]):
                     }
                 )
                 if raise_if_not_found:
-                    NotFoundException(detail="No records found")
+                    NotFoundError(detail="No records found")
                     
             return records
 
         except SQLAlchemyError as e:
             logger.error(f"Failed to list {self.model.__name__}s: {e}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail=f"Failed to list {self.model.__name__}s."
             ) from e
 
@@ -153,7 +153,7 @@ class BaseRepository(Generic[T]):
                 )
                 
                 if raise_if_not_found:
-                    raise NotFoundException(
+                    raise NotFoundError(
                         detail=f"No {self.model.__name__}s found with criteria {kwargs}."
                     )
 
@@ -170,7 +170,7 @@ class BaseRepository(Generic[T]):
         except SQLAlchemyError as e:
             logger.error(
                 f"Failed to filter {self.model.__name__}s with criteria {kwargs}: {e}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail=f"Failed to filter {self.model.__name__}s.") from e
 
     async def update(self, instance: T, **kwargs) -> T:
@@ -204,7 +204,7 @@ class BaseRepository(Generic[T]):
         except SQLAlchemyError as e:
             logger.error(
                 f"Failed to update {self.model.__name__} with ID {instance.id}: {e}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail=f"Failed to update {self.model.__name__} with ID {instance.id}.") from e
 
     async def delete(self, instance: T):
@@ -253,7 +253,7 @@ class BaseRepository(Generic[T]):
                 instance, 'is_active') else "hard delete"
             logger.error(
                 f"Failed to {action} {self.model.__name__} with ID {instance.id}: {e}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail=f"Failed to {action} {self.model.__name__} with ID {instance.id}.") from e
 
     async def get_one(self, **kwargs) -> T:
@@ -288,7 +288,7 @@ class BaseRepository(Generic[T]):
         except SQLAlchemyError as e:
             logger.error(
                 f"Failed to retrieve {self.model.__name__} matching criteria {kwargs}: {e}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail=f"Failed to retrieve {self.model.__name__} by criteria.") from e
 
     async def exists(self, **kwargs) -> bool:
@@ -315,7 +315,7 @@ class BaseRepository(Generic[T]):
             return exists
 
         except SQLAlchemyError as e:
-            raise DatabaseException(
+            raise DatabaseError(
                 detail=f"Failed to verify existence of {self.model.__name__} with criteria {kwargs}: {e}",
                 extra={"criteria": kwargs, "error": str(e)}
             ) from e

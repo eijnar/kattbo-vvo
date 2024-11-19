@@ -7,7 +7,7 @@ from fastapi import Depends, HTTPException, status
 from services.hunting_year_service import HuntingYearService
 from core.dependencies import get_hunting_year_service
 from core.database.models import HuntingYear
-from core.exceptions import NotFoundException
+from core.exceptions import NotFoundError
 
 
 logger = getLogger(__name__)
@@ -23,7 +23,7 @@ async def get_resolved_hunting_year(
     try:
         hunting_year = await hunting_year_service.resolve_hunting_year(hunting_year_id)
         return hunting_year
-    except NotFoundException as e:
+    except NotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=e.detail

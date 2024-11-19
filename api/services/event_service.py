@@ -4,7 +4,7 @@ from datetime import date
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from core.exceptions import NotFoundException, ValidationException, DatabaseException
+from core.exceptions import NotFoundError, ValidationError, DatabaseError
 from core.database.models import Event, EventDay, EventDayGatheringPlace
 from schemas.event.event import EventBase, EventResponse, EventCreate
 from repositories import (
@@ -51,7 +51,7 @@ class EventService:
 
         events = await self.event_day_repository.list_by_date_range(limit=limit, offset=offset, start=start, end=end)
         if not events:
-            raise NotFoundException(detail="No events found")
+            raise NotFoundError(detail="No events found")
         return events
 
     async def get_event(self, id: str) -> EventResponse:
@@ -68,7 +68,7 @@ class EventService:
             creator = await self.user_repository.read(event_create.creator_id)
             if not creator:
                 logger.error(f"Creator not found: {event_create.creator_id}")
-                raise NotFoundException(
+                raise NotFoundError(
                     detail=f"Creator not found: {event_create.creator_id}"
                 )
 
@@ -78,7 +78,7 @@ class EventService:
             if not event_category:
                 logger.error(
                     f"Event category not found: {event_create.event_category_id}")
-                raise NotFoundException(
+                raise NotFoundError(
                     detail=f"Event category not found: {event_create.event_category_id}"
                 )
 
@@ -95,7 +95,7 @@ class EventService:
                     missing = gathering_place_ids - \
                         {gp.id for gp in existing_gathering_places}
                     logger.error(f"Gathering places not found: {missing}")
-                    raise ValidationException(
+                    raise ValidationError(
                         detail=f"Gathering places not found: {missing}"
                     )
 
@@ -113,7 +113,7 @@ class EventService:
                 if len(existing_teams) != len(team_ids):
                     missing = team_ids - {team.id for team in existing_teams}
                     logger.error(f"Teams not found: {missing}")
-                    raise ValidationException(
+                    raise ValidationError(
                         detail=f"Teams not found: {missing}")
 
             # Create Event Instance
@@ -159,17 +159,17 @@ class EventService:
             # aReturn the ORM Event Object Directly
             return event
 
-        except ValidationException as ve:
+        except ValidationError as ve:
             logger.error(f"Validation error: {ve.detail}")
             raise ve
-        except NotFoundException as ne:
+        except NotFoundError as ne:
             logger.error(f"Not found error: {ne.detail}")
             raise ne
         except SQLAlchemyError as sae:
             logger.error(f"Database error: {sae}")
-            raise DatabaseException(
+            raise DatabaseError(
                 detail="An error occurred while creating the event.") from sae
         except Exception as e:
             logger.error(f"Unexpected error: {e}", exc_info=True)
-            raise DatabaseException(
+            raise DatabaseError(
                 detail="An unexpected error occurred.") from e
