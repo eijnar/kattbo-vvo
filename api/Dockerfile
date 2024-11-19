@@ -6,7 +6,7 @@ RUN groupadd -r appuser -g 2000 && useradd -r -u 2000 -g appuser appuser
 # Install gosu
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends gosu; \
+    apt-get install -y --no-install-recommends gosu curl; \
     rm -rf /var/lib/apt/lists/*
 
 # Set working directory

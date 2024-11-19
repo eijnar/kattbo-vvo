@@ -31,11 +31,6 @@ services:
       - kattbo_vvo_logs:/var/log/api/:ro
     env_file:
       - ~/kattbo-vvo/secrets/.env
-    healthcheck:
-      test: filebeat test config
-      interval: 30s
-      timeout: 15s
-      retries: 5
 
 volumes:
   kattbo_vvo_logs:
