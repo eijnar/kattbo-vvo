@@ -3,7 +3,7 @@ from typing import List
 
 from fastapi import HTTPException
 
-from core.exceptions import DatabaseError, NotFoundError
+from core.exceptions import DatabaseError, NotFoundError, ConflictError
 from core.database.models import User
 from repositories.user_repository import UserRepository
 from schemas import UserBase, UserCreate, UserUpdate
@@ -26,12 +26,14 @@ class UserService:
 
     async def get_user_by_auth0_id(self, auth0_id: str, raise_if_none: bool = False) -> UserBase:
         """
-        Retrieves a user by auth0_id
-        
-        Keyword arguments:
-        auth0_id -- The Auth0 ID of the user.
-        raise_if_found -- If True, raises NotFoundError when user is not found.
-        Return: UserBase or None
+        Retrieves a user by their Auth0 ID.
+
+        Args:
+            auth0_id (str): The user's Auth0 ID.
+            raise_if_none (bool, optional): If True, raises a NotFoundError if the user is not found. Defaults to False.
+
+        Returns:
+            UserBase: The user object if found, or None if not found and raise_if_none=False.
         """
         
         user = await self.user_repository.get_by_auth0_id(auth0_id)
@@ -40,38 +42,37 @@ class UserService:
         return user
 
 
-    async def register_user(self, user: UserCreate) -> User:
+    async def register_user(self, user_data: UserCreate) -> User:
         """
-        Registers a new user by creating them in the repository.
+        Registers a new user.
+
+        Args:
+        user_data: UserCreate containing the user data to register.
+
+        Returns:
+        User: The newly created user.
+
+        Raises:
+        ConflictError: If a user with the same auth0_id already exists.
         """
-        try:
-            existing_user = await self.user_repository.exists(user.auth0_id)
-            if existing_user:
-                logger.info("User alread registered", extra={
-                            'user.id': str(existing_user.id)})
-                raise HTTPException(
-                    status_code=400, detail="User already registered")
+        
+        existing_user = await self.user_repository.get_by_auth0_id(user_data.auth0_id)
+        if existing_user:
+            logger.info("User alread registered", extra={
+                        'user.id': str(existing_user.id)})
+            raise ConflictError(f"User with auth0_id {user_data.auth0_id} already registered.")
 
-            # Create new user
-            new_user = User(
-                auth0_id=user.auth0_id,
-                email=user.email,
-                phone_number=user.phone_number,
-                disabled=False
-            )
+        # Create new user
+        new_user = User(
+            auth0_id=user_data.auth0_id,
+            email=user_data.email,
+            phone_number=user_data.phone_number,
+            disabled=False
+        )
 
-            return await self.user_repository.create(new_user)
+        created_user = await self.user_repository.create(new_user)
+        return created_user
 
-        except DatabaseError as e:
-            logger.error(
-                f"Failed to register user due to a database error: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail="Database error while registering user")
-        except Exception as e:
-            logger.error(
-                f"Unexpected error occurred while registering user: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail="Failed to register user due to an unexpected error")
 
     async def update_user_profile(
         self,

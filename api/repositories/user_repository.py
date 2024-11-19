@@ -40,7 +40,7 @@ class UserRepository(BaseRepository[User]):
 
     async def get_by_auth0_id(self, auth0_id: str) -> Optional[User]:
         """sumary_line
-        
+
         Keyword arguments:
         auth0_id -- The Auth0 ID of the user
         Return: User object or None if not found
