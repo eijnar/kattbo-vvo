@@ -37,26 +37,6 @@ def decode_jwt(token: str):
         raise HTTPException(
             status_code=401, detail="Unable to find appropriate key")
     try:
-        # Decode the token without verifying the signature to extract claims
-        unverified_payload = jwt.decode(
-            token,
-            key=None,
-            algorithms=settings.ALGORITHMS,
-            options={"verify_signature": False}
-        )
-
-        # Extract the 'aud' claim and ensure it's a list
-        logger.debug(f"Unverified_payload: {unverified_payload}")
-        token_audience = unverified_payload.get('aud')
-        if isinstance(token_audience, str):
-            token_audience = [token_audience]
-
-        # Verify that the expected audience is in the token's 'aud' claim
-        expected_audience = settings.API_AUDIENCE
-        if expected_audience not in token_audience:
-            raise JWTError('Invalid audience')
-
-        # Now decode the token with signature verification, skipping audience check
         payload = jwt.decode(
             token,
             rsa_key,
