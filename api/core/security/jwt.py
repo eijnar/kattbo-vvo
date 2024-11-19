@@ -40,12 +40,13 @@ def decode_jwt(token: str):
         # Decode the token without verifying the signature to extract claims
         unverified_payload = jwt.decode(
             token,
-            key=None,  # No key is needed since we're not verifying the signature yet
+            key=None,
             algorithms=settings.ALGORITHMS,
             options={"verify_signature": False}
         )
 
         # Extract the 'aud' claim and ensure it's a list
+        logger.debug(f"Unverified_payload: {unverified_payload}")
         token_audience = unverified_payload.get('aud')
         if isinstance(token_audience, str):
             token_audience = [token_audience]
