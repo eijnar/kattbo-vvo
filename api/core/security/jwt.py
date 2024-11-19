@@ -45,7 +45,7 @@ def decode_jwt(token: str):
             issuer=f"https://{settings.AUTH0_DOMAIN}/"
         )
         return payload
-    except JWTError:
+    except JWTError as e:
         logger.debug(f"Failure to decode token {e}")
         raise HTTPException(
             status_code=401,
