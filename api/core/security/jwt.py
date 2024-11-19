@@ -43,7 +43,6 @@ def decode_jwt(token: str):
             algorithms=settings.ALGORITHMS,
             options={"verify_signature": False}
         )
-        logger.debug(f"Unverified token payload: {unverified_payload}")
         payload = jwt.decode(
             token,
             rsa_key,
@@ -54,6 +53,7 @@ def decode_jwt(token: str):
         return payload
     except JWTError as e:
         logger.error(f"Failure to decode token: {e}")
+        logger.debug(f"Unverified token payload: {unverified_payload}")
         raise HTTPException(
             status_code=401,
             detail="Invalid token"
