@@ -63,14 +63,13 @@ class UserService:
                         'user.id': str(existing_user.id)})
             raise ConflictError(f"User with auth0_id {user_data.auth0_id} already registered.")
 
-        new_user = User(
+        created_user = await self.user_repository.create(
             auth0_id=user_data.auth0_id,
             email=user_data.email,
             phone_number=user_data.phone_number,
-            is_active=False
+            is_active=True
         )
-
-        created_user = await self.user_repository.create(new_user)
+        
         return created_user
 
 
