@@ -46,13 +46,6 @@ def decode_jwt(token: str):
         )
         return payload
     except JWTError as e:
-        unverified_payload = jwt.decode(
-            token,
-            key=None,  # Key is None since we're not verifying the signature
-            algorithms=settings.ALGORITHMS,
-            options={"verify_signature": False}
-        )
-        logger.error(f"Unverified token payload: {unverified_payload}")
         logger.error(f"Failure to decode token: {e}")
         raise HTTPException(
             status_code=401,
@@ -65,6 +58,13 @@ async def decode_and_validate_token(
     if not token:
         logger.debug("No token provided for decoding.")
         return None
+    unverified_payload = jwt.decode(
+        token,
+        key=None,  # Key is None since we're not verifying the signature
+        algorithms=settings.ALGORITHMS,
+        options={"verify_signature": False}
+    )
+    logger.error(f"Unverified token payload: {unverified_payload}")
     try:
         payload = decode_jwt(token)
         logger.debug(f"Decoded payload: {payload}")

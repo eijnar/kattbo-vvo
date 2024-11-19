@@ -150,7 +150,7 @@ class SecurityService:
             )
 
         # Verify the API key against the hashed key in the database
-        if not self.verify_api_key_with_passlib(api_key, api_key_record.hashed_secret):
+        if not self._verify_api_key_with_passlib(api_key, api_key_record.hashed_secret):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid API Key",
@@ -162,67 +162,3 @@ class SecurityService:
         logger.info(f"Permissions loaded from API key: {permissions}")
         return UserContext(user=user, permissions=permissions)
 
-    # def verify_api_key(self, provided_key: str, db_session: AsyncSession) -> Optional[User]:
-    #     identifier = self.generate_api_key_identifier(provided_key)
-    #     api_key_obj = self.api_key_repository.get_by_identifier(identifier)
-
-    #     if not api_key_obj or api_key_obj.revoked:
-    #         return None  # No matching API key found or it's revoked
-
-    #     if api_key_obj.expires_at and api_key_obj.expires_at < datetime.now(timezone.utc):
-    #         return None  # API key has expired
-
-    #     if self.verify_api_key_with_passlib(provided_key, api_key_obj.hashed_secret):
-    #         return api_key_obj.user  # Valid API key; return associated user
-
-    #     return None  # Invalid API key
-
-    # --- Event Registration Token Methods ---
-
-    # def generate_event_registration_token(self, user: User, event_id: str, expires_in: timedelta = timedelta(hours=24)) -> str:
-    #     """
-    #     Generate a JWT token for event registration.
-    #     """
-    #     payload = {
-    #         "sub": user.auth0_id,
-    #         "event_id": event_id,
-    #         "permissions": ["register_event"],
-    #         "exp": datetime.now(timezone.utc) + expires_in
-    #     }
-    #     token = jwt.encode(payload, self.jwt_secret,
-    #                        algorithm=self.jwt_algorithm)
-    #     return token
-
-    # async def authenticate_event_registration_token(self, token: str, db_session: AsyncSession) -> User:
-    #     """
-    #     Authenticate user using an event registration token.
-    #     """
-    #     try:
-    #         payload = jwt.decode(token, self.jwt_secret,
-    #                              algorithms=[self.jwt_algorithm])
-    #         auth0_id = payload.get("sub")
-    #         event_id = payload.get("event_id")
-    #         permissions = payload.get("permissions", [])
-
-    #         if not auth0_id or not event_id:
-    #             raise HTTPException(
-    #                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-
-    #         if "register_event" not in permissions:
-    #             raise HTTPException(
-    #                 status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
-
-    #         user = self.api_key_repository.get_user_by_auth0_id(db, auth0_id)
-    #         if user is None:
-    #             raise HTTPException(
-    #                 status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    #         if user.disabled:
-    #             raise HTTPException(
-    #                 status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
-
-    #         return user
-
-    #     except JWTError:
-    #         raise HTTPException(
-    #             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
