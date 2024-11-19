@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
 # Create appuser
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN groupadd -r appuser -g 2000 && useradd -r -u 2000 -g appuser appuser
 
 # Install gosu
 RUN set -eux; \
