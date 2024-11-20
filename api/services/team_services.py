@@ -18,7 +18,7 @@ class TeamService:
         self.user_team_assignment_repository = user_team_assignment_repository
         self.hunting_year_service = hunting_year_service
 
-    @async_capture_span('processing_new_team', type="db.create")
+    @async_capture_span('processing_new_team', span_type="db.create")
     async def create_team(self, name: str) -> Team:
         existing_teams = await self.team_repository.exists(name=name)
         if existing_teams:
