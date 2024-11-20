@@ -30,7 +30,7 @@ async def get_auth0_public_key():
             return JWKS_CACHE['keys']
         
         async with httpx.AsyncClient() as http_client:
-            response = await http_client.get("https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json")
+            response = await http_client.get(f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json")
             jwks = await response.json()
             JWKS_CACHE = {
                 'keys': jwks['keys'],
