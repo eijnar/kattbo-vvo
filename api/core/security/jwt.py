@@ -1,7 +1,9 @@
 import requests
+import httpx
 from logging import getLogger
 from typing import Optional
 from jose import JWTError, jwt
+from time import time
 
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
@@ -10,18 +12,33 @@ from core.config import settings
 
 logger = getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+JWKS_CACHE = {}
+JWKS_CACHE_EXPIRY = 3600 
 
-def get_public_key():
-    jwks_url = f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json"
-    response = requests.get(jwks_url, timeout=5.0)
-    if response.status_code != 200:
-        raise HTTPException(
-            status_code=500, detail="Failed to fetch public keys")
-    return response.json()
+async def get_auth0_public_key():
+    global JWKS_CACHE
+    if JWKS_CACHE and JWKS_CACHE['expiry'] > time():
+        return JWKS_CACHE['keys']
+    
+    async with httpx.AsyncClient() as client:
+        async with client.get("https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json") as resp:
+            jwks = await resp.json()
+            JWKS_CACHE = {
+                'keys': jwks['keys'],
+                'expiry': time() + JWKS_CACHE_EXPIRY
+            }
+            return jwks['keys']
+        
+        #jwks_url = f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json"
+        #response = requests.get(jwks_url, timeout=5.0)
+    #     if response.status_code != 200:
+    #         raise HTTPException(
+    #             status_code=500, detail="Failed to fetch public keys")
+    # return response.json()
 
 
-def decode_jwt(token: str):
-    jwks = get_public_key()
+async def decode_jwt(token: str):
+    jwks = await get_auth0_public_key()
     unverified_header = jwt.get_unverified_header(token)
     rsa_key = {}
     for key in jwks['keys']:
@@ -61,7 +78,7 @@ async def decode_and_validate_token(
         return None
     try:
         logger.debug(token)
-        payload = decode_jwt(token)
+        payload = await decode_jwt(token)
         logger.debug(f"Decoded payload: {payload}")
         return payload
     except JWTError as e:
