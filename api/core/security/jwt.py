@@ -20,14 +20,14 @@ async def get_auth0_public_key():
     if JWKS_CACHE and JWKS_CACHE['expiry'] > time():
         return JWKS_CACHE['keys']
     
-    async with httpx.AsyncClient() as client:
-        async with client.get("https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json") as resp:
-            jwks = await resp.json()
-            JWKS_CACHE = {
-                'keys': jwks['keys'],
-                'expiry': time() + JWKS_CACHE_EXPIRY
-            }
-            return jwks['keys']
+    async with httpx.AsyncClient() as http_client:
+        response = http_client.get("https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json")
+        jwks = await response.json()
+        JWKS_CACHE = {
+            'keys': jwks['keys'],
+            'expiry': time() + JWKS_CACHE_EXPIRY
+        }
+        return jwks['keys']
         
         #jwks_url = f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json"
         #response = requests.get(jwks_url, timeout=5.0)
