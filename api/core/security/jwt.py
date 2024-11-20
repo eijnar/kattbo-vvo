@@ -16,22 +16,23 @@ JWKS_CACHE = {}
 JWKS_CACHE_EXPIRY = 3600
 jwks_lock = Lock()
 
-async def get_auth0_public_key():
+
+async def get_auth0_public_keys():
     global JWKS_CACHE
     if JWKS_CACHE and JWKS_CACHE['expiry'] > time():
         cache = JWKS_CACHE['keys']
         logger.debug(f'JWKS_CACHE returning {cache}')
         return cache
-    
+
     async with jwks_lock:
         if JWKS_CACHE and JWKS_CACHE['expiry'] > time():
             lock = JWKS_CACHE['keys']
             logger.debug(f'async with jwks_lock returning {lock}')
             return lock
-        
+
         async with httpx.AsyncClient() as http_client:
             response = await http_client.get(f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json")
-            jwks = await response.json()
+            jwks = response.json()
             JWKS_CACHE = {
                 'keys': jwks['keys'],
                 'expiry': time() + JWKS_CACHE_EXPIRY
@@ -39,20 +40,13 @@ async def get_auth0_public_key():
             result = jwks['keys']
             logger.debug(f'Returning fetched data: {result}')
             return result
-        
-        #jwks_url = f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json"
-        #response = requests.get(jwks_url, timeout=5.0)
-    #     if response.status_code != 200:
-    #         raise HTTPException(
-    #             status_code=500, detail="Failed to fetch public keys")
-    # return response.json()
 
 
 async def decode_jwt(token: str):
-    jwks = await get_auth0_public_key()
+    jwks_keys = await get_auth0_public_keys()
     unverified_header = jwt.get_unverified_header(token)
     rsa_key = {}
-    for key in jwks['keys']:
+    for key in jwks_keys:
         if key['kid'] == unverified_header['kid']:
             rsa_key = {
                 'kty': key['kty'],
@@ -80,6 +74,7 @@ async def decode_jwt(token: str):
             status_code=401,
             detail="Invalid token"
         )
+
 
 async def decode_and_validate_token(
     token: Optional[str] = Depends(oauth2_scheme)
