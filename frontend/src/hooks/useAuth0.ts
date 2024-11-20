@@ -1,9 +1,7 @@
-// src/hooks/useAuth.ts
-
 import { useAuth0 } from '@auth0/auth0-react';
 
 interface Auth {
-  user: any; // Replace with your User type if defined
+  user: any; 
   isAuthenticated: boolean;
   isLoading: boolean;
   auth0_id: string | undefined;
@@ -13,7 +11,7 @@ interface Auth {
 export const useAuth = (): Auth => {
   const { user, isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
 
-  const auth0_id = user?.sub; // 'sub' typically contains the auth0_id
+  const auth0_id = user?.sub;
 
   return {
     user,

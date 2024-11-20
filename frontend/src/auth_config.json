@@ -1,8 +1,7 @@
 {
-    "domain": "dev-81g6m1bwja4pqaof.eu.auth0.com",
+    "domain": "auth.kattbovvo.se",
     "clientId": "kL1RLUxgfsVZBa7vVKgry2Eyq8taK1pA",
     "authorizationParams.redirect_uri": "http://localhost:5173/",
-    "audience": "http://localhost:8000",
+    "audience": "https://dev-api.kattbovvo.se",
     "scope": "create:user"
   }
-  

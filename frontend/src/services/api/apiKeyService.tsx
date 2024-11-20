@@ -2,15 +2,17 @@
 
 import axios from "axios";
 import { ApiKeyResponse, ApiKey } from "../../types/ApiKey";
+import { API_BASE_URL, API_VERSION } from '../../utils/constants';
 
 interface CreateApiKeyPayload {
   permissions: string[];
   expires_in?: string; // e.g., "30d"
 }
 
+
 export const fetchApiKeys = async (token: string): Promise<ApiKey[]> => {
   const response = await axios.get<ApiKey[]>(
-    `http://localhost:8000/v1/users/me/api-keys/`,
+    `${{API_BASE_URL}}/${API_VERSION}/users/me/api-keys/`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -25,7 +27,7 @@ export const revokeApiKey = async (
   apiKeyId: string
 ): Promise<void> => {
   await axios.delete(
-    `http://localhost:8000/v1/users/me/api-keys/${apiKeyId}/`,
+    `${API_BASE_URL}/${API_VERSION}/users/me/api-keys/${apiKeyId}/`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -42,7 +44,7 @@ export const createApiKey = async (
   const payload: CreateApiKeyPayload = { permissions, expires_in };
 
   const response = await axios.post<ApiKeyResponse>(
-    `http://localhost:8000/v1/users/me/api-keys/`,
+    `${API_BASE_URL}/${API_VERSION}/users/me/api-keys/`,
     payload,
     {
       headers: {

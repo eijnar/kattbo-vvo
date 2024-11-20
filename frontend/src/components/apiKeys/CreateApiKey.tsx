@@ -182,7 +182,7 @@ const CreateApiKey: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {apiKeys.map((key) => (
+                {Array.isArray(apiKeys) ? apiKeys.map((key) => (
                   <tr key={key.id} className="border-b hover:bg-gray-50">
                     <td className="py-2 px-4">{key.id}</td>
                     <td className="py-2 px-4">
@@ -205,7 +205,9 @@ const CreateApiKey: React.FC = () => {
                       </button>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr><td> No keys found</td></tr>
+              )}
               </tbody>
             </table>
           )}

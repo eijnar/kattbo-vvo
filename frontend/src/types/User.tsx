@@ -4,7 +4,7 @@ export interface UserProfile {
   first_name?: string;
   last_name?: string;
   phone_number?: string;
-  disabled: boolean;
+  is_active: boolean;
 }
 
 export interface User {
