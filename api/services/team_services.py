@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import Tuple, List, Optional
 from logging import getLogger
 
-from elasticapm import capture_span
+from elasticapm import async_capture_span
 
 from repositories import TeamRepository, UserTeamAssignmentRepository
 from services.hunting_year_service import HuntingYearService
@@ -18,7 +18,7 @@ class TeamService:
         self.user_team_assignment_repository = user_team_assignment_repository
         self.hunting_year_service = hunting_year_service
 
-    @capture_span('processing_new_team')
+    @async_capture_span('processing_new_team', type="db.create")
     async def create_team(self, name: str) -> Team:
         existing_teams = await self.team_repository.exists(name=name)
         if existing_teams:
