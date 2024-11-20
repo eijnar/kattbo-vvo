@@ -3,6 +3,7 @@ from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
+from elasticapm import capture_span 
 
 from core.security.jwt import decode_and_validate_token
 from core.security.security_service import SecurityService
@@ -13,6 +14,7 @@ from core.security.models import UserContext
 logger = getLogger(__name__)
 api_key_header = APIKeyHeader(name='X-API-Key', auto_error=False)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
+
 
 async def get_current_user(
     security_service: SecurityService = Depends(get_security_service),
@@ -66,7 +68,7 @@ async def get_current_user(
 
     return user_context
 
-
+@capture_span('verify_current_user_status')
 def get_current_active_user(required_scope: Optional[str] = None):
     async def dependency(
         user_context: UserContext = Depends(get_current_user)
