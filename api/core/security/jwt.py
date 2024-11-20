@@ -1,9 +1,9 @@
-import requests
 import httpx
 from logging import getLogger
 from typing import Optional
 from jose import JWTError, jwt
 from time import time
+from asyncio import Lock
 
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
@@ -13,21 +13,29 @@ from core.config import settings
 logger = getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 JWKS_CACHE = {}
-JWKS_CACHE_EXPIRY = 3600 
+JWKS_CACHE_EXPIRY = 3600
+jwks_lock = Lock()
 
 async def get_auth0_public_key():
     global JWKS_CACHE
     if JWKS_CACHE and JWKS_CACHE['expiry'] > time():
+        logger.debug(f'JWKS_CACHE returning {JWKS_CACHE['keys']}')
         return JWKS_CACHE['keys']
     
-    async with httpx.AsyncClient() as http_client:
-        response = await http_client.get("https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json")
-        jwks = await response.json()
-        JWKS_CACHE = {
-            'keys': jwks['keys'],
-            'expiry': time() + JWKS_CACHE_EXPIRY
-        }
-        return jwks['keys']
+    async with jwks_lock:
+        if JWKS_CACHE and JWKS_CACHE['expiry'] > time():
+            logger.debug(f'async with jwks_lock returning {JWKS_CACHE['keys']}')
+            return JWKS_CACHE['keys']
+        
+        async with httpx.AsyncClient() as http_client:
+            response = await http_client.get("https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json")
+            jwks = await response.json()
+            JWKS_CACHE = {
+                'keys': jwks['keys'],
+                'expiry': time() + JWKS_CACHE_EXPIRY
+            }
+            logger.debug(f'Returning fetched data: {jwks['keys']}')
+            return jwks['keys']
         
         #jwks_url = f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json"
         #response = requests.get(jwks_url, timeout=5.0)
