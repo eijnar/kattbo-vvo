@@ -1,14 +1,17 @@
 import httpx
+import json
 from logging import getLogger
 from typing import Optional
 from jose import JWTError, jwt
 from time import time
-from asyncio import Lock
 
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
+from redis import asyncio as aioredis
+from redis.lock import Lock
 
 from core.config import settings
+from core.redis.client import get_redis_client_for_cache
 
 logger = getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -17,29 +20,30 @@ JWKS_CACHE_EXPIRY = 3600
 jwks_lock = Lock()
 
 
-async def get_auth0_public_keys():
-    global JWKS_CACHE
-    if JWKS_CACHE and JWKS_CACHE['expiry'] > time():
-        cache = JWKS_CACHE['keys']
-        logger.debug(f'JWKS_CACHE returning {cache}')
-        return cache
+async def get_auth0_public_keys(redis: aioredis = Depends(get_redis_client_for_cache)):
+    cache_key = "cache:auth0:jwks"
+
+    cached_data = await redis.get(cache_key)
+    if cached_data:
+        jwks = json.loads(cached_data)
+        logger.debug(f'Cache returning data from Redis: {jwks}')
+        return jwks['keys']
 
     async with jwks_lock:
-        if JWKS_CACHE and JWKS_CACHE['expiry'] > time():
-            lock = JWKS_CACHE['keys']
-            logger.debug(f'async with jwks_lock returning {lock}')
-            return lock
+        cached_data = await redis.get(cache_key)
+        if cached_data:
+            jwks = json.loads(cached_data)
+            return jwks['keys']
 
         async with httpx.AsyncClient() as http_client:
             response = await http_client.get(f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json")
             jwks = response.json()
-            JWKS_CACHE = {
-                'keys': jwks['keys'],
-                'expiry': time() + JWKS_CACHE_EXPIRY
-            }
-            result = jwks['keys']
-            logger.debug(f'Returning fetched data: {result}')
-            return result
+            await redis.set(
+                cache_key,
+                json.dumps(jwks),
+                ex=JWKS_CACHE_EXPIRY
+            )
+            return jwks['keys']
 
 
 async def decode_jwt(token: str):
