@@ -11,7 +11,7 @@ from redis import asyncio as aioredis
 from asyncio import Lock
 
 from core.config import settings
-from core.redis.client import get_redis_client_for_cache
+from core.redis.client import get_redis_client
 
 logger = getLogger(__name__)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -22,7 +22,7 @@ jwks_lock = Lock()
 
 async def get_auth0_public_keys():
     cache_key = "cache:auth0:jwks"
-    redis = await get_redis_client_for_cache()
+    redis = await get_redis_client('cache')
     cached_data = await redis.get(cache_key)
     if cached_data:
         jwks = json.loads(cached_data)

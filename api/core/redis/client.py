@@ -47,5 +47,5 @@ async def get_redis_client_for_authorize() -> aioredis.Redis:
 async def get_redis_client_for_unconfirmed_users() -> aioredis.Redis:
     return await get_redis_client('unconfirmed_users')
 
-async def get_redis_client_for_cache() -> aioredis.Redis:
+async def get_async_redis_client_for_cache() -> aioredis.Redis:
     return await get_redis_client('cache')
