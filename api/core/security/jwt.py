@@ -20,9 +20,9 @@ JWKS_CACHE_EXPIRY = 3600
 jwks_lock = Lock()
 
 
-async def get_auth0_public_keys(redis: aioredis = Depends(get_redis_client_for_cache)):
+async def get_auth0_public_keys():
     cache_key = "cache:auth0:jwks"
-
+    redis = get_redis_client_for_cache()
     cached_data = await redis.get(cache_key)
     if cached_data:
         jwks = json.loads(cached_data)
