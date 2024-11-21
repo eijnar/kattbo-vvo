@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - kattbo_vvo_logs:/app/logs
+      - ~/kattbo-vvo/secrets/ca.cer:/app/secrets/ca.cer:ro,z
       - ~/kattbo-vvo/secrets/kattbo_vvo_api.crt:/app/secrets/certfile.crt:ro,z
       - ~/kattbo-vvo/secrets/kattbo_vvo_api.key:/app/secrets/keyfile.key:ro,z
     ports:

@@ -51,5 +51,8 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str = ''
     REDIS_SSL: bool = True
     REDIS_CELERY_DB: int = 1
+    
+    # Certificates
+    CERTIFICATE_AUTHORITY: str
 
 settings = Settings()
