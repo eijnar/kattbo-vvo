@@ -45,11 +45,11 @@ class Settings(BaseSettings):
     # RABBITMQ_PORT: int = 5672
     # RABBITMQ_VHOST: str
     
-    # # Redis settings
-    # REDIS_HOSTNAME: str = 'localhost'
-    # REDIS_PORT: int = 6379
-    # REDIS_PASSWORD: str = ''
-    # REDIS_SSL: bool = False
-    # REDIS_CELERY_DB: int = 1
+    # Redis settings
+    REDIS_HOSTNAME: str = 'localhost'
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str = ''
+    REDIS_SSL: bool = True
+    REDIS_CELERY_DB: int = 1
 
 settings = Settings()

@@ -16,7 +16,7 @@ class RedisFactory:
                     port=REDIS_SETTINGS['port'],
                     password=REDIS_SETTINGS.get('password'),
                     db=db,
-                    ssl=REDIS_SETTINGS.get('ssl', False),
+                    ssl=REDIS_SETTINGS.get('ssl'),
                     encoding=REDIS_SETTINGS.get('encoding', 'utf-8'),
                     decode_responses=REDIS_SETTINGS.get('decode_responses', True),
                     max_connections=REDIS_SETTINGS.get('max_connections', 10)
