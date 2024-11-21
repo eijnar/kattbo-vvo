@@ -15,7 +15,7 @@ logger = getLogger(__name__)
 api_key_header = APIKeyHeader(name='X-API-Key', auto_error=False)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
-@capture_span('get_current_user', type="auth.core")
+@capture_span('get_current_user', span_type="auth.core")
 async def get_current_user(
     security_service: SecurityService = Depends(get_security_service),
     token: Optional[str] = Depends(oauth2_scheme),
