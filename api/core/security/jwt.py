@@ -87,7 +87,6 @@ async def decode_and_validate_token(
         logger.debug("No token provided for decoding.")
         return None
     try:
-        logger.debug(token)
         payload = await decode_jwt(token)
         logger.debug(f"Decoded payload: {payload}")
         return payload

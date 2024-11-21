@@ -17,6 +17,8 @@ class RedisFactory:
                     password=REDIS_SETTINGS.get('password'),
                     db=db,
                     ssl=REDIS_SETTINGS.get('ssl'),
+                    ssl_certfile=REDIS_SETTINGS.get('cert_file'),
+                    ssl_keyfile=REDIS_SETTINGS.get('cert_key_file'),
                     ssl_ca_certs=REDIS_SETTINGS.get('certificate_authority'),
                     encoding=REDIS_SETTINGS.get('encoding', 'utf-8'),
                     decode_responses=REDIS_SETTINGS.get('decode_responses', True),

@@ -5,6 +5,8 @@ REDIS_SETTINGS = {
     'port': settings.REDIS_PORT,
     'password': settings.REDIS_PASSWORD,
     'ssl': settings.REDIS_SSL,
+    'cert_file': settings.CERT_FILE,
+    'cert_key_file': settings.CERT_KEY_FILE,
     'certificate_authority': settings.CERTIFICATE_AUTHORITY,
     'encoding': 'utf-8',
     'decode_responses': True,

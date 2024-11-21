@@ -53,6 +53,8 @@ class Settings(BaseSettings):
     REDIS_CELERY_DB: int = 1
     
     # Certificates
+    CERT_FILE: str
+    CERT_KEY_FILE: str
     CERTIFICATE_AUTHORITY: str
 
 settings = Settings()
