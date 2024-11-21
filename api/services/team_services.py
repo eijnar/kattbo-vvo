@@ -56,11 +56,11 @@ class TeamService:
         await self.team_repository.delete(team)
 
     async def get_users_for_hunting_team_and_year(
-        self, 
-        team_id: UUID, 
+        self,
+        team_id: UUID,
         hunting_year_id: Optional[UUID]
     ) -> Tuple[List[User], HuntingYear]:
-        
+
         if not hunting_year_id:
             current_year = await self.hunting_year_service.get_current_hunting_year()
             hunting_year = current_year

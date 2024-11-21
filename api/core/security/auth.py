@@ -3,7 +3,7 @@ from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
-from elasticapm import capture_span 
+from elasticapm import capture_span
 
 from core.security.jwt import decode_and_validate_token
 from core.security.security_service import SecurityService
@@ -31,7 +31,8 @@ async def get_current_user(
         logger.debug("Token provided")
         try:
             user_context = await security_service.authenticate_with_token(token=token)
-            logger.info(f"User authenticated via OAuth2 token.", extra={'user.id': str(user_context.user.id)})
+            logger.info(f"User authenticated via OAuth2 token.",
+                        extra={'user.id': str(user_context.user.id)})
         except HTTPException as e:
             logger.warning(f"OAuth2 authentication failed: {e.detail}")
             raise e
@@ -46,12 +47,14 @@ async def get_current_user(
         logger.debug("API key provided")
         try:
             user_context = await security_service.authenticate_with_api_key(api_key=api_key)
-            logger.info(f"User authenticated via API Key.", extra={'user.id': str(user_context.user.id)})
+            logger.info(f"User authenticated via API Key.", extra={
+                        'user.id': str(user_context.user.id)})
         except HTTPException as e:
             logger.warning(f"API Key authentication failed: {e.detail}")
             raise e
         except Exception as e:
-            logger.error(f"Unexpected error during API Key authentication: {e}")
+            logger.error(
+                f"Unexpected error during API Key authentication: {e}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired API Key",
@@ -68,9 +71,11 @@ async def get_current_user(
 
     return user_context
 
-async def get_current_active_user(required_scope: Optional[str] = None):
-    async with capture_span('verify_user_status'):
-        user_context = await get_current_user()
+
+def get_current_active_user(required_scope: Optional[str] = None):
+    async def dependency(
+        user_context: UserContext = Depends(get_current_user)
+    ) -> UserContext:
         logger.debug("get_current_active_user called")
         user = user_context.user
 
@@ -89,6 +94,8 @@ async def get_current_active_user(required_scope: Optional[str] = None):
                 )
 
         return user_context
+
+    return dependency
 
 
 def requires_scope(required_scope: Optional[str] = None):
