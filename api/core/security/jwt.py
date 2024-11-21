@@ -8,7 +8,7 @@ from time import time
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from redis import asyncio as aioredis
-from redis.lock import Lock
+from asyncio import Lock
 
 from core.config import settings
 from core.redis.client import get_redis_client_for_cache
