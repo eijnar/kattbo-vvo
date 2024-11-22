@@ -6,6 +6,7 @@ from typing import Optional, Tuple, List
 
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
+from elasticapm import async_capture_span
 
 from core.security.models import UserContext
 from services.user_service import UserService
@@ -46,6 +47,7 @@ class SecurityService:
     def _verify_api_key_with_passlib(self, provided_key: str, hashed_secret: str) -> bool:
         return pwd_context.verify(provided_key, hashed_secret)
 
+    @async_capture_span('create_api_key', span_type="security.apikey.create")
     async def create_api_key(
         self,
         user: User,
