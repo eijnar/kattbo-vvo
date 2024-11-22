@@ -22,32 +22,18 @@ services:
       start_period: 60s
 
   frontend: 
-    container_name: kattbo-vvo-filebeat.$VITE_ENVIRONMENT
-
+    container_name: kattbo-vvo-filebeat.${ENVIRONMENT}
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      args:
-        VITE_ENVIRONMENT: ${VITE_ENVIRONMENT}
-        VITE_APM_SERVICE_NAME: ${VITE_APM_SERVICE_NAME}
-        VITE_APM_SERVER_URL: ${VITE_APM_SERVER_URL}
-        VITE_APM_DISTRIBUTED_TRACING_ORIGINS: ${VITE_APM_DISTRIBUTED_TRACING_ORIGINS}
-        VITE_APM_LOG_LEVEL: ${VITE_APM_LOG_LEVEL}
-        VITE_APM_TRANSACTION_SAMPLE_RATE: ${VITE_APM_TRANSACTION_SAMPLE_RATE}
-        VITE_AUTH_DOMAIN: ${VITE_AUTH_DOMAIN}
-        VITE_AUTH_CLIENT_ID: ${VITE_AUTH_CLIENT_ID}
-        VITE_AUTH_REDIRECT_URI: ${VITE_AUTH_REDIRECT_URI}
-        VITE_AUTH_AUDIENCE: ${VITE_AUTH_AUDIENCE}
-        VITE_AUTH_SCOPE: ${VITE_AUTH_SCOPE}
-        VITE_AUTH_USE_REFRESH_TOKENS: ${VITE_AUTH_USE_REFRESH_TOKENS}
     ports:
       - 8001:443
     volumes: 
       - ~/kattbo-vvo/secrets/kattbo_vvo_api.crt:/etc/nginx/ssl/certfile.crt:ro,z
       - ~/kattbo-vvo/secrets/kattbo_vvo_api.key:/etc/nginx/ssl/keyfile.key:ro,z
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro,z
-    env_file:
-      - ~/kattbo-vvo/secrets/.env-frontend
+    environment:
+      - ENVIRONMENT=development
     
   filebeat:
     container_name: kattbo-vvo-filebeat.${ENVIRONMENT}
