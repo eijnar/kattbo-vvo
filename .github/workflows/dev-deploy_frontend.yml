@@ -8,11 +8,13 @@ on:
       - .github/workflows/dev-deploy_frontend.yml
       - 'docker-compose.yml'
       - 'frontend/**'
+      - 'nginx.conf'
   pull_request:
     paths:
       - .github/workflows/dev-deploy_frontend.yml
       - 'docker-compose.yml'
       - 'frontend/**'
+      - 'nginx.conf'
 
 env:
   ENVIRONMENT: development
