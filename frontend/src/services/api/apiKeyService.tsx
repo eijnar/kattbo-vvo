@@ -12,7 +12,7 @@ interface CreateApiKeyPayload {
 
 export const fetchApiKeys = async (token: string): Promise<ApiKey[]> => {
   const response = await axios.get<ApiKey[]>(
-    `${{API_BASE_URL}}/${API_VERSION}/users/me/api-keys/`,
+    `${API_BASE_URL}/${API_VERSION}/users/me/api-keys/`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

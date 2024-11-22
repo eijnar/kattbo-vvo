@@ -1,7 +1,7 @@
 // src/components/common/Navbar.tsx
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import LoginButton from '../auth/LoginButton';
 import LogoutButton from '../auth/LogoutButton';
@@ -37,9 +37,9 @@ const Navbar: React.FC = () => {
     <nav className="bg-gray-800 text-white px-4 py-3 flex justify-between items-center">
       {/* Left Side - Logo or App Name */}
       <div>
-        <Link to="/" className="text-xl font-bold">
+        <NavLink to="/" className="text-xl font-bold">
           Kattbo VVO
-        </Link>
+        </NavLink>
       </div>
 
       {/* Right Side - Login Button or User Dropdown */}
@@ -73,27 +73,27 @@ const Navbar: React.FC = () => {
             {/* Dropdown Menu */}
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg py-1 z-50">
-                <Link
+                <NavLink
                   to="/profile"
                   className="block px-4 py-2 text-sm hover:bg-gray-100"
                   onClick={() => setDropdownOpen(false)}
                 >
                   Profile
-                </Link>
-                <Link
+                </NavLink>
+                <NavLink
                   to="/users"
                   className="block px-4 py-2 text-sm hover:bg-gray-100"
                   onClick={() => setDropdownOpen(false)}
                 >
                   Users
-                </Link>
-                <Link
+                </NavLink>
+                <NavLink
                   to="/create-api-key"
                   className="block px-4 py-2 text-sm hover:bg-gray-100"
                   onClick={() => setDropdownOpen(false)}
                 >
                   Create API key
-                </Link>
+                </NavLink>
                 <div className="border-t border-gray-200"></div>
                 <LogoutButton className="w-full text-left  text-sm hover:bg-gray-100" />
               </div>

@@ -1,11 +1,13 @@
 import { init as initApm } from '@elastic/apm-rum';
+import { ApmRoutes } from '@elastic/apm-rum-react'
 
 const apm = initApm({
-  serviceName: 'kattbo-vvo-api',
+  serviceName: 'Kattbo_VVO-Frontend',
   serverUrl: 'http://riker.srv.kaffesump.se:8200', // APM Server URL
   environment: 'development', // or 'development'
-  distributedTracingOrigins: ['http://127.0.0.1:8000'],
+  distributedTracingOrigins: ['https://dev-api.kattbovvo.se'],
   logLevel: 'debug', // Set log level to debug
+  transactionSampleRate: 1.0,
 });
 
-export default apm;
+export { apm, ApmRoutes };
