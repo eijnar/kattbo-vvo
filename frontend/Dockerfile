@@ -4,10 +4,6 @@ FROM node:18-alpine AS build
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
-COPY package.json package-lock.json ./
-RUN npm install --legacy-peer-deps
-
 # Define build-time variables as build arguments
 ARG VITE_ENVIRONMENT
 ARG VITE_APM_SERVICE_NAME
@@ -36,9 +32,14 @@ ENV VITE_AUTH_AUDIENCE=${VITE_AUTH_AUDIENCE}
 ENV VITE_AUTH_SCOPE=${VITE_AUTH_SCOPE}
 ENV VITE_AUTH_USE_REFRESH_TOKENS=${VITE_AUTH_USE_REFRESH_TOKENS}
 
+# Install dependencies
+COPY package.json package-lock.json ./
+RUN npm install --legacy-peer-deps
+
 # Copy the rest of the source code
 COPY . .
 
+# Create an .env file
 RUN echo "VITE_ENVIRONMENT=$VITE_ENVIRONMENT" > .env && \
     echo "VITE_APM_SERVICE_NAME=$VITE_APM_SERVICE_NAME" >> .env && \
     echo "VITE_APM_SERVER_URL=$VITE_APM_SERVER_URL" >> .env && \
