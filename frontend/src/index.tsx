@@ -6,7 +6,7 @@ import App from "./App";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LoadingProvider } from "./contexts/LoadingContext";
-import config from "./auth_config.json";
+import config from "./config"
 import "./index.css";
 
 const onRedirectCallback = (appState: any) => {
@@ -23,15 +23,15 @@ const root = createRoot(container!);
 root.render(
   <React.StrictMode>
       <Auth0Provider
-        domain={config.domain}
-        clientId={config.clientId}
+        domain={config.auth.domain}
+        clientId={config.auth.clientId}
         authorizationParams={{
           redirect_uri: window.location.origin,
-          audience: config.audience,
-          scope: config.scope,
+          audience: config.auth.audience,
+          scope: config.auth.scope,
         }}
         onRedirectCallback={onRedirectCallback}
-        useRefreshTokens={true}
+        useRefreshTokens={config.auth.useRefreshTokens}
       >
         <AuthProvider>
           <LoadingProvider>

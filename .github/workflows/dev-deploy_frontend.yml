@@ -1,0 +1,36 @@
+name: Frontend CD/CI - Development
+
+on: 
+  push:
+    branches:
+      - development
+    paths:
+      - .github/workflows/dev-deploy_frontend.yml
+      - 'docker-compose.yml'
+      - 'frontend/**'
+  pull_request:
+    paths:
+      - .github/workflows/dev-deploy_frontend.yml
+      - 'docker-compose.yml'
+      - 'frontend/**'
+
+env:
+  ENVIRONMENT: development
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    if: github.ref == 'refs/heads/development'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Building API containers
+        run: |
+          docker-compose -f docker-compose.yml build frontend
+
+      - name: Deploying API
+        run: |
+          docker-compose down frontend --remove-orphans
+          docker-compose up frontend -d
+

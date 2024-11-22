@@ -17,6 +17,7 @@ from core.security.jwt import decode_and_validate_token
 
 
 logger = getLogger(__name__)
+
 pwd_context = CryptContext(
     schemes=["argon2"],
     deprecated="auto",
@@ -163,4 +164,3 @@ class SecurityService:
         permissions = api_key_record.permissions or []
         logger.info(f"Permissions loaded from API key: {permissions}")
         return UserContext(user=user, permissions=permissions)
-
