@@ -1,78 +1,49 @@
 import type { LogLevel } from "./types/types";
 
-const requiredEnvVariables = [
-    'VITE_ENVIRONMENT',
-    'VITE_APM_SERVICE_NAME',
-    'VITE_APM_SERVER_URL',
-    'VITE_APM_DISTRIBUTED_TRACING_ORIGINS',
-    'VITE_APM_LOG_LEVEL',
-    'VITE_APM_TRANSACTION_SAMPLE_RATE',
-    'VITE_AUTH_DOMAIN',
-    'VITE_AUTH_CLIENT_ID',
-    'VITE_AUTH_REDIRECT_URI',
-    'VITE_AUTH_AUDIENCE',
-    'VITE_AUTH_SCOPE',
-    'VITE_AUTH_USE_REFRESH_TOKENS',
-];
-
 interface Config {
-    general: {
-        environment: string;
+  general: {
+    environment: string;
+  };
+  apm: {
+    serviceName: string;
+    serverUrl: string;
+    distributedTracingOrigins: string[];
+    logLevel: LogLevel;
+    transactionSampleRate: number;
+  };
+  auth: {
+    domain: string;
+    clientId: string;
+    authorizationParams: {
+      redirect_uri: string;
     };
-    apm: {
-        serviceName: string;
-        serverUrl: string;
-        distributedTracingOrigins: string[];
-        logLevel: LogLevel; 
-        transactionSampleRate: number;
-    };
-    auth: {
-        domain: string;
-        clientId: string;
-        authorizationParams: {
-            redirect_uri: string;
-        };
-        audience: string;
-        scope: string;
-        useRefreshTokens: boolean;
-    };
+    audience: string;
+    scope: string;
+    useRefreshTokens: boolean;
+  };
 }
 
-requiredEnvVariables.forEach((varName) => {
-    if (!import.meta.env[varName]) {
-        console.warn(`Warning: Missing environment variable ${varName}`);
-        // Optionally, throw an error to prevent the app from running
-        // throw new Error(`Missing required environment variable: ${varName}`);
-    }
-});
-
 const config: Config = {
-    general: {
-        environment: import.meta.env.ENVIRONMENT,
+  general: {
+    environment: "development",
+  },
+  apm: {
+    serviceName: "Kattbo_VVO-Frontend",
+    serverUrl: "http://riker.srv.kaffesump.se:8200",
+    distributedTracingOrigins: ["https://dev-api.kattbovvo.se"],
+    logLevel: "info",
+    transactionSampleRate: 1.0,
+  },
+  auth: {
+    domain: "auth.kaffesump.se",
+    clientId: "kL1RLUxgfsVZBa7vVKgry2Eyq8taK1pA",
+    authorizationParams: {
+      redirect_uri: "http://dev.kattbovvo.se/",
     },
-    apm: {
-        serviceName: import.meta.env.VITE_APM_SERVICE_NAME,
-        serverUrl: import.meta.env.VITE_APM_SERVER_URL,
-        distributedTracingOrigins: import.meta.env.VITE_APM_DISTRIBUTED_TRACING_ORIGINS            
-            ? import.meta.env.VITE_APM_DISTRIBUTED_TRACING_ORIGINS.split(',')
-            : [],
-        logLevel: import.meta.env.VITE_APM_LOG_LEVEL,
-        transactionSampleRate: import.meta.env.VITE_APM_TRANSACTION_SAMPLE_RATE
-            ? parseFloat(import.meta.env.VITE_APM_TRANSACTION_SAMPLE_RATE)
-            : 1.0,
-    },
-    auth: {
-        domain: import.meta.env.VITE_AUTH_DOMAIN,
-        clientId: import.meta.env.VITE_AUTH_CLIENT_ID,
-        authorizationParams: {
-            redirect_uri: import.meta.env.VITE_AUTH_REDIRECT_URI,
-        },
-        audience: import.meta.env.VITE_AUTH_AUDIENCE,
-        useRefreshTokens: import.meta.env.VITE_AUTH_USE_REFRESH_TOKENS,
-        scope: import.meta.env.VITE_AUTH_SCOPE
-            ? import.meta.env.VITE_AUTH_SCOPE.split(',')
-            : [],
-    },
+    audience: "https://dev-api.kaffesump.se",
+    useRefreshTokens: true,
+    scope: "user:read user:del",
+  },
 };
 
 export default config;
