@@ -8,9 +8,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install --legacy-peer-deps
 
-# Copy the rest of the source code
-COPY . .
-
 # Define build-time variables as build arguments
 ARG VITE_ENVIRONMENT
 ARG VITE_APM_SERVICE_NAME
@@ -38,6 +35,22 @@ ENV VITE_AUTH_REDIRECT_URI=${VITE_AUTH_REDIRECT_URI}
 ENV VITE_AUTH_AUDIENCE=${VITE_AUTH_AUDIENCE}
 ENV VITE_AUTH_SCOPE=${VITE_AUTH_SCOPE}
 ENV VITE_AUTH_USE_REFRESH_TOKENS=${VITE_AUTH_USE_REFRESH_TOKENS}
+
+# Copy the rest of the source code
+COPY . .
+
+RUN echo "VITE_ENVIRONMENT=$VITE_ENVIRONMENT" > .env && \
+    echo "VITE_APM_SERVICE_NAME=$VITE_APM_SERVICE_NAME" >> .env && \
+    echo "VITE_APM_SERVER_URL=$VITE_APM_SERVER_URL" >> .env && \
+    echo "VITE_APM_DISTRIBUTED_TRACING_ORIGINS=$VITE_APM_DISTRIBUTED_TRACING_ORIGINS" >> .env && \
+    echo "VITE_APM_LOG_LEVEL=$VITE_APM_LOG_LEVEL" >> .env && \
+    echo "VITE_APM_TRANSACTION_SAMPLE_RATE=$VITE_APM_TRANSACTION_SAMPLE_RATE" >> .env && \
+    echo "VITE_AUTH_DOMAIN=$VITE_AUTH_DOMAIN" >> .env && \
+    echo "VITE_AUTH_CLIENT_ID=$VITE_AUTH_CLIENT_ID" >> .env && \
+    echo "VITE_AUTH_REDIRECT_URI=$VITE_AUTH_REDIRECT_URI" >> .env && \
+    echo "VITE_AUTH_AUDIENCE=$VITE_AUTH_AUDIENCE" >> .env && \
+    echo "VITE_AUTH_SCOPE=$VITE_AUTH_SCOPE" >> .env && \
+    echo "VITE_AUTH_USE_REFRESH_TOKENS=$VITE_AUTH_USE_REFRESH_TOKENS" >> .env
 
 # Build the React app
 RUN npm run build
