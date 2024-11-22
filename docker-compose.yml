@@ -22,7 +22,7 @@ services:
       start_period: 60s
 
   frontend: 
-    container_name: kattbo-vvo-filebeat.${ENVIRONMENT}
+    container_name: kattbo-vvo-frontend.${ENVIRONMENT}
     build:
       context: ./frontend
       dockerfile: Dockerfile
