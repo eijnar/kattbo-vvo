@@ -32,7 +32,6 @@ services:
     env_file:
       - ~/kattbo-vvo/secrets/.env-frontend
     
-
   filebeat:
     container_name: kattbo-vvo-filebeat.${ENVIRONMENT}
     image: docker.elastic.co/beats/filebeat:8.13.4
