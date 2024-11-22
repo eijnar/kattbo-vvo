@@ -5,14 +5,14 @@ FROM node:18-alpine AS build
 WORKDIR /app
 
 # Install dependencies
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm install --legacy-peer-deps
 
 # Copy the rest of the source code
 COPY . .
 
 # Build the React app
-RUN yarn build
+RUN npm run build
 
 # Stage 2: Serve the app with Nginx
 FROM nginx:stable-alpine

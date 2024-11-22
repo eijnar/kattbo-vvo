@@ -25,11 +25,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Building API containers
+      - name: Building Frontend container
         run: |
           docker-compose -f docker-compose.yml build frontend
 
-      - name: Deploying API
+      - name: Deploying Frontend
         run: |
           docker-compose down frontend --remove-orphans
           docker-compose up frontend -d
