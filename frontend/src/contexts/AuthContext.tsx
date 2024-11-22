@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { fetchUserProfile } from '../services/api/userService';
 import { UserProfile } from '../types/User';
-import config from '../auth_config.json';
+import config from '../config';
 
 interface AuthContextProps {
   userProfile: UserProfile | null;
@@ -22,7 +22,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const token = await getAccessTokenSilently({
         authorizationParams: {
-          audience: config.audience,
+          audience: config.auth.audience,
         },
       });
       const profile = await fetchUserProfile(token);

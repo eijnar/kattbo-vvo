@@ -1,4 +1,5 @@
 import { init as initApm } from '@elastic/apm-rum';
+// @ts-ignore
 import { ApmRoutes } from '@elastic/apm-rum-react'
 import config from './config'
 

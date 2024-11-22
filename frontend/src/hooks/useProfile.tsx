@@ -3,7 +3,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import { updateUserProfile } from '../services/api/userService';
 import { UserProfile } from '../types/User';
 import { useAuth0 } from '@auth0/auth0-react';
-import config from '../auth_config.json'
+import config from '../config'
 
 export const useProfile = () => {
   const { userProfile, refreshUserProfile } = useContext(AuthContext);
@@ -14,7 +14,7 @@ export const useProfile = () => {
     try {
       const token = await getAccessTokenSilently({
         authorizationParams: {
-          audience: config.audience,
+          audience: config.auth.audience,
         },
       });
       const updatedUser = await updateUserProfile(token, data);

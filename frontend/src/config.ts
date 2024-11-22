@@ -1,3 +1,5 @@
+import type { LogLevel } from "./types/types";
+
 const requiredEnvVariables = [
     'VITE_ENVIRONMENT',
     'VITE_APM_SERVICE_NAME',
@@ -13,6 +15,29 @@ const requiredEnvVariables = [
     'VITE_AUTH_USE_REFRESH_TOKENS',
 ];
 
+interface Config {
+    general: {
+        environment: string;
+    };
+    apm: {
+        serviceName: string;
+        serverUrl: string;
+        distributedTracingOrigins: string[];
+        logLevel: LogLevel; 
+        transactionSampleRate: number;
+    };
+    auth: {
+        domain: string;
+        clientId: string;
+        authorizationParams: {
+            redirect_uri: string;
+        };
+        audience: string;
+        scope: string;
+        useRefreshTokens: boolean;
+    };
+}
+
 requiredEnvVariables.forEach((varName) => {
     if (!import.meta.env[varName]) {
         console.warn(`Warning: Missing environment variable ${varName}`);
@@ -21,7 +46,7 @@ requiredEnvVariables.forEach((varName) => {
     }
 });
 
-const config = {
+const config: Config = {
     general: {
         environment: import.meta.env.ENVIRONMENT,
     },
