@@ -25,6 +25,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    ports:
+      - 8001:443
     volumes: 
       - ~/kattbo-vvo/secrets/kattbo_vvo_api.crt:/etc/nginx/ssl/certfile.crt:ro,z
       - ~/kattbo-vvo/secrets/kattbo_vvo_api.key:/etc/nginx/ssl/keyfile.key:ro,z
