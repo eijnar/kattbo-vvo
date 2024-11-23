@@ -29,7 +29,7 @@ const config: Config = {
   },
   apm: {
     serviceName: "Kattbo_VVO-Frontend",
-    serverUrl: "http://riker.srv.kaffesump.se:8200",
+    serverUrl: "https://apm.elastic.morbit.se",
     distributedTracingOrigins: ["https://dev-api.kattbovvo.se"],
     logLevel: "debug",
     transactionSampleRate: 1.0,
