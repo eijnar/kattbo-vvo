@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
   }, [dropdownOpen]);
 
   return (
-    <nav className="bg-gray-800 text-white px-4 py-3 flex justify-between items-center">
+    <nav className="bg-primary text-white px-4 py-3 flex justify-between items-center">
       {/* Left Side - Logo or App Name */}
       <div>
         <NavLink to="/" className="text-xl font-bold">

@@ -1,17 +1,22 @@
-import React from 'react';
+// src/components/common/LoadingOverlay.tsx
+
+import React, {ReactNode} from 'react';
 import Spinner from './Spinner';
 
 interface LoadingOverlayProps {
   isLoading: boolean;
+  children: ReactNode;
 }
 
-const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading }) => {
-  if (!isLoading) return null;
-
+const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading, children }) => {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-      <Spinner size="lg" color="text-white" />
-      <span className="sr-only">Loading...</span>
+    <div className="relative">
+      {children}
+      {isLoading && (
+        <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-75">
+          <Spinner size="lg" color="text-blue-500" />
+        </div>
+      )}
     </div>
   );
 };

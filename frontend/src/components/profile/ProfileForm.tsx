@@ -6,11 +6,11 @@ import Spinner from '../common/Spinner';
 import LoadingOverlay from '../common/LoadingOverlay';
 import Input from '../common/Input';
 import Button from '../common/Button';
-import useLoading from '../../hooks/useLoading';
+// Removed useLoading since we'll manage loading locally
 
 const ProfileForm: React.FC = () => {
   const { userProfile, modifyUserProfile } = useProfile();
-  const { isLoading: globalLoading, setLoading } = useLoading();
+  // Removed globalLoading and setLoading
   const [updateData, setUpdateData] = useState({
     first_name: '',
     last_name: '',
@@ -18,6 +18,7 @@ const ProfileForm: React.FC = () => {
   });
   const [updateStatus, setUpdateStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isFetching, setIsFetching] = useState<boolean>(true); // Local loading state for initial data fetch
 
   useEffect(() => {
     if (userProfile) {
@@ -26,6 +27,7 @@ const ProfileForm: React.FC = () => {
         last_name: userProfile.last_name ?? '',
         phone_number: userProfile.phone_number ?? '',
       });
+      setIsFetching(false); // Data has been fetched
     }
   }, [userProfile]);
 
@@ -40,7 +42,6 @@ const ProfileForm: React.FC = () => {
     e.preventDefault();
     setUpdateStatus(null);
     setIsSubmitting(true);
-    setLoading(true); // Start global loading
 
     try {
       await modifyUserProfile(updateData);
@@ -50,12 +51,11 @@ const ProfileForm: React.FC = () => {
       setUpdateStatus(`Failed to update profile: ${error.message}`);
     } finally {
       setIsSubmitting(false);
-      setLoading(false); // Stop global loading
     }
   };
 
-  if (globalLoading && !isSubmitting) {
-    // Optionally, you can show a separate overlay for initial data fetching
+  // Optionally, show a full-screen spinner during the initial data fetch
+  if (isFetching) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Spinner size="lg" color="text-blue-500" />
@@ -64,9 +64,9 @@ const ProfileForm: React.FC = () => {
   }
 
   return (
-    <>
-      <LoadingOverlay isLoading={isSubmitting || globalLoading} />
-      <div className="max-w-md mx-auto mt-8 p-6 bg- shadow-md rounded">
+    <div className="max-w-md mx-auto mt-8 p-6 bg-white shadow-md rounded relative">
+      {/* Wrap the specific div with LoadingOverlay */}
+      <LoadingOverlay isLoading={isSubmitting}>
         <h3 className="text-2xl mb-4">Update Your Profile</h3>
         {updateStatus && (
           <p
@@ -83,28 +83,28 @@ const ProfileForm: React.FC = () => {
             name="first_name"
             value={updateData.first_name}
             onChange={handleInputChange}
-            disabled={isSubmitting || globalLoading}
+            disabled={isSubmitting}
           />
           <Input
             label="Last Name:"
             name="last_name"
             value={updateData.last_name}
             onChange={handleInputChange}
-            disabled={isSubmitting || globalLoading}
+            disabled={isSubmitting}
           />
           <Input
             label="Phone Number:"
             name="phone_number"
             value={updateData.phone_number}
             onChange={handleInputChange}
-            disabled={isSubmitting || globalLoading}
+            disabled={isSubmitting}
           />
-          <Button type="submit" disabled={isSubmitting || globalLoading} className="w-full">
+          <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ? <Spinner size="sm" color="text-white" /> : 'Update Profile'}
           </Button>
         </form>
-      </div>
-    </>
+      </LoadingOverlay>
+    </div>
   );
 };
 

@@ -20,6 +20,10 @@ FROM nginx:stable-alpine
 # Copy built assets from the previous stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Copy 
+
+COPY /app/public /usr/share/nginx/html/public
+
 # Remove default Nginx configuration
 RUN rm /etc/nginx/conf.d/default.conf
 
