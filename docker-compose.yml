@@ -32,7 +32,6 @@ services:
       - ~/kattbo-vvo/secrets/kattbo_vvo_api.crt:/etc/nginx/ssl/certfile.crt:ro,z
       - ~/kattbo-vvo/secrets/kattbo_vvo_api.key:/etc/nginx/ssl/keyfile.key:ro,z
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro,z
-      - ~/kattbo-vvo/images:/usr/share/nginx/html/images:ro,z
     environment:
       - ENVIRONMENT=development
     
