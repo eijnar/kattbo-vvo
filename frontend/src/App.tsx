@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { ApmRoutes } from "./apm";
-import Navbar from "./components/common/Navbar";
 import LandingPage from "./pages/LandingPage";
 import ProfilePage from "./pages/ProfilePage";
 import ListUsers from "./pages/ListUsersPage";
@@ -18,7 +17,7 @@ const App: React.FC = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/users" element={<ListUsers />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/create-api-key" element={<CreateApiKey />} />
+          <Route path="/api-keys" element={<CreateApiKey />} />
           <Route
             path="/profile"
             element={<ProtectedRoute component={ProfilePage} />}

@@ -1,9 +1,14 @@
-// src/pages/ListUsers.tsx
-
 import React, { useEffect, useState } from "react";
 import { User } from "../../types/User";
 import { fetchUsers } from "../../services/api/userService";
-import Table, { Column } from "../common/Table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../catalyst/table";
 import Spinner from "../common/Spinner";
 import ErrorMessage from "../common/ErrorMessage";
 
@@ -29,13 +34,6 @@ const ListUsers: React.FC = () => {
     getUsers();
   }, []);
 
-  const columns: Column<User>[] = [
-    { header: "First Name", accessor: "first_name", sortable: true },
-    { header: "Last Name", accessor: "last_name", sortable: true },
-    { header: "Email", accessor: "email", sortable: true },
-    { header: "Phone Number", accessor: "phone_number", sortable: false },
-  ];
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -53,10 +51,35 @@ const ListUsers: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-8 p-4 bg-white shadow-md rounded">
-      <h2 className="text-2xl font-semibold mb-4">User List</h2>
-      <Table<User> data={users} columns={columns} className="overflow-x-auto" />
-    </div>
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableHeader>Namn</TableHeader>
+          <TableHeader>Roll</TableHeader>
+          <TableHeader>Telefonnummer</TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.id}>
+            <TableCell>
+            <div className="flex items-center gap-4">
+                <div>
+                  <div className="font-medium">{user.first_name} {user.last_name}</div>
+                  <div className="text-zinc-500">
+                    <a href="#" className="hover:text-zinc-700">
+                      {user.email}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </TableCell>
+            <TableCell>Jaktledare</TableCell>
+            <TableCell>{user.phone_number}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };
 

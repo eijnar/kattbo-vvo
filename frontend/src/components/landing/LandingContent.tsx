@@ -21,7 +21,7 @@ const LandingContent: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen text-center px-4">
+    <div className="flex flex-col items-center justify-center h-screen text-center px-4 bg-lime-200">
       <h1 className="text-4xl font-bold mb-4">Welcome to Kattbo VVO</h1>
       <p className="text-lg mb-8">Your platform for managing profiles securely.</p>
 
