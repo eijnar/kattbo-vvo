@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { SidebarLayout } from "./catalyst/sidebar-layout";
 import { Avatar } from "./catalyst/avatar";
 import {
@@ -29,8 +29,10 @@ import {
 } from "./catalyst/sidebar";
 import {
   ArrowRightStartOnRectangleIcon,
+  CalendarDaysIcon,
   ChevronDownIcon,
   Cog8ToothIcon,
+  DocumentIcon,
   LightBulbIcon,
   PlusIcon,
   ShieldCheckIcon,
@@ -41,17 +43,23 @@ import {
   HomeIcon,
   InboxIcon,
   MagnifyingGlassIcon,
-  MegaphoneIcon,
   QuestionMarkCircleIcon,
   SparklesIcon,
-  Square2StackIcon,
   TicketIcon,
+  MapIcon,
 } from "@heroicons/react/20/solid";
 import UserProfileDropdown from "./navigation/UserProfileDropdown";
+import { Heading } from "./catalyst/heading";
+import { Badge } from "./catalyst/badge";
 
 const Layout: React.FC = () => {
+  const location = useLocation();
+  const isMapFullscreen =
+    location.pathname === "/map" || location.pathname.startsWith("/map/");
+
   return (
     <SidebarLayout
+      isMapFullScreen={isMapFullscreen}
       navbar={
         <Navbar>
           <NavbarSpacer />
@@ -64,7 +72,7 @@ const Layout: React.FC = () => {
             </NavbarItem>
             <Dropdown>
               <DropdownButton>
-                <Avatar src="/profile-photo.jpg" square />
+                <Avatar src="/images/landing_page_bg.jpg" className="size-2"/>
               </DropdownButton>
               <DropdownMenu className="min-w-64" anchor="bottom end">
                 <DropdownItem href="/my-profile">
@@ -97,13 +105,13 @@ const Layout: React.FC = () => {
       sidebar={
         <Sidebar>
           <SidebarHeader>
+            <Heading>Kättbo VVO</Heading>
+          </SidebarHeader>
+          <SidebarBody>
             <Dropdown>
-              <DropdownButton
-                as={SidebarItem}
-                className="lg:mb-2.5"
-              >
-                <Avatar src="/public/logo.svg" />
-                <SidebarLabel>Kättbo VVO</SidebarLabel>
+              <DropdownButton as={SidebarItem} className="lg:mb-2.5">
+                <Avatar square src="/images/logo.webp" />
+                <SidebarLabel>Hemmalaget</SidebarLabel>
                 <ChevronDownIcon className="h-5 w-5" />
               </DropdownButton>
               <DropdownMenu
@@ -130,54 +138,41 @@ const Layout: React.FC = () => {
                 </DropdownItem>
               </DropdownMenu>
             </Dropdown>
-            <SidebarSection className="max-lg:hidden">
-              <SidebarItem href="/search">
-                <MagnifyingGlassIcon className="h-5 w-5" />
-                <SidebarLabel>Search</SidebarLabel>
-              </SidebarItem>
-              <SidebarItem href="/inbox">
-                <InboxIcon className="h-5 w-5" />
-                <SidebarLabel>Inbox</SidebarLabel>
-              </SidebarItem>
-            </SidebarSection>
-          </SidebarHeader>
-          <SidebarBody>
+
             <SidebarSection>
               <SidebarItem href="/">
                 <HomeIcon className="h-5 w-5" />
                 <SidebarLabel>Hem</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/events">
-                <Square2StackIcon className="h-5 w-5" />
+                <CalendarDaysIcon className="h-5 w-5" />
                 <SidebarLabel>Händelser</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/users">
                 <TicketIcon className="h-5 w-5" />
-                <SidebarLabel>Användare</SidebarLabel>
+                <SidebarLabel>Jakt</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem href="/map">
+                <MapIcon className="h-5 w-5" />
+                <SidebarLabel>Karta</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem href="/map">
+                <DocumentIcon className="h-5 w-5" />
+                <SidebarLabel>Dokument</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/settings">
                 <Cog6ToothIcon className="h-5 w-5" />
-                <SidebarLabel>Settings</SidebarLabel>
-              </SidebarItem>
-              <SidebarItem href="/broadcasts">
-                <MegaphoneIcon className="h-5 w-5" />
-                <SidebarLabel>Broadcasts</SidebarLabel>
+                <SidebarLabel>Inställningar</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
             <SidebarSection className="max-lg:hidden">
               <SidebarHeading>Kommande händelser</SidebarHeading>
-              <SidebarItem href="/events/1">
-                Bear Hug: Live in Concert
+              <SidebarItem href="/events/1">10 nov.
+              <Badge color="red">Älgjakt</Badge> 
               </SidebarItem>
-              <SidebarItem href="/events/2">
-                Viking People
-              </SidebarItem>
-              <SidebarItem href="/events/3">
-                Six Fingers — DJ Set
-              </SidebarItem>
-              <SidebarItem href="/events/4">
-                We All Look The Same
-              </SidebarItem>
+              <SidebarItem href="/events/2">11/11: Småvilt, hare</SidebarItem>
+              <SidebarItem href="/events/3">13/11: Älgjakt</SidebarItem>
+              <SidebarItem href="/events/4">We All Look The Same</SidebarItem>
             </SidebarSection>
             <SidebarSpacer />
             <SidebarSection>
@@ -192,9 +187,7 @@ const Layout: React.FC = () => {
             </SidebarSection>
           </SidebarBody>
           <SidebarFooter className="max-lg:hidden">
-
             <UserProfileDropdown />
-
           </SidebarFooter>
         </Sidebar>
       }

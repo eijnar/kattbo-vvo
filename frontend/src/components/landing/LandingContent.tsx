@@ -3,7 +3,6 @@
 import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import LoginButton from '../auth/LoginButton';
-import LogoutButton from '../auth/LogoutButton';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useContext } from 'react';
@@ -21,7 +20,7 @@ const LandingContent: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen text-center px-4 bg-lime-200">
+    <div className="flex flex-col px-4">
       <h1 className="text-4xl font-bold mb-4">Welcome to Kattbo VVO</h1>
       <p className="text-lg mb-8">Your platform for managing profiles securely.</p>
 
@@ -34,7 +33,6 @@ const LandingContent: React.FC = () => {
               </p>
             </div>
           )}
-          <LogoutButton />
           <div className="mt-4">
             <Link
               to="/profile"

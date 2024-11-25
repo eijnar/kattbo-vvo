@@ -8,6 +8,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { LoadingProvider } from "./contexts/LoadingContext";
 import config from "./config"
 import "./index.css";
+import 'leaflet/dist/leaflet.css';
 
 const onRedirectCallback = (appState: any) => {
   window.history.replaceState(
