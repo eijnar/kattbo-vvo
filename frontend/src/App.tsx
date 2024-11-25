@@ -8,12 +8,13 @@ import ListUsers from "./pages/ListUsersPage";
 import CreateApiKey from "./components/apiKeys/CreateApiKey";
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/common/ProtectedRoute";
+import Layout from "./components/Layout";
 
 const App: React.FC = () => {
   return (
     <Router>
-      <Navbar />
       <ApmRoutes>
+        <Route element={<Layout />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/users" element={<ListUsers />} />
           <Route path="/login" element={<LoginPage />} />
@@ -22,7 +23,8 @@ const App: React.FC = () => {
             path="/profile"
             element={<ProtectedRoute component={ProfilePage} />}
           />
-        </ApmRoutes>
+        </Route>
+      </ApmRoutes>
     </Router>
   );
 };

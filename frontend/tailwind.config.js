@@ -1,22 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'false',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      colors: {
-        primary: {
-          DEFAULT: '#283618'
-        },
-        secondary: {
-          DEFAULT: '#B7B7A4'
-        },
-        accent: {
-          DEFAULT: '#D4D4D4'
-        },
-        neutral: {
-          DEFAULT: '#F0EFEB'
-        }
-      },
       keyframes: {
         spinSlow: {
           from: { transform: 'rotate(0deg)' },
