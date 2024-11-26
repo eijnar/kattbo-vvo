@@ -1,12 +1,12 @@
 from logging import getLogger
-from typing import List
+from typing import List, Optional
 
 from fastapi import HTTPException
 
 from core.exceptions import DatabaseError, NotFoundError, ConflictError
 from core.database.models import User
 from repositories.user_repository import UserRepository
-from schemas import UserBase, UserCreate, UserUpdate
+from schemas import UserBase, UserCreate, UserUpdate, UserProfile
 
 
 logger = getLogger(__name__)
@@ -35,12 +35,11 @@ class UserService:
         Returns:
             UserBase: The user object if found, or None if not found and raise_if_none=False.
         """
-        
+
         user = await self.user_repository.get_by_auth0_id(auth0_id)
         if not user and raise_if_none:
             raise NotFoundError(f"User with auth0_id {auth0_id} not found.")
         return user
-
 
     async def register_user(self, user_data: UserCreate) -> User:
         """
@@ -55,13 +54,14 @@ class UserService:
         Raises:
         ConflictError: If a user with the same auth0_id already exists.
         """
-        
+
         existing_user = await self.user_repository.get_by_auth0_id(user_data.auth0_id)
-        
+
         if existing_user:
             logger.info("User alread registered", extra={
                         'user.id': str(existing_user.id)})
-            raise ConflictError(f"User with auth0_id {user_data.auth0_id} already registered.")
+            raise ConflictError(
+                f"User with auth0_id {user_data.auth0_id} already registered.")
 
         created_user = await self.user_repository.create(
             auth0_id=user_data.auth0_id,
@@ -69,9 +69,12 @@ class UserService:
             phone_number=user_data.phone_number,
             is_active=True
         )
-        
+
         return created_user
 
+    async def get_user_profile(self, user_id: str) -> Optional[UserProfile]:
+        user_profile = await self.get_user_profile(user_id)
+        return user_profile
 
     async def update_user_profile(
         self,

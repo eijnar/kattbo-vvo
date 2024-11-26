@@ -4,10 +4,12 @@ from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload
 
 from repositories.base_repository import BaseRepository
-from core.database.models import User
+from core.database.models import User, UserHuntingYearAssignment, UserTeamAssignment
 from core.exceptions import NotFoundError, DatabaseError
+from schemas import UserProfile
 
 
 logger = getLogger(__name__)
@@ -104,3 +106,60 @@ class UserRepository(BaseRepository[User]):
         """
         await self.delete(user)
         logger.info(f"Soft deleted user with ID {user.id}.")
+        
+    async def get_user_profile(self, user_id: str) -> Optional[UserProfile]:
+        stmt = (
+            select(User)
+            .options(
+                joinedload(User.hunting_year_assignments)
+                    .joinedload(UserHuntingYearAssignment.hunting_year),
+                joinedload(User.user_team_assignments)
+                    .joinedload(UserTeamAssignment.team)
+            )
+            .where(User.id == user_id)
+        )
+        
+        result = await self.db_session.execute(stmt)
+        user = result.scalars().first()
+        
+        if not user:
+            return None
+        
+        # Identify the current hunting year
+        current_assignment = next(
+            (assignment for assignment in user.hunting_year_assignments if assignment.hunting_year.is_current),
+            None
+        )
+        
+        if current_assignment:
+            hunting_year = current_assignment.hunting_year
+            # Find the team assigned for the current hunting year
+            assigned_team = next(
+                (ta.team for ta in user.user_team_assignments if ta.team.hunting_year_id == hunting_year.id),
+                None
+            )
+        else:
+            hunting_year = None
+            assigned_team = None
+
+        # Construct the UserProfile
+        user_profile = UserProfile(
+            auth0_id=user.auth0_id,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            phone_number=user.phone_number,
+            is_active=user.is_active,
+            hunting_year=HuntingYearBase(
+                id=str(hunting_year.id),
+                year=int(hunting_year.year),
+                is_current=hunting_year.is_current
+            ) if hunting_year else None,
+            assigned_team=TeamBase(
+                id=str(assigned_team.id),
+                name=assigned_team.name,
+                hunting_year_id=str(assigned_team.hunting_year_id)
+            ) if assigned_team else None
+        )
+
+        return user_profile

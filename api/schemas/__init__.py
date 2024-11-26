@@ -33,7 +33,8 @@ from .task_template import (
 from .user import (
     UserCreate,
     UserUpdate,
-    UserBase
+    UserBase,
+    UserProfile
 )
 
 from .assignment import (
