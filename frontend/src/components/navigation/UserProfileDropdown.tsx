@@ -58,7 +58,7 @@ const UserProfileDropdown: React.FC = () => {
         <ChevronUpIcon className="h-5 w-5" />
       </DropdownButton>
       <DropdownMenu className="min-w-64" anchor="top start">
-        <DropdownItem href="/my-profile">
+        <DropdownItem href="/profile">
           <UserIcon className="h-5 w-5" />
           <DropdownLabel>Min profil</DropdownLabel>
         </DropdownItem>

@@ -9,6 +9,7 @@ import { LoadingProvider } from "./contexts/LoadingContext";
 import config from "./config"
 import "./index.css";
 import 'leaflet/dist/leaflet.css';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const onRedirectCallback = (appState: any) => {
   window.history.replaceState(
@@ -20,6 +21,14 @@ const onRedirectCallback = (appState: any) => {
 
 const container = document.getElementById("root");
 const root = createRoot(container!);
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5
+    }
+  }
+})
 
 root.render(
   <React.StrictMode>
@@ -34,11 +43,13 @@ root.render(
         onRedirectCallback={onRedirectCallback}
         useRefreshTokens={config.auth.useRefreshTokens}
       >
+        <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <LoadingProvider>
             <App />
           </LoadingProvider>
         </AuthProvider>
+        </QueryClientProvider>
       </Auth0Provider>
   </React.StrictMode>
 );

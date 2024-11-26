@@ -6,10 +6,12 @@ import LoginButton from '../auth/LoginButton';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useContext } from 'react';
+import TeamSelector from '../team/TeamSelector';
 
 const LandingContent: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth0();
   const { userProfile } = useContext(AuthContext);
+
 
   if (isLoading) {
     return (
@@ -21,8 +23,10 @@ const LandingContent: React.FC = () => {
 
   return (
     <div className="flex flex-col px-4">
-      <h1 className="text-4xl font-bold mb-4">Welcome to Kattbo VVO</h1>
-      <p className="text-lg mb-8">Your platform for managing profiles securely.</p>
+      <h1 className="text-4xl font-bold mb-4">Välkommen till Kättbo Viltvårdsområde</h1>
+      <p className="text-lg mb-8">Ditt vilvårdsområde nära naturen</p>
+      <p> <TeamSelector />
+        </p>
 
       {isAuthenticated ? (
         <>

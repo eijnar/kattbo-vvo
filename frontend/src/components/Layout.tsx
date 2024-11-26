@@ -148,7 +148,7 @@ const Layout: React.FC = () => {
                 <CalendarDaysIcon className="h-5 w-5" />
                 <SidebarLabel>Händelser</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/users">
+              <SidebarItem href="/hunting_team">
                 <TicketIcon className="h-5 w-5" />
                 <SidebarLabel>Jakt</SidebarLabel>
               </SidebarItem>
