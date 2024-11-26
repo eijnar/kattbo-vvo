@@ -13,10 +13,7 @@ import {
   Label,
 } from "../catalyst/fieldset";
 import { Input } from "../catalyst/input";
-import { Text } from "../catalyst/text";
 import { Subheading } from "../catalyst/heading";
-import { Badge } from "../catalyst/badge";
-import NotificationForm from "./NotificationForm";
 
 const ProfileForm: React.FC = () => {
   const { userProfile, modifyUserProfile } = useProfile();

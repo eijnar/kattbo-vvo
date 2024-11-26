@@ -4,9 +4,6 @@ import TeamInfoCard from "../components/team/TeamInfoCard";
 import UserList from "../components/team/UserList";
 
 const TeamPage: React.FC = () => {
-  const team = {
-    name: "Hemmalaget",
-  };
 
   return (
     <div>

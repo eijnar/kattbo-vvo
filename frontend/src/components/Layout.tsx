@@ -28,15 +28,11 @@ import {
   SidebarSpacer,
 } from "./catalyst/sidebar";
 import {
-  ArrowRightStartOnRectangleIcon,
   CalendarDaysIcon,
   ChevronDownIcon,
   Cog8ToothIcon,
   DocumentIcon,
-  LightBulbIcon,
   PlusIcon,
-  ShieldCheckIcon,
-  UserIcon,
 } from "@heroicons/react/16/solid";
 import {
   Cog6ToothIcon,
@@ -70,35 +66,7 @@ const Layout: React.FC = () => {
             <NavbarItem href="/inbox" aria-label="Inbox">
               <InboxIcon className="h-5 w-5" />
             </NavbarItem>
-            <Dropdown>
-              <DropdownButton>
-                <Avatar src="/images/landing_page_bg.jpg" className="size-2"/>
-              </DropdownButton>
-              <DropdownMenu className="min-w-64" anchor="bottom end">
-                <DropdownItem href="/my-profile">
-                  <UserIcon className="h-5 w-5" />
-                  <DropdownLabel>My profile</DropdownLabel>
-                </DropdownItem>
-                <DropdownItem href="/settings">
-                  <Cog8ToothIcon className="h-5 w-5" />
-                  <DropdownLabel>Settings</DropdownLabel>
-                </DropdownItem>
-                <DropdownDivider />
-                <DropdownItem href="/privacy-policy">
-                  <ShieldCheckIcon className="h-5 w-5" />
-                  <DropdownLabel>Privacy policy</DropdownLabel>
-                </DropdownItem>
-                <DropdownItem href="/share-feedback">
-                  <LightBulbIcon className="h-5 w-5" />
-                  <DropdownLabel>Share feedback</DropdownLabel>
-                </DropdownItem>
-                <DropdownDivider />
-                <DropdownItem href="/logout">
-                  <ArrowRightStartOnRectangleIcon className="h-5 w-5" />
-                  <DropdownLabel>Sign out</DropdownLabel>
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
+            <UserProfileDropdown />
           </NavbarSection>
         </Navbar>
       }
@@ -167,8 +135,9 @@ const Layout: React.FC = () => {
             </SidebarSection>
             <SidebarSection className="max-lg:hidden">
               <SidebarHeading>Kommande händelser</SidebarHeading>
-              <SidebarItem href="/events/1">10 nov.
-              <Badge color="red">Älgjakt</Badge> 
+              <SidebarItem href="/events/1">
+                10 nov.
+                <Badge color="red">Älgjakt</Badge>
               </SidebarItem>
               <SidebarItem href="/events/2">11/11: Småvilt, hare</SidebarItem>
               <SidebarItem href="/events/3">13/11: Älgjakt</SidebarItem>
