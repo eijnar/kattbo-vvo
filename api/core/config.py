@@ -56,5 +56,9 @@ class Settings(BaseSettings):
     CERT_FILE: str
     CERT_KEY_FILE: str
     CERTIFICATE_AUTHORITY: str
+    
+    class Config:
+        env_file = '.env'
+        env_file_encoding = 'utf-8'
 
 settings = Settings()

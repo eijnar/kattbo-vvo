@@ -1,3 +1,4 @@
+from uuid import UUID
 from pydantic import BaseModel, Field, EmailStr, model_validator
 from typing import Optional
 from schemas.team import TeamBase
@@ -5,7 +6,7 @@ from schemas.hunting_year import HuntingYearBase
 
 
 class UserBase(BaseModel):
-    auth0_id: str
+    id: UUID
     email: EmailStr
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -39,3 +40,7 @@ class UserUpdate(BaseModel):
 class UserProfile(UserBase):
     hunting_year: Optional[HuntingYearBase] = None
     assigned_team: Optional[TeamBase] = None
+    
+    model_config = {
+        "from_attributes": True
+    }

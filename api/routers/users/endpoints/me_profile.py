@@ -31,7 +31,7 @@ async def get_self_profile(
     logger.info(
         "Fetching user's profile",
         extra={
-            "user.id": str(current_user.id),
+            "user.id": str(user_context.user.id),
             **request.state.http_request,  # Include request info
         })
     return current_user

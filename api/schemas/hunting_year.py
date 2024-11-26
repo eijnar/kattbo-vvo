@@ -1,9 +1,12 @@
+from uuid import UUID
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import datetime
 
 
 class HuntingYearBase(BaseModel):
-    start_year: int
+    id: UUID
+    start_date: datetime
     is_current: bool = False
     is_locked: bool = False
 

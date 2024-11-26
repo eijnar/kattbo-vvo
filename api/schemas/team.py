@@ -6,6 +6,7 @@ from schemas.common import UserRead, HuntingYearRead, WaypointRead
 
 
 class TeamBase(BaseModel):
+    id: UUID
     name: str
 
     model_config = {

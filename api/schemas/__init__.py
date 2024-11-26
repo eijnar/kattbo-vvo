@@ -10,6 +10,7 @@ from .common import (
 from .team import (
     TeamCreate,
     TeamUpdate,
+    TeamBase,
 )
 
 from .hunting_year import (

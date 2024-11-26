@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from core.exceptions import DatabaseError, NotFoundError, ConflictError
 from core.database.models import User
 from repositories.user_repository import UserRepository
-from schemas import UserBase, UserCreate, UserUpdate, UserProfile
+from schemas import UserBase, UserCreate, UserUpdate, UserProfile, HuntingYearBase, TeamBase
 
 
 logger = getLogger(__name__)
@@ -73,7 +73,38 @@ class UserService:
         return created_user
 
     async def get_user_profile(self, user_id: str) -> Optional[UserProfile]:
-        user_profile = await self.get_user_profile(user_id)
+        user = await self.user_repository.get_user_profile(user_id)
+        if not user:
+            return None
+
+        # Identify the current hunting year
+        current_assignment = next(
+            (assignment for assignment in user.hunting_year_assignments if assignment.hunting_year.is_current),
+            None
+        )
+
+        if current_assignment:
+            hunting_year = current_assignment.hunting_year
+            # Find the team assigned for the current hunting year
+            assigned_team = next(
+                (ta.team for ta in user.user_team_assignments if ta.hunting_year_id == hunting_year.id),
+                None
+)
+        else:
+            hunting_year = None
+            assigned_team = None
+
+        # Construct the UserProfile
+        user_profile = UserProfile(
+            id=user.id,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            phone_number=user.phone_number,
+            is_active=user.is_active,
+            hunting_year=hunting_year,
+            assigned_team=assigned_team,
+        )
         return user_profile
 
     async def update_user_profile(
