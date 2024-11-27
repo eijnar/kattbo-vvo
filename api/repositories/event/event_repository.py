@@ -1,12 +1,13 @@
 from logging import getLogger
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import selectinload
 from sqlalchemy.future import select
 
-from core.exceptions import DatabaseError
+from core.exceptions import DatabaseError, NotFoundError
 from repositories.base_repository import BaseRepository
 from core.database.models import Event, EventDay
 
@@ -38,3 +39,55 @@ class EventRepository(BaseRepository[Event]):
             await self.db_session.rollback()
             logger.error(f"Failed to create event and days: {e}", exc_info=True)
             raise DatabaseError(detail="Failed to create event and associated days.") from e
+        
+    async def list_events_with_days_by_date_range(
+        self,
+        start: Optional[datetime] = None,
+        end: Optional[datetime] = None,
+        limit: int = 100,
+        offset: int = 0,
+        raise_if_not_found: bool = False
+    ) -> List[Event]:
+        try:
+            logger.info(
+                "Listing Events with EventDays",
+                extra={
+                    "limit": limit,
+                    "offset": offset,
+                    "start": start,
+                    "end": end
+                }
+            )
+            # Build the base query
+            query = select(Event).options(
+                selectinload(Event.event_days)  # Eagerly load associated EventDays
+            ).where(Event.is_active == True)
+
+            # Apply date range filters on EventDays
+            if start or end:
+                # Join Event and EventDay for filtering
+                query = query.join(Event.event_days)
+                if start:
+                    query = query.where(EventDay.start_datetime >= start)
+                if end:
+                    query = query.where(EventDay.end_datetime <= end)
+                # Use distinct to avoid duplicate Events due to joins
+                query = query.distinct()
+
+            query = query.limit(limit).offset(offset)
+
+            result = await self.db_session.execute(query)
+            events = result.scalars().unique().all()
+
+            if not events and raise_if_not_found:
+                logger.info("No Event records found", extra={"count": 0})
+                raise NotFoundError(detail="No records found")
+
+            logger.info(f"Listed {len(events)} Event(s)", extra={"count": len(events)})
+            return events
+
+        except SQLAlchemyError as e:
+            logger.error(f"Failed to list Events with EventDays: {e}")
+            raise DatabaseError(
+                detail="Failed to list Events with EventDays."
+            ) from e

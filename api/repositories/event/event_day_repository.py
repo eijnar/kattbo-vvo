@@ -68,3 +68,4 @@ class EventDayRepository(BaseRepository[EventDay]):
             raise DatabaseError(
                 detail="Failed to list EventDays."
             ) from e
+

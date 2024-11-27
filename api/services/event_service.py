@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from core.exceptions import NotFoundError, ValidationError, DatabaseError
 from core.database.models import Event, EventDay, EventDayGatheringPlace
-from schemas.event.event import EventBase, EventResponse, EventCreate
+from schemas.event.event import EventResponse, EventCreate
 from repositories import (
     EventRepository,
     EventDayRepository,
@@ -47,9 +47,22 @@ class EventService:
         end: Optional[date] = None,
         limit: int = 100,
         offset: int = 0
-    ) -> List[EventBase]:
+    ) -> List[EventResponse]:
 
         events = await self.event_day_repository.list_by_date_range(limit=limit, offset=offset, start=start, end=end)
+        if not events:
+            raise NotFoundError(detail="No events found")
+        return events
+    
+    async def get_all_events_with_days(
+        self,
+        start: Optional[date] = None,
+        end: Optional[date] = None,
+        limit: int = 100,
+        offset: int = 0
+    ) -> List[EventResponse]:
+
+        events = await self.event_repository.list_events_with_days_by_date_range(limit=limit, offset=offset, start=start, end=end)
         if not events:
             raise NotFoundError(detail="No events found")
         return events

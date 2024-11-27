@@ -1,35 +1,42 @@
-from typing import List, Optional
+from typing import List, Optional, Literal, Union
 from uuid import UUID
-from datetime import date, datetime, timedelta
-from zoneinfo import ZoneInfo
+from datetime import date
 from logging import getLogger
 
 from fastapi import APIRouter, Depends, status, Response, Request
-from icalendar import Calendar, Event as ICalEvent, vCalAddress, vText, vGeo, vRecur
-from shapely.geometry import Point
 
 from core.dependencies import get_event_service
-from schemas.event.event import EventCreate, EventCreateResponse, EventDayResponse
+from schemas.event.event import EventCreate, EventCreateResponse, EventDayResponse, GroupedEventResponse
 from services.event_service import EventService
 from utils.generate_ical import generate_ical
 
 logger = getLogger(__name__)
 router = APIRouter()
 
-@router.get("/", response_model=List[EventDayResponse])
+@router.get("/", response_model=Union[List[GroupedEventResponse], List[EventDayResponse]])
 async def get_events_json(
     start: Optional[date] = None,
     end: Optional[date] = None,
     limit: int = 100,
     offset: int = 0,
-    event_service: EventService = Depends(get_event_service)
+    event_service: EventService = Depends(get_event_service),
+    format: Literal["flattened", "grouped"] = "grouped"
 ):
     """
     This route will list events for FullCalendar required JSON format
     """
     
-    event_days = await event_service.get_all_event_days(limit=limit, offset=offset, start=start, end=end)
-    return event_days
+    if format == 'grouped':
+        events = await event_service.get_all_events_with_days(limit=limit, offset=offset, start=start, end=end)
+        logger.debug(f"grouped: {events}")
+        return events
+    
+    elif format == 'flattened':
+        event_days = await event_service.get_all_event_days(limit=limit, offset=offset, start=start, end=end)
+        logger.debug(f"flattened: {event_days}")
+        return event_days
+    
+    
 
 
 @router.get("/ical.ics")

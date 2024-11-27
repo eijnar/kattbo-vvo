@@ -18,7 +18,7 @@ class Event(Base, TrackingMixin, SoftDeleteMixin):
     event_category_id = Column(UUID(as_uuid=True), ForeignKey('event_categories.id'), nullable=False)
     
     event_category = relationship('EventCategory', back_populates='events', lazy='selectin')
-    event_days = relationship('EventDay', back_populates='event', cascade='all,delete', order_by=asc(EventDay.start_datetime),)
+    event_days = relationship('EventDay', back_populates='event', cascade='all,delete', order_by=asc(EventDay.start_datetime), lazy='selectin')
     creator = relationship('User', back_populates='events', lazy='selectin')
     
     @property

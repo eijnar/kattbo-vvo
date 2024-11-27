@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useContext } from 'react';
 import TeamSelector from '../team/TeamSelector';
+import CreateEventForm from '../event/EventCreate';
 
 const LandingContent: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -35,6 +36,9 @@ const LandingContent: React.FC = () => {
               <p className="text-gray-700">
                 Hello, {userProfile.first_name || userProfile.email}!
               </p>
+              <p> Skapa ett event: Skapa ett event:
+              <CreateEventForm />
+            </p>
             </div>
           )}
           <div className="mt-4">
@@ -44,6 +48,8 @@ const LandingContent: React.FC = () => {
             >
               Go to Profile
             </Link>
+
+           
           </div>
         </>
       ) : (

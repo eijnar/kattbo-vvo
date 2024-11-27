@@ -6,16 +6,6 @@ from datetime import datetime, date
 from schemas.event.event_day_gathering_place import EventDayGatheringPlace
 
 
-class EventBase(BaseModel):
-    id: UUID
-    name: str
-    creator_id: UUID
-    event_category_id: UUID
-    category: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class EventResponse(BaseModel):
     id: UUID
     name: str
@@ -25,11 +15,6 @@ class EventResponse(BaseModel):
     category: str
 
     model_config = ConfigDict(from_attributes=True)
-
-
-class EventList(EventBase):
-    event: EventBase
-    days_count: int
 
 
 class EventDayBase(BaseModel):
@@ -42,9 +27,21 @@ class EventDayBase(BaseModel):
 
 
 class EventDayResponse(EventDayBase):
-    event_day_gathering_places: List[EventDayGatheringPlace]
     event: EventResponse
+    event_day_gathering_places: List[EventDayGatheringPlace]
+
+    model_config = ConfigDict(from_attributes=True)
     
+class EventDayGroupResponse(EventDayBase):
+    event_day_gathering_places: List[EventDayGatheringPlace]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class EventCreateResponse(BaseModel):
+    event: EventResponse
+    days: List[EventDayBase]
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -64,13 +61,6 @@ class EventDayCreate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class EventCreateResponse(BaseModel):
-    event: EventResponse
-    days: List[EventDayResponse]
-
-    model_config = ConfigDict(from_attributes=True)
-
-
 class EventCreate(BaseModel):
     name: str = Field(..., example="Helgjakt")
     event_category_id: UUID = Field(...,
@@ -78,5 +68,11 @@ class EventCreate(BaseModel):
     days: List[EventDayCreate] = Field(..., min_items=1)
     creator_id: UUID = Field(...,
                              example="223e4567-e89b-12d3-a456-426614174001")
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class GroupedEventResponse(EventResponse):
+    event_days: List[EventDayGroupResponse]
 
     model_config = ConfigDict(from_attributes=True)

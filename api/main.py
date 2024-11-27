@@ -77,7 +77,7 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def startup_event():
     #     # Create database tables
-    #     await create_tables()
+         #await create_tables()
          await init_redis_pools()
 
     return app
