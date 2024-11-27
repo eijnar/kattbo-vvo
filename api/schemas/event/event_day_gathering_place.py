@@ -13,8 +13,8 @@ class EventDayGatheringPlace(BaseModel):
 
     @computed_field
     @property
-    def id(self) -> UUID:
-        return self.gathering_place.id
+    def name(self) -> UUID:
+        return self.gathering_place.name
 
     @computed_field
     @property
