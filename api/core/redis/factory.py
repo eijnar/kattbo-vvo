@@ -40,6 +40,11 @@ class RedisFactory:
             raise ValueError(f"No Redis pool found for '{name}'")
         logger.debug(f"Retrieved Redis pool '{name}'.")
         return pool
+    
+    async def close_redis_pools(self):
+        for name, pool in self.redis_pools.items():
+            await pool.close()
+            logger.debug(f"Redis pool '{name}' closed.")
 
 redis_factory = RedisFactory()
 

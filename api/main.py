@@ -1,4 +1,5 @@
 from logging import getLogger
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +15,7 @@ from core.config import settings
 from core.database.base import create_tables
 from core.logger.setup import setup_logging, apm_client
 from utils.rate_limiter import limiter
-from core.redis.factory import init_redis_pools
+from core.redis.factory import init_redis_pools, redis_factory
 from core.exceptions_handlers import (
     base_app_exception_handler,
     sqlalchemy_exception_handler,
@@ -29,9 +30,18 @@ logger = getLogger(__name__)
 def create_app() -> FastAPI:
     setup_logging()
 
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        # Startup logic
+        await init_redis_pools()
+        yield
+        # Shutdown logic
+        await redis_factory.close_redis_pools()
+
     app = FastAPI(
         title=settings.APP_NAME,
-        version="1.1"
+        version="1.1",
+        lifespan=lifespan
         )
 
     app.add_middleware(LoggingMiddleware)
@@ -71,14 +81,6 @@ def create_app() -> FastAPI:
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-    # celery_app = make_celery(app)
-    # app.celery_app = celery_app
-
-    @app.on_event("startup")
-    async def startup_event():
-    #     # Create database tables
-         #await create_tables()
-         await init_redis_pools()
 
     return app
 
