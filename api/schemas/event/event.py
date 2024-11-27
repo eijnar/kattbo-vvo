@@ -21,6 +21,7 @@ class EventDayBase(BaseModel):
     id: UUID
     start_datetime: datetime
     end_datetime: datetime
+    registration_count: int
     cancelled: bool
 
     model_config = ConfigDict(from_attributes=True)

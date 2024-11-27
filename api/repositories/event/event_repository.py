@@ -4,8 +4,9 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, with_loader_criteria
 from sqlalchemy.future import select
+from sqlalchemy import and_, exists
 
 from core.exceptions import DatabaseError, NotFoundError
 from repositories.base_repository import BaseRepository
@@ -13,6 +14,7 @@ from core.database.models import Event, EventDay
 
 
 logger = getLogger(__name__)
+
 
 class EventRepository(BaseRepository[Event]):
 
@@ -26,7 +28,8 @@ class EventRepository(BaseRepository[Event]):
             await self.db_session.commit()
 
             query = select(Event).options(
-                selectinload(Event.event_days).selectinload(EventDay.event_day_gathering_places)
+                selectinload(Event.event_days).selectinload(
+                    EventDay.event_day_gathering_places)
             ).where(Event.id == event_data.id)
             result = await self.db_session.execute(query)
             event = result.scalar_one()
@@ -34,12 +37,14 @@ class EventRepository(BaseRepository[Event]):
             logger.debug(f"Event fetched with relationships: {event}")
 
             return event
-        
+
         except SQLAlchemyError as e:
             await self.db_session.rollback()
-            logger.error(f"Failed to create event and days: {e}", exc_info=True)
-            raise DatabaseError(detail="Failed to create event and associated days.") from e
-        
+            logger.error(
+                f"Failed to create event and days: {e}", exc_info=True)
+            raise DatabaseError(
+                detail="Failed to create event and associated days.") from e
+
     async def list_events_with_days_by_date_range(
         self,
         start: Optional[datetime] = None,
@@ -58,21 +63,25 @@ class EventRepository(BaseRepository[Event]):
                     "end": end
                 }
             )
-            # Build the base query
-            query = select(Event).options(
-                selectinload(Event.event_days)  # Eagerly load associated EventDays
-            ).where(Event.is_active == True)
 
-            # Apply date range filters on EventDays
-            if start or end:
-                # Join Event and EventDay for filtering
-                query = query.join(Event.event_days)
-                if start:
-                    query = query.where(EventDay.start_datetime >= start)
-                if end:
-                    query = query.where(EventDay.end_datetime <= end)
-                # Use distinct to avoid duplicate Events due to joins
-                query = query.distinct()
+            query = select(Event).options(with_loader_criteria(
+                EventDay, EventDay.is_active == True)).where(Event.is_active == True)
+
+            event_day_conditions = [EventDay.is_active == True]
+            if start:
+                event_day_conditions.append(EventDay.start_datetime >= start)
+            if end:
+                event_day_conditions.append(EventDay.end_datetime <= end)
+
+            # Update the exists clause to include date filters
+            query = query.where(
+                exists(
+                    select(EventDay.id).where(
+                        EventDay.event_id == Event.id,
+                        and_(*event_day_conditions)
+                    )
+                )
+            )
 
             query = query.limit(limit).offset(offset)
 
@@ -83,7 +92,8 @@ class EventRepository(BaseRepository[Event]):
                 logger.info("No Event records found", extra={"count": 0})
                 raise NotFoundError(detail="No records found")
 
-            logger.info(f"Listed {len(events)} Event(s)", extra={"count": len(events)})
+            logger.info(f"Listed {len(events)} Event(s)",
+                        extra={"count": len(events)})
             return events
 
         except SQLAlchemyError as e:

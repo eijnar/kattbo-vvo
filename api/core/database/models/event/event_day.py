@@ -2,6 +2,8 @@ from uuid import uuid4
 
 from sqlalchemy import UUID, Column, ForeignKey, Integer, DateTime, Boolean
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import func, select
 
 from core.database.base import Base
 from core.database.mixins import TrackingMixin, SoftDeleteMixin
@@ -26,3 +28,16 @@ class EventDay(Base, TrackingMixin, SoftDeleteMixin):
 
     event_day_gathering_places = relationship(
         'EventDayGatheringPlace', back_populates='event_day', lazy='selectin', cascade='all, delete-orphan')
+
+    @hybrid_property
+    def registration_count(self):
+        return len(self.user_events)
+
+    @registration_count.expression
+    def registration_count(cls):
+        return (
+            select(func.count('UserEventRegistration.id'))
+            .where('UserEventRegistration.event_day_id' == cls.id)
+            .correlate(cls)
+            .scalar_subquery()
+        )
