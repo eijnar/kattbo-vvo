@@ -112,7 +112,7 @@ const Layout: React.FC = () => {
                 <HomeIcon className="h-5 w-5" />
                 <SidebarLabel>Hem</SidebarLabel>
               </SidebarItem>
-              <SidebarItem href="/events">
+              <SidebarItem href="/event">
                 <CalendarDaysIcon className="h-5 w-5" />
                 <SidebarLabel>Händelser</SidebarLabel>
               </SidebarItem>

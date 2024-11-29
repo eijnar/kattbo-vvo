@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import Layout from "./components/Layout";
 import Map from "./components/map/Map";
 import TeamPage from "./pages/TeamPage";
+import EventListPage from "./pages/EventList";
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ const App: React.FC = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/hunting_team" element={<TeamPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/event" element={<EventListPage />} />
           <Route path="/map" element={<Map />} />
           <Route path="/api-keys" element={<CreateApiKey />} />
           <Route

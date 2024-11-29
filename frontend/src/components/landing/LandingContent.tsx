@@ -8,6 +8,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { useContext } from 'react';
 import TeamSelector from '../team/TeamSelector';
 import CreateEventForm from '../event/EventCreate';
+import Spinner from '../common/Spinner';
 
 const LandingContent: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth0();
@@ -16,8 +17,8 @@ const LandingContent: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-xl">Loading...</div>
+      <div className="flex justify-center items-center h-screen">
+        <Spinner size="lg" color="text-blue-500" />
       </div>
     );
   }
